@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../data/models/dashboard_data.dart';
 import '../../data/repositories/dashboard_repository.dart';
 import '../bloc/dashboard_cubit.dart';
 
@@ -20,377 +21,271 @@ class _DashboardView extends StatelessWidget {
   const _DashboardView();
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        backgroundColor: const Color(0xFFF5F7FA),
-        body: BlocBuilder<DashboardCubit, DashboardState>(
-          builder: (context, state) {
-            if (state is DashboardLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+  Widget build(BuildContext context) =>
+      BlocBuilder<DashboardCubit, DashboardState>(
+        builder: (context, state) {
+          if (state is DashboardLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            if (state is DashboardError) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
-                    const SizedBox(height: 16),
-                    Text('Error: ${state.message}'),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () =>
-                          context.read<DashboardCubit>().loadDashboard(),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              );
-            }
+          if (state is DashboardError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+                  const SizedBox(height: 16),
+                  Text('Error: ${state.message}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () =>
+                        context.read<DashboardCubit>().loadDashboard(),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
 
-            // final data = state is DashboardLoaded ? state.data : null;
+          final data = state is DashboardLoaded ? state.data : null;
+          final stats = data?.stats ?? DashboardStats.empty();
 
-            return SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Page Header
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            _HeaderButton(
-                              icon: Icons.menu_rounded,
-                              onPressed: () {
-                                Scaffold.of(context).openDrawer();
-                              },
-                              tooltip: 'Menu',
-                            ),
-                            const SizedBox(width: 16),
-                            const Expanded(
-                              child: Text(
-                                'Dashboard',
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF1A1A2E),
-                                  letterSpacing: -0.5,
-                                ),
+          return SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Page Header
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          _HeaderButton(
+                            icon: Icons.menu_rounded,
+                            onPressed: () {
+                              Scaffold.of(context).openDrawer();
+                            },
+                            tooltip: 'Menu',
+                          ),
+                          const SizedBox(width: 16),
+                          const Expanded(
+                            child: Text(
+                              'Dashboard',
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF1A1A2E),
+                                letterSpacing: -0.5,
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Today\'s overview • ${_formatDate(DateTime.now())}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF6B7280),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          _HeaderButton(
+                            icon: Icons.refresh_rounded,
+                            onPressed: () {
+                              context.read<DashboardCubit>().refreshDashboard();
+                            },
+                            tooltip: 'Refresh',
+                          ),
+                          const SizedBox(width: 8),
+                          _HeaderButton(
+                            icon: Icons.notifications_rounded,
+                            onPressed: () {},
+                            tooltip: 'Notifications',
+                            badge: 3,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Quick Stats
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final crossAxisCount = constraints.maxWidth > 1200
+                          ? 4
+                          : constraints.maxWidth > 800
+                              ? 2
+                              : 1;
+                      const spacing = 16.0;
+                      final itemWidth = (constraints.maxWidth -
+                              (spacing * (crossAxisCount - 1))) /
+                          crossAxisCount;
+
+                      return Wrap(
+                        spacing: spacing,
+                        runSpacing: spacing,
+                        children: [
+                          SizedBox(
+                            width: itemWidth,
+                            child: _StatCard(
+                              label: 'Today\'s Sessions',
+                              value: '${stats.todaySessions}',
+                              icon: Icons.access_time_rounded,
+                              color: const Color(0xFF6366F1),
+                              trend: stats.todaySessions > 0
+                                  ? '+${stats.todaySessions}'
+                                  : '0',
+                              trendUp: stats.todaySessions > 0,
+                            ),
+                          ),
+                          SizedBox(
+                            width: itemWidth,
+                            child: _StatCard(
+                              label: 'Active Job Cards',
+                              value: '${stats.activeJobCards}',
+                              icon: Icons.build_rounded,
+                              color: const Color(0xFF8B5CF6),
+                              trend: stats.activeJobCards > 0
+                                  ? '+${stats.activeJobCards}'
+                                  : '0',
+                              trendUp: stats.activeJobCards > 0,
+                            ),
+                          ),
+                          SizedBox(
+                            width: itemWidth,
+                            child: _StatCard(
+                              label: 'Pending Appointments',
+                              value: '${stats.pendingAppointments}',
+                              icon: Icons.calendar_today_rounded,
+                              color: const Color(0xFFF59E0B),
+                              trend: stats.pendingAppointments > 0
+                                  ? '${stats.pendingAppointments}'
+                                  : '0',
+                              trendUp: false,
+                            ),
+                          ),
+                          SizedBox(
+                            width: itemWidth,
+                            child: _StatCard(
+                              label: 'Cars In Garage',
+                              value: '${stats.carsInGarage}',
+                              icon: Icons.directions_car_rounded,
+                              color: const Color(0xFF10B981),
+                              trend: stats.carsInGarage > 0
+                                  ? '+${stats.carsInGarage}'
+                                  : '0',
+                              trendUp: stats.carsInGarage > 0,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Today's Schedule and Active Job Cards
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxWidth > 900) {
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: Text(
-                                'Today\'s overview • ${_formatDate(DateTime.now())}',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF6B7280),
+                              child: _SectionCard(
+                                title: 'Today\'s Schedule',
+                                subtitle: stats.pendingAppointments > 0
+                                    ? '${stats.pendingAppointments} appointments'
+                                    : 'No appointments',
+                                child: const _EmptyState(
+                                  icon: Icons.calendar_today_rounded,
+                                  message:
+                                      'No appointments scheduled for today',
+                                  description:
+                                      'Appointments will appear here when available',
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            _HeaderButton(
-                              icon: Icons.refresh_rounded,
-                              onPressed: () {
-                                context
-                                    .read<DashboardCubit>()
-                                    .refreshDashboard();
-                              },
-                              tooltip: 'Refresh',
-                            ),
-                            const SizedBox(width: 8),
-                            _HeaderButton(
-                              icon: Icons.notifications_rounded,
-                              onPressed: () {},
-                              tooltip: 'Notifications',
-                              badge: 3,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Quick Stats
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        final crossAxisCount = constraints.maxWidth > 1200
-                            ? 4
-                            : constraints.maxWidth > 800
-                                ? 2
-                                : 1;
-                        const spacing = 16.0;
-                        final itemWidth = (constraints.maxWidth -
-                                (spacing * (crossAxisCount - 1))) /
-                            crossAxisCount;
-
-                        return Wrap(
-                          spacing: spacing,
-                          runSpacing: spacing,
-                          children: [
-                            SizedBox(
-                              width: itemWidth,
-                              child: const _StatCard(
-                                label: 'Today\'s Sessions',
-                                value: '12',
-                                icon: Icons.access_time_rounded,
-                                color: Color(0xFF6366F1),
-                                trend: '+12%',
-                                trendUp: true,
-                              ),
-                            ),
-                            SizedBox(
-                              width: itemWidth,
-                              child: const _StatCard(
-                                label: 'Active Job Cards',
-                                value: '8',
-                                icon: Icons.build_rounded,
-                                color: Color(0xFF8B5CF6),
-                                trend: '+5%',
-                                trendUp: true,
-                              ),
-                            ),
-                            SizedBox(
-                              width: itemWidth,
-                              child: const _StatCard(
-                                label: 'Pending Appointments',
-                                value: '5',
-                                icon: Icons.calendar_today_rounded,
-                                color: Color(0xFFF59E0B),
-                                trend: '-3%',
-                                trendUp: false,
-                              ),
-                            ),
-                            SizedBox(
-                              width: itemWidth,
-                              child: const _StatCard(
-                                label: 'Cars In Garage',
-                                value: '15',
-                                icon: Icons.directions_car_rounded,
-                                color: Color(0xFF10B981),
-                                trend: '+8%',
-                                trendUp: true,
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: _SectionCard(
+                                title: 'Active Job Cards',
+                                subtitle: stats.activeJobCards > 0
+                                    ? '${stats.activeJobCards} in progress'
+                                    : 'No active jobs',
+                                child: const _EmptyState(
+                                  icon: Icons.build_rounded,
+                                  message: 'No active job cards',
+                                  description:
+                                      'Job cards will appear here when created',
+                                ),
                               ),
                             ),
                           ],
                         );
-                      },
+                      } else {
+                        return Column(
+                          children: [
+                            _SectionCard(
+                              title: 'Today\'s Schedule',
+                              subtitle: stats.pendingAppointments > 0
+                                  ? '${stats.pendingAppointments} appointments'
+                                  : 'No appointments',
+                              child: const _EmptyState(
+                                icon: Icons.calendar_today_rounded,
+                                message: 'No appointments scheduled for today',
+                                description:
+                                    'Appointments will appear here when available',
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            _SectionCard(
+                              title: 'Active Job Cards',
+                              subtitle: stats.activeJobCards > 0
+                                  ? '${stats.activeJobCards} in progress'
+                                  : 'No active jobs',
+                              child: const _EmptyState(
+                                icon: Icons.build_rounded,
+                                message: 'No active job cards',
+                                description:
+                                    'Job cards will appear here when created',
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Alerts
+                  const _SectionCard(
+                    title: 'Attention Required',
+                    subtitle: 'All clear',
+                    child: _EmptyState(
+                      icon: Icons.check_circle_outline_rounded,
+                      message: 'All caught up!',
+                      description:
+                          'No items require your attention at the moment',
                     ),
-
-                    const SizedBox(height: 24),
-
-                    // Today's Schedule and Active Job Cards
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        if (constraints.maxWidth > 900) {
-                          return const Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: _SectionCard(
-                                  title: 'Today\'s Schedule',
-                                  subtitle: '3 appointments',
-                                  child: Column(
-                                    children: [
-                                      _ScheduleItem(
-                                        time: '09:00 AM',
-                                        clientName: 'John Doe',
-                                        vehicle: 'Toyota Camry',
-                                        plate: 'ABC123',
-                                        status: 'Confirmed',
-                                        statusColor: Color(0xFF10B981),
-                                      ),
-                                      Divider(height: 1, thickness: 1),
-                                      _ScheduleItem(
-                                        time: '10:30 AM',
-                                        clientName: 'Jane Smith',
-                                        vehicle: 'Honda Civic',
-                                        plate: 'XYZ789',
-                                        status: 'Pending',
-                                        statusColor: Color(0xFFF59E0B),
-                                      ),
-                                      Divider(height: 1, thickness: 1),
-                                      _ScheduleItem(
-                                        time: '02:00 PM',
-                                        clientName: 'Mike Johnson',
-                                        vehicle: 'Ford F-150',
-                                        plate: 'DEF456',
-                                        status: 'In Progress',
-                                        statusColor: Color(0xFF6366F1),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: _SectionCard(
-                                  title: 'Active Job Cards',
-                                  subtitle: '8 in progress',
-                                  child: Column(
-                                    children: [
-                                      _JobCardRow(
-                                        jobNumber: '#J001',
-                                        clientName: 'Sarah Williams',
-                                        vehicle: 'BMW X5',
-                                        status: 'In Progress',
-                                        mechanic: 'Alex Brown',
-                                        progress: 0.7,
-                                        statusColor: Color(0xFF6366F1),
-                                      ),
-                                      Divider(height: 1, thickness: 1),
-                                      _JobCardRow(
-                                        jobNumber: '#J002',
-                                        clientName: 'Tom Davis',
-                                        vehicle: 'Mercedes C300',
-                                        status: 'Waiting Parts',
-                                        mechanic: 'Chris Lee',
-                                        progress: 0.4,
-                                        statusColor: Color(0xFFF59E0B),
-                                      ),
-                                      Divider(height: 1, thickness: 1),
-                                      _JobCardRow(
-                                        jobNumber: '#J003',
-                                        clientName: 'Emily Chen',
-                                        vehicle: 'Audi A4',
-                                        status: 'Quality Check',
-                                        mechanic: 'David Kim',
-                                        progress: 0.9,
-                                        statusColor: Color(0xFF8B5CF6),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        } else {
-                          return const Column(
-                            children: [
-                              _SectionCard(
-                                title: 'Today\'s Schedule',
-                                subtitle: '3 appointments',
-                                child: Column(
-                                  children: [
-                                    _ScheduleItem(
-                                      time: '09:00 AM',
-                                      clientName: 'John Doe',
-                                      vehicle: 'Toyota Camry',
-                                      plate: 'ABC123',
-                                      status: 'Confirmed',
-                                      statusColor: Color(0xFF10B981),
-                                    ),
-                                    Divider(height: 1, thickness: 1),
-                                    _ScheduleItem(
-                                      time: '10:30 AM',
-                                      clientName: 'Jane Smith',
-                                      vehicle: 'Honda Civic',
-                                      plate: 'XYZ789',
-                                      status: 'Pending',
-                                      statusColor: Color(0xFFF59E0B),
-                                    ),
-                                    Divider(height: 1, thickness: 1),
-                                    _ScheduleItem(
-                                      time: '02:00 PM',
-                                      clientName: 'Mike Johnson',
-                                      vehicle: 'Ford F-150',
-                                      plate: 'DEF456',
-                                      status: 'In Progress',
-                                      statusColor: Color(0xFF6366F1),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: 16),
-                              _SectionCard(
-                                title: 'Active Job Cards',
-                                subtitle: '8 in progress',
-                                child: Column(
-                                  children: [
-                                    _JobCardRow(
-                                      jobNumber: '#J001',
-                                      clientName: 'Sarah Williams',
-                                      vehicle: 'BMW X5',
-                                      status: 'In Progress',
-                                      mechanic: 'Alex Brown',
-                                      progress: 0.7,
-                                      statusColor: Color(0xFF6366F1),
-                                    ),
-                                    Divider(height: 1, thickness: 1),
-                                    _JobCardRow(
-                                      jobNumber: '#J002',
-                                      clientName: 'Tom Davis',
-                                      vehicle: 'Mercedes C300',
-                                      status: 'Waiting Parts',
-                                      mechanic: 'Chris Lee',
-                                      progress: 0.4,
-                                      statusColor: Color(0xFFF59E0B),
-                                    ),
-                                    Divider(height: 1, thickness: 1),
-                                    _JobCardRow(
-                                      jobNumber: '#J003',
-                                      clientName: 'Emily Chen',
-                                      vehicle: 'Audi A4',
-                                      status: 'Quality Check',
-                                      mechanic: 'David Kim',
-                                      progress: 0.9,
-                                      statusColor: Color(0xFF8B5CF6),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Alerts
-                    const _SectionCard(
-                      title: 'Attention Required',
-                      subtitle: '6 items',
-                      child: Column(
-                        children: [
-                          _AlertItem(
-                            icon: Icons.warning_rounded,
-                            message: '2 jobs waiting for approval',
-                            action: 'Review',
-                            color: Color(0xFFF59E0B),
-                          ),
-                          Divider(height: 1, thickness: 1),
-                          _AlertItem(
-                            icon: Icons.error_rounded,
-                            message: '1 overdue job card',
-                            action: 'View',
-                            color: Color(0xFFEF4444),
-                          ),
-                          Divider(height: 1, thickness: 1),
-                          _AlertItem(
-                            icon: Icons.inventory_rounded,
-                            message: '3 items low in inventory',
-                            action: 'Check',
-                            color: Color(0xFFF59E0B),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       );
 
   static String _formatDate(DateTime date) {
@@ -933,6 +828,60 @@ class _AlertItem extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      );
+}
+
+// Empty state widget for sections without data
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({
+    required this.icon,
+    required this.message,
+    required this.description,
+  });
+
+  final IconData icon;
+  final String message;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF6366F1).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                icon,
+                size: 40,
+                color: const Color(0xFF6366F1).withOpacity(0.6),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1A1A2E),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              description,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF6B7280),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       );
 }
