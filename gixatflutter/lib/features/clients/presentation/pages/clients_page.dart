@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../data/datasources/clients_remote_data_source.dart';
+import '../../data/repositories/clients_repository.dart';
+import '../bloc/clients_cubit.dart';
 import '../widgets/create_customer_form.dart';
 
 class ClientsPage extends StatelessWidget {
   const ClientsPage({Key? key}) : super(key: key);
 
   void _showCreateCustomerForm(BuildContext context) {
-    // Get the GraphQL client from the current context to pass to the new route
-    final clientNotifier = GraphQLProvider.of(context);
-    
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => GraphQLProvider(
-          client: clientNotifier,
+        builder: (context) => BlocProvider(
+          create: (context) => ClientsCubit(
+            clientsRepository: ClientsRepository(
+              remoteDataSource: ClientsRemoteDataSource(),
+            ),
+          ),
           child: const CreateCustomerForm(),
         ),
         fullscreenDialog: true,

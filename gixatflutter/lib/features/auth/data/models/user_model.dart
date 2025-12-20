@@ -42,3 +42,22 @@ class AuthResponse extends Equatable {
   @override
   List<Object?> get props => [token, user];
 }
+
+class UserInfo extends Equatable {
+  const UserInfo({
+    required this.id,
+    required this.email,
+    this.fullName,
+    this.organizationId,
+    this.organizationName,
+  });
+
+  final String id;
+  final String email;
+  final String? fullName;
+  final String? organizationId;
+  final String? organizationName;
+
+  @override
+  List<Object?> get props => [id, email, fullName, organizationId, organizationName];
+}

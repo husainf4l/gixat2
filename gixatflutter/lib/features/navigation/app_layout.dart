@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import '../clients/data/repositories/clients_repository.dart';
+import '../clients/presentation/bloc/clients_cubit.dart';
 import '../clients/presentation/widgets/create_customer_form.dart';
 
 class AppLayout extends StatelessWidget {
@@ -51,9 +53,6 @@ class AppLayout extends StatelessWidget {
   }
 
   void _showAddOptions(BuildContext context) {
-    // Capture the GraphQL client from the outer context before showing the modal
-    final clientNotifier = GraphQLProvider.of(context);
-    
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -101,12 +100,14 @@ class AppLayout extends StatelessWidget {
               label: 'New Client',
               onTap: () {
                 Navigator.pop(modalContext);
-                // Use the captured GraphQL client from the outer context
+                // Provide ClientsCubit for the form
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => GraphQLProvider(
-                      client: clientNotifier,
+                    builder: (context) => BlocProvider(
+                      create: (context) => ClientsCubit(
+                        clientsRepository: ClientsRepository(),
+                      ),
                       child: const CreateCustomerForm(),
                     ),
                     fullscreenDialog: true,

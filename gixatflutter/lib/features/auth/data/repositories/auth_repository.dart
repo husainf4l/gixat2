@@ -1,15 +1,18 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-import '../../../../core/graphql/auth_queries.dart';
-import '../../../../core/graphql/graphql_client.dart';
 import '../../../../core/storage/secure_storage_service.dart';
+import '../datasources/auth_remote_data_source.dart';
 import '../models/user_model.dart';
 
 class AuthRepository {
   AuthRepository({
     required SecureStorageService storage,
-  }) : _storage = storage;
+    AuthRemoteDataSource? authRemoteDataSource,
+  })  : _storage = storage,
+        _authRemoteDataSource = authRemoteDataSource ?? AuthRemoteDataSource();
+
   final SecureStorageService _storage;
+  final AuthRemoteDataSource _authRemoteDataSource;
 
   /// Login with email and password using GraphQL
   Future<AuthResponse> login({
@@ -17,30 +20,10 @@ class AuthRepository {
     required String password,
   }) async {
     try {
-      final client = await GraphQLConfig.getClient(withAuth: false);
-
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(loginMutation),
-          variables: {
-            'email': email,
-            'password': password,
-          },
-        ),
+      final data = await _authRemoteDataSource.login(
+        email: email,
+        password: password,
       );
-
-      if (result.hasException) {
-        throw _handleGraphQLException(result.exception!);
-      }
-
-      final data = result.data?['login'];
-      if (data == null) {
-        throw Exception('Login failed: No data returned');
-      }
-
-      if (data['error'] != null) {
-        throw Exception(data['error']);
-      }
 
       final token = data['token'] as String?;
       if (token == null) {
@@ -65,6 +48,9 @@ class AuthRepository {
 
       return AuthResponse(token: token, user: user);
     } catch (e) {
+      if (e is OperationException) {
+        throw _handleGraphQLException(e);
+      }
       throw Exception('Login failed: ${e.toString()}');
     }
   }
@@ -76,33 +62,11 @@ class AuthRepository {
     required String password,
   }) async {
     try {
-      final client = await GraphQLConfig.getClient(withAuth: false);
-
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(registerMutation),
-          variables: {
-            'email': email,
-            'password': password,
-            'fullName': ownerName,
-            'role': 'OWNER',
-            'userType': 'ORGANIZATIONAL',
-          },
-        ),
+      final data = await _authRemoteDataSource.register(
+        ownerName: ownerName,
+        email: email,
+        password: password,
       );
-
-      if (result.hasException) {
-        throw _handleGraphQLException(result.exception!);
-      }
-
-      final data = result.data?['register'];
-      if (data == null) {
-        throw Exception('Registration failed: No data returned');
-      }
-
-      if (data['error'] != null) {
-        throw Exception(data['error']);
-      }
 
       final token = data['token'] as String?;
       if (token == null) {
@@ -127,6 +91,9 @@ class AuthRepository {
 
       return AuthResponse(token: token, user: user);
     } catch (e) {
+      if (e is OperationException) {
+        throw _handleGraphQLException(e);
+      }
       throw Exception('Registration failed: ${e.toString()}');
     }
   }
@@ -139,18 +106,33 @@ class AuthRepository {
         return false;
       }
 
-      final client = await GraphQLConfig.getClient(withAuth: true);
-
-      final result = await client.query(
-        QueryOptions(
-          document: gql(meQuery),
-          fetchPolicy: FetchPolicy.networkOnly,
-        ),
-      );
-
-      return !result.hasException && result.data?['me'] != null;
+      return await _authRemoteDataSource.isTokenValid();
     } on Exception {
       return false;
+    }
+  }
+
+  /// Get current user info including organizationId
+  Future<UserInfo?> getCurrentUser() async {
+    try {
+      final token = await _storage.getToken();
+      if (token == null) {
+        return null;
+      }
+
+      final data = await _authRemoteDataSource.getCurrentUser();
+      return UserInfo(
+        id: data['id'].toString(),
+        email: data['email'] as String,
+        fullName: data['fullName'] as String?,
+        organizationId: data['organizationId'] as String?,
+        organizationName: data['organizationName'] as String?,
+      );
+    } catch (e) {
+      if (e is OperationException) {
+        throw _handleGraphQLException(e);
+      }
+      return null;
     }
   }
 
@@ -172,36 +154,21 @@ class AuthRepository {
     required String phoneCountryCode,
   }) async {
     try {
-      final client = await GraphQLConfig.getClient(withAuth: true);
-
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(createOrganizationMutation),
-          variables: {
-            'input': {
-              'name': name,
-              'country': country,
-              'city': city,
-              'street': street,
-              'phoneCountryCode': phoneCountryCode,
-            },
-          },
-        ),
+      final data = await _authRemoteDataSource.createOrganization(
+        name: name,
+        country: country,
+        city: city,
+        street: street,
+        phoneCountryCode: phoneCountryCode,
       );
-
-      if (result.hasException) {
-        throw _handleGraphQLException(result.exception!);
-      }
-
-      final data = result.data?['createOrganization'];
-      if (data == null) {
-        throw Exception('Failed to create organization');
-      }
 
       final garageId = data['id'].toString();
       await saveGarageId(garageId);
       return garageId;
     } catch (e) {
+      if (e is OperationException) {
+        throw _handleGraphQLException(e);
+      }
       throw Exception('Failed to create organization: ${e.toString()}');
     }
   }

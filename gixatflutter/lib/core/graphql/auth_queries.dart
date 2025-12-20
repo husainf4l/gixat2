@@ -54,6 +54,20 @@ const String meQuery = r'''
       id
       email
       fullName
+      organizationId
+      organization {
+        id
+        name
+      }
+    }
+  }
+''';
+
+const String myOrganizationQuery = r'''
+  query MyOrganization {
+    myOrganization {
+      id
+      name
     }
   }
 ''';
