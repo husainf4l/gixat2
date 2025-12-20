@@ -7,13 +7,13 @@ class ClientsPage extends StatelessWidget {
 
   void _showCreateCustomerForm(BuildContext context) {
     // Get the GraphQL client from the current context to pass to the new route
-    final client = GraphQLProvider.of(context).value;
+    final clientNotifier = GraphQLProvider.of(context);
     
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => GraphQLProvider(
-          client: client,
+          client: clientNotifier,
           child: const CreateCustomerForm(),
         ),
         fullscreenDialog: true,

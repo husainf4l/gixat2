@@ -108,8 +108,8 @@ GoRouter createAppRouter(AuthCubit authCubit) => GoRouter(
             
             // Use BlocBuilder to rebuild when auth state changes
             return BlocBuilder<AuthCubit, AuthState>(
-              builder: (context, authState) {
-                return FutureBuilder<String?>(
+              builder: (context, authState) =>
+                  FutureBuilder<String?>(
                   future: authCubit.getToken(),
                   builder: (context, snapshot) {
                     // Show loading while fetching token
@@ -129,8 +129,7 @@ GoRouter createAppRouter(AuthCubit authCubit) => GoRouter(
                       ),
                     );
                   },
-                );
-              },
+                ),
             );
           },
           routes: [

@@ -38,7 +38,9 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
   }
 
   Future<void> _submitForm() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -69,23 +71,31 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
         ),
       );
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+      });
 
       if (result.hasException) {
         _showErrorSnackbar(
-          result.exception?.graphqlErrors.first.message ?? 
-          'Failed to create customer',
+          result.exception?.graphqlErrors.first.message ??
+              'Failed to create customer',
         );
         return;
       }
 
       Navigator.pop(context, true);
       _showSuccessSnackbar('Customer created successfully!');
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
+    } on Exception catch (e) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isLoading = false;
+      });
       _showErrorSnackbar('An error occurred: ${e.toString()}');
     }
   }
@@ -163,8 +173,7 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+  Widget build(BuildContext context) => Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -211,8 +220,9 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
               return const Center(child: CircularProgressIndicator());
             }
 
-            // Extract countries data outside of build to avoid setState during build
-            List<Map<String, dynamic>> countriesData = [];
+            // Extract countries data outside of build
+            // to avoid setState during build
+            var countriesData = <Map<String, dynamic>>[];
             if (result.data != null) {
               final items = result.data!['lookupItems'] as List;
               countriesData = items
@@ -448,7 +458,7 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
             ),
           ),
           child: DropdownButtonFormField<String>(
-            value: value,
+            initialValue: value,
             isExpanded: true,
             hint: Text(
               hint,
@@ -492,8 +502,8 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
     TextInputType? keyboardType,
     int maxLines = 1,
     String? Function(String?)? validator,
-  }) {
-    return Column(
+  }) =>
+      Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
