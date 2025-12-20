@@ -1,14 +1,15 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
-import '../graphql/graphql_client.dart';
+
 import '../graphql/autocomplete_queries.dart';
-import '../models/customer.dart';
+import '../graphql/graphql_client.dart';
 import '../models/car.dart';
+import '../models/customer.dart';
 
 class AutocompleteService {
   Future<List<Customer>> searchCustomers(String query) async {
     try {
       final client = await GraphQLConfig.getClient(withAuth: true);
-      
+
       final result = await client.query(
         QueryOptions(
           document: gql(AutocompleteQueries.searchCustomers),
@@ -26,7 +27,8 @@ class AutocompleteService {
       );
 
       if (result.hasException) {
-        throw Exception('Failed to search customers: ${result.exception.toString()}');
+        throw Exception(
+            'Failed to search customers: ${result.exception.toString()}');
       }
 
       final List<dynamic> data = result.data?['customers'] ?? [];
@@ -39,7 +41,7 @@ class AutocompleteService {
   Future<List<Car>> searchCars(String query) async {
     try {
       final client = await GraphQLConfig.getClient(withAuth: true);
-      
+
       final result = await client.query(
         QueryOptions(
           document: gql(AutocompleteQueries.searchCars),
@@ -58,7 +60,8 @@ class AutocompleteService {
       );
 
       if (result.hasException) {
-        throw Exception('Failed to search cars: ${result.exception.toString()}');
+        throw Exception(
+            'Failed to search cars: ${result.exception.toString()}');
       }
 
       final List<dynamic> data = result.data?['cars'] ?? [];
@@ -68,10 +71,13 @@ class AutocompleteService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getAutocompleteItems(String category, {String? query}) async {
+  Future<List<Map<String, dynamic>>> getAutocompleteItems(
+    String category, {
+    String? query,
+  }) async {
     try {
       final client = await GraphQLConfig.getClient(withAuth: true);
-      
+
       final result = await client.query(
         QueryOptions(
           document: gql(AutocompleteQueries.getAutocompleteItems),
@@ -84,7 +90,8 @@ class AutocompleteService {
       );
 
       if (result.hasException) {
-        throw Exception('Failed to get autocomplete items: ${result.exception.toString()}');
+        throw Exception(
+            'Failed to get autocomplete items: ${result.exception.toString()}');
       }
 
       final List<dynamic> data = result.data?['autocompleteItems'] ?? [];
@@ -97,7 +104,7 @@ class AutocompleteService {
   Future<List<String>> getCategories() async {
     try {
       final client = await GraphQLConfig.getClient(withAuth: true);
-      
+
       final result = await client.query(
         QueryOptions(
           document: gql(r'''
@@ -110,7 +117,8 @@ class AutocompleteService {
       );
 
       if (result.hasException) {
-        throw Exception('Failed to get categories: ${result.exception.toString()}');
+        throw Exception(
+            'Failed to get categories: ${result.exception.toString()}');
       }
 
       final List<dynamic> data = result.data?['categories'] ?? [];

@@ -3,10 +3,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class GraphQLConfig {
-  static const String _endpoint = 'http://localhost:8002/graphql/';
+  static const String _endpoint = 'http://192.168.1.77:8002/graphql';
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  static HttpLink get httpLink => HttpLink(_endpoint);
+  static HttpLink get httpLink => HttpLink(
+    _endpoint,
+    defaultHeaders: {
+      'Content-Type': 'application/json',
+    },
+  );
 
   static Future<AuthLink> get authLink async {
     final token = await _storage.read(key: 'auth_token');
@@ -27,7 +32,19 @@ class GraphQLConfig {
 
     return GraphQLClient(
       link: link,
-      cache: GraphQLCache(store: InMemoryStore()),
+      cache: GraphQLCache(
+        store: HiveStore(),
+        partialDataPolicy: PartialDataCachePolicy.accept,
+      ),
+      defaultPolicies: DefaultPolicies(
+        query: Policies(
+          fetch: FetchPolicy.cacheFirst,
+          cacheReread: CacheRereadPolicy.mergeOptimistic,
+        ),
+        mutate: Policies(
+          fetch: FetchPolicy.networkOnly,
+        ),
+      ),
     );
   }
 
@@ -41,7 +58,19 @@ class GraphQLConfig {
     return ValueNotifier(
       GraphQLClient(
         link: link,
-        cache: GraphQLCache(store: InMemoryStore()),
+        cache: GraphQLCache(
+          store: HiveStore(),
+          partialDataPolicy: PartialDataCachePolicy.accept,
+        ),
+        defaultPolicies: DefaultPolicies(
+          query: Policies(
+            fetch: FetchPolicy.cacheFirst,
+            cacheReread: CacheRereadPolicy.mergeOptimistic,
+          ),
+          mutate: Policies(
+            fetch: FetchPolicy.networkOnly,
+          ),
+        ),
       ),
     );
   }

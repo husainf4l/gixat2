@@ -1,8 +1,5 @@
-import 'package:gql/ast.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-
 class AutocompleteQueries {
-  static final String searchCustomers = r'''
+  static const String searchCustomers = r'''
     query SearchCustomers($where: CustomerFilterInput) {
       customers(where: $where) {
         id
@@ -14,7 +11,7 @@ class AutocompleteQueries {
     }
   ''';
 
-  static final String searchCars = r'''
+  static const String searchCars = r'''
     query SearchCars($where: CarFilterInput) {
       cars(where: $where) {
         id
@@ -33,7 +30,7 @@ class AutocompleteQueries {
     }
   ''';
 
-  static final String getAutocompleteItems = r'''
+  static const String getAutocompleteItems = r'''
     query GetAutocompleteItems($category: String!, $query: String) {
       autocompleteItems(category: $category, query: $query) {
         id

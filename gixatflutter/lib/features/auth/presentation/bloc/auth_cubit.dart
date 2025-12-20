@@ -10,6 +10,9 @@ class AuthCubit extends Cubit<AuthState> {
         super(const AuthInitial());
   final AuthRepository _authRepository;
 
+  /// Get stored token for GraphQL client
+  Future<String?> getToken() => _authRepository.getStoredToken();
+
   /// Check authentication on app startup
   Future<void> checkAuth() async {
     emit(const AuthLoading());

@@ -1,7 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+
+import '../core/graphql/graphql_client.dart';
 
 import '../features/appointments/presentation/pages/appointments_page.dart';
 import '../features/auth/presentation/bloc/auth_cubit.dart';
@@ -98,61 +102,88 @@ GoRouter createAppRouter(AuthCubit authCubit) => GoRouter(
           name: 'connect-garage',
           builder: (context, state) => const ConnectGaragePage(),
         ),
-        GoRoute(
-          path: '/sessions',
-          name: 'sessions',
-          builder: (context, state) => const AppLayout(
-            currentPath: '/sessions',
-            child: SessionsPage(),
-          ),
-        ),
-        GoRoute(
-          path: '/clients',
-          name: 'clients',
-          builder: (context, state) => const AppLayout(
-            currentPath: '/clients',
-            child: ClientsPage(),
-          ),
-        ),
-        GoRoute(
-          path: '/appointments',
-          name: 'appointments',
-          builder: (context, state) => const AppLayout(
-            currentPath: '/appointments',
-            child: AppointmentsPage(),
-          ),
-        ),
-        GoRoute(
-          path: '/job-cards',
-          name: 'job-cards',
-          builder: (context, state) => const AppLayout(
-            currentPath: '/job-cards',
-            child: JobCardsPage(),
-          ),
-        ),
-        GoRoute(
-          path: '/invoices',
-          name: 'invoices',
-          builder: (context, state) => const AppLayout(
-            currentPath: '/invoices',
-            child: InvoicesPage(),
-          ),
-        ),
-        GoRoute(
-          path: '/inventory',
-          name: 'inventory',
-          builder: (context, state) => const AppLayout(
-            currentPath: '/inventory',
-            child: InventoryPage(),
-          ),
-        ),
-        GoRoute(
-          path: '/settings',
-          name: 'settings',
-          builder: (context, state) => const AppLayout(
-            currentPath: '/settings',
-            child: SettingsPage(),
-          ),
+        ShellRoute(
+          builder: (context, state, child) {
+            final authCubit = context.read<AuthCubit>();
+            
+            // Use BlocBuilder to rebuild when auth state changes
+            return BlocBuilder<AuthCubit, AuthState>(
+              builder: (context, authState) {
+                return FutureBuilder<String?>(
+                  future: authCubit.getToken(),
+                  builder: (context, snapshot) {
+                    // Show loading while fetching token
+                    if (snapshot.connectionState != ConnectionState.done) {
+                      return const Scaffold(
+                        body: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    
+                    final token = snapshot.data;
+                    
+                    return GraphQLProvider(
+                      client: GraphQLConfig.clientFor(token: token),
+                      child: AppLayout(
+                        currentPath: state.matchedLocation,
+                        child: child,
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          },
+          routes: [
+            GoRoute(
+              path: '/sessions',
+              name: 'sessions',
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: SessionsPage(),
+              ),
+            ),
+            GoRoute(
+              path: '/clients',
+              name: 'clients',
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: ClientsPage(),
+              ),
+            ),
+            GoRoute(
+              path: '/appointments',
+              name: 'appointments',
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: AppointmentsPage(),
+              ),
+            ),
+            GoRoute(
+              path: '/job-cards',
+              name: 'job-cards',
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: JobCardsPage(),
+              ),
+            ),
+            GoRoute(
+              path: '/invoices',
+              name: 'invoices',
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: InvoicesPage(),
+              ),
+            ),
+            GoRoute(
+              path: '/inventory',
+              name: 'inventory',
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: InventoryPage(),
+              ),
+            ),
+            GoRoute(
+              path: '/settings',
+              name: 'settings',
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: SettingsPage(),
+              ),
+            ),
+          ],
         ),
       ],
     );

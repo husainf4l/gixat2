@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import '../clients/presentation/widgets/create_customer_form.dart';
 
 class AppLayout extends StatelessWidget {
   const AppLayout({
     required this.child,
     required this.currentPath,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
+  
   final Widget child;
   final String currentPath;
 
@@ -93,7 +95,16 @@ class AppLayout extends StatelessWidget {
               context,
               icon: FontAwesomeIcons.userPlus,
               label: 'New Client',
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CreateCustomerForm(),
+                    fullscreenDialog: true,
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 20),
           ],
@@ -115,38 +126,120 @@ class AppLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-      body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _getSelectedIndex(),
-        onTap: (index) => _onItemTapped(context, index),
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF1B75BC),
-        unselectedItemColor: Colors.grey[400],
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: const [
-          BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.clock, size: 24),
-            label: 'Sessions',
+      body: RepaintBoundary(child: child),
+      bottomNavigationBar: RepaintBoundary(
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 20,
+                offset: const Offset(0, -5),
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.fileLines, size: 24),
-            label: 'Job Cards',
+          child: SafeArea(
+            child: Container(
+              height: 50,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildNavItem(
+                    context,
+                    icon: FontAwesomeIcons.clock,
+                    index: 0,
+                    isSelected: _getSelectedIndex() == 0,
+                  ),
+                  _buildNavItem(
+                    context,
+                    icon: FontAwesomeIcons.fileLines,
+                    index: 1,
+                    isSelected: _getSelectedIndex() == 1,
+                  ),
+                  _buildAddButton(context),
+                  _buildNavItem(
+                    context,
+                    icon: FontAwesomeIcons.users,
+                    index: 3,
+                    isSelected: _getSelectedIndex() == 3,
+                  ),
+                  _buildNavItem(
+                    context,
+                    icon: FontAwesomeIcons.gear,
+                    index: 4,
+                    isSelected: _getSelectedIndex() == 4,
+                  ),
+                ],
+              ),
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.circlePlus, size: 32),
-            label: 'Add',
-          ),
-          BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.users, size: 24),
-            label: 'Clients',
-          ),
-          BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.gear, size: 24),
-            label: 'Settings',
-          ),
-        ],
+        ),
       ),
     );
+
+  Widget _buildNavItem(
+    BuildContext context, {
+    required IconData icon,
+    required int index,
+    required bool isSelected,
+  }) =>
+      GestureDetector(
+        onTap: () => _onItemTapped(context, index),
+        child: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? const Color(0xFF1B75BC).withValues(alpha: 0.1)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+            child: FaIcon(
+              icon,
+              size: 18,
+              color: isSelected
+                  ? const Color(0xFF1B75BC)
+                  : Colors.grey[400],
+            ),
+          ),
+        ),
+      );
+
+  Widget _buildAddButton(BuildContext context) => InkWell(
+        onTap: () => _showAddOptions(context),
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        child: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF1B75BC),
+                Color(0xFF1557A0),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF1B75BC).withValues(alpha: 0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: const Center(
+            child: FaIcon(
+              FontAwesomeIcons.plus,
+              size: 18,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      );
 }
