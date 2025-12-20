@@ -50,9 +50,9 @@ export class SignupComponent {
         next: (response) => {
           if (response.register.error) {
             this.errorMessage.set(response.register.error);
-          } else if (response.register.token) {
-            localStorage.setItem('token', response.register.token);
-            this.router.navigate(['/']);
+          } else {
+            // Token is now handled via HTTP-only cookie
+            this.router.navigate(['/dashboard']);
           }
         },
         error: (error) => {

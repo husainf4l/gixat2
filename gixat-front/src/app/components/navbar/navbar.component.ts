@@ -127,7 +127,9 @@ export class NavbarComponent {
   ];
 
   isAuthPage(): boolean {
-    return this.router.url.includes('/auth/');
+    return this.router.url.includes('/auth/') || 
+           this.router.url.includes('/dashboard') || 
+           this.router.url.includes('/organization-setup');
   }
 
   toggleMenu() {

@@ -33,9 +33,9 @@ export class LoginComponent {
         next: (response) => {
           if (response.login.error) {
             this.errorMessage.set(response.login.error);
-          } else if (response.login.token) {
-            localStorage.setItem('token', response.login.token);
-            this.router.navigate(['/']);
+          } else {
+            // Token is now handled via HTTP-only cookie
+            this.router.navigate(['/dashboard']);
           }
         },
         error: (error) => {

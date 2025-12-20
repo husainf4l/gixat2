@@ -1,0 +1,109 @@
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
+
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="min-h-screen bg-slate-50 p-8">
+      <div class="max-w-7xl mx-auto">
+        <header class="mb-8">
+          <h1 class="text-3xl font-bold text-slate-900">Dashboard</h1>
+          @if (user()) {
+            <div class="flex items-center gap-2 mt-1">
+              <p class="text-slate-600">Welcome back, <span class="font-semibold text-[#1b75bc]">{{ user()?.fullName }}</span></p>
+              @if (user()?.organization) {
+                <span class="text-slate-300">|</span>
+                <span class="flex items-center gap-1.5 text-slate-500 text-sm">
+                  <i class="ri-community-line"></i>
+                  {{ user()?.organization?.name }}
+                </span>
+              }
+            </div>
+          } @else {
+            <p class="text-slate-600">Loading your workspace...</p>
+          }
+        </header>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h3 class="text-lg font-semibold mb-2">Overview</h3>
+            <p class="text-3xl font-bold text-[#1b75bc]">12</p>
+            <p class="text-sm text-slate-500">Active projects</p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h3 class="text-lg font-semibold mb-2">Tasks</h3>
+            <p class="text-3xl font-bold text-green-600">48</p>
+            <p class="text-sm text-slate-500">Completed this week</p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h3 class="text-lg font-semibold mb-2">Messages</h3>
+            <p class="text-3xl font-bold text-orange-500">5</p>
+            <p class="text-sm text-slate-500">Unread notifications</p>
+          </div>
+        </div>
+
+        @if (user()) {
+          <div class="mt-12 bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+            <h3 class="text-xl font-bold mb-6">Profile Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <label class="block text-sm font-medium text-slate-500 mb-1">Full Name</label>
+                <p class="text-lg text-slate-900">{{ user()?.fullName }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-500 mb-1">Email Address</label>
+                <p class="text-lg text-slate-900">{{ user()?.email }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-500 mb-1">Roles</label>
+                <div class="flex flex-wrap gap-2">
+                  @for (role of user()?.roles; track role) {
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                      {{ role }}
+                    </span>
+                  } @empty {
+                    <span class="text-slate-400 italic">No roles assigned</span>
+                  }
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-500 mb-1">User ID</label>
+                <p class="text-sm font-mono text-slate-400">{{ user()?.id }}</p>
+              </div>
+              @if (user()?.organization) {
+                <div class="md:col-span-2 pt-4 border-t border-slate-100">
+                  <label class="block text-sm font-medium text-slate-500 mb-1">Organization</label>
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600">
+                      <i class="ri-community-line text-xl"></i>
+                    </div>
+                    <div>
+                      <p class="text-lg font-semibold text-slate-900">{{ user()?.organization?.name }}</p>
+                      <p class="text-xs font-mono text-slate-400">{{ user()?.organization?.id }}</p>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  `,
+  styles: ``,
+})
+export class DashboardComponent implements OnInit {
+  private authService = inject(AuthService);
+  user = this.authService.currentUser;
+
+  ngOnInit() {
+    // The guard already called me(), but we can call it again to ensure fresh data
+    // or just rely on the signal if we're sure it's populated.
+    if (!this.user()) {
+      this.authService.me().subscribe();
+    }
+  }
+}
