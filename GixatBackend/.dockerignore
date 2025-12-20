@@ -1,0 +1,7 @@
+bin/
+obj/
+.env
+.vscode/
+Migrations/
+*.user
+*.db

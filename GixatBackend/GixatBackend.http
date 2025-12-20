@@ -1,0 +1,6 @@
+@GixatBackend_HostAddress = http://localhost:5150
+
+GET {{GixatBackend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
