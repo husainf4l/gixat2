@@ -1,0 +1,820 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Address {
+  id: UUID!
+  country: String!
+  city: String!
+  street: String!
+  phoneCountryCode: String!
+}
+
+type AppMedia {
+  id: UUID!
+  url: URL
+  alt: String
+  type: MediaType!
+  createdAt: DateTime!
+}
+
+type ApplicationUser {
+  fullName: String
+  userType: UserType!
+  organizationId: UUID!
+  organization: Organization
+  createdAt: DateTime!
+  isActive: Boolean!
+  id: String!
+  userName: String
+  normalizedUserName: String
+  email: String
+  normalizedEmail: String
+  emailConfirmed: Boolean!
+  passwordHash: String
+  securityStamp: String
+  concurrencyStamp: String
+  phoneNumber: String
+  phoneNumberConfirmed: Boolean!
+  twoFactorEnabled: Boolean!
+  lockoutEnd: DateTime
+  lockoutEnabled: Boolean!
+  accessFailedCount: Int!
+}
+
+type AuthPayload {
+  token: String
+  user: ApplicationUser
+  error: String
+}
+
+type Car {
+  id: UUID!
+  make: String!
+  model: String!
+  year: Int!
+  licensePlate: String!
+  vin: String
+  color: String
+  customerId: UUID!
+  customer: Customer
+  organizationId: UUID!
+  organization: Organization
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Customer {
+  id: UUID!
+  firstName: String!
+  lastName: String!
+  email: String
+  phoneNumber: String!
+  addressId: UUID
+  address: Address
+  organizationId: UUID!
+  organization: Organization
+  cars: [Car!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type GarageSession {
+  id: UUID!
+  carId: UUID!
+  car: Car
+  customerId: UUID!
+  customer: Customer
+  organizationId: UUID!
+  organization: Organization
+  status: SessionStatus!
+  intakeNotes: String
+  customerRequests: String
+  inspectionNotes: String
+  testDriveNotes: String
+  initialReport: String
+  media: [SessionMedia!]!
+  logs: [SessionLog!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type JobCard {
+  id: UUID!
+  sessionId: UUID
+  session: GarageSession
+  carId: UUID!
+  car: Car
+  customerId: UUID!
+  customer: Customer
+  organizationId: UUID!
+  organization: Organization
+  status: JobCardStatus!
+  internalNotes: String
+  items: [JobItem!]!
+  totalEstimatedCost: Decimal!
+  totalActualCost: Decimal!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type JobItem {
+  id: UUID!
+  jobCardId: UUID!
+  jobCard: JobCard
+  description: String!
+  status: JobItemStatus!
+  estimatedCost: Decimal!
+  actualCost: Decimal!
+  technicianNotes: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type LookupItem {
+  id: UUID!
+  category: String!
+  value: String!
+  parentId: UUID
+  parent: LookupItem
+  children: [LookupItem!]!
+  metadata: String
+  sortOrder: Int!
+  isActive: Boolean!
+}
+
+type Mutation {
+  register(input: RegisterInput!): AuthPayload! @cost(weight: "10")
+  login(input: LoginInput!): AuthPayload! @cost(weight: "10")
+  createOrganization(input: CreateOrganizationInput!): Organization! @cost(weight: "10")
+  assignUserToOrganization(userId: UUID! organizationId: UUID!): Boolean! @cost(weight: "10")
+  updateMyOrganization(name: String!): Organization! @cost(weight: "10")
+  uploadMedia(file: Upload! alt: String): AppMedia! @cost(weight: "10")
+  createLookupItem(input: CreateLookupItemInput!): LookupItem! @cost(weight: "10")
+  createSession(carId: UUID! customerId: UUID! intakeNotes: String customerRequests: String): GarageSession! @cost(weight: "10")
+  updateSessionStatus(sessionId: UUID! newStatus: SessionStatus! notes: String): GarageSession! @cost(weight: "10")
+  updateIntake(sessionId: UUID! intakeNotes: String customerRequests: String): GarageSession! @cost(weight: "10")
+  updateInspection(sessionId: UUID! inspectionNotes: String): GarageSession! @cost(weight: "10")
+  updateTestDrive(sessionId: UUID! testDriveNotes: String): GarageSession! @cost(weight: "10")
+  generateInitialReport(sessionId: UUID! report: String!): GarageSession! @cost(weight: "10")
+  createJobCardFromSession(sessionId: UUID!): JobCard! @cost(weight: "10")
+  addJobItem(jobCardId: UUID! description: String! estimatedCost: Decimal!): JobCard! @cost(weight: "10")
+  updateJobItemStatus(itemId: UUID! status: JobItemStatus! actualCost: Decimal! technicianNotes: String): JobItem! @cost(weight: "10")
+  updateJobCardStatus(jobCardId: UUID! status: JobCardStatus!): JobCard! @cost(weight: "10")
+  createCustomer(input: CreateCustomerInput!): Customer! @cost(weight: "10")
+  createCar(input: CreateCarInput!): Car! @cost(weight: "10")
+}
+
+type Organization {
+  id: UUID!
+  name: String!
+  addressId: UUID
+  address: Address
+  logoId: UUID
+  logo: AppMedia
+  users: [ApplicationUser!]!
+  customers: [Customer!]!
+  createdAt: DateTime!
+  isActive: Boolean!
+}
+
+type Query {
+  me: ApplicationUser @cost(weight: "10")
+  organizations(where: OrganizationFilterInput @cost(weight: "10") order: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
+  myOrganization: Organization @cost(weight: "10")
+  organizationById(id: UUID!): Organization @cost(weight: "10")
+  autocompleteItems(category: String! query: String parentId: UUID): [LookupItem!]! @cost(weight: "10")
+  categories: [String!]! @cost(weight: "10")
+  sessions(where: GarageSessionFilterInput @cost(weight: "10") order: [GarageSessionSortInput!] @cost(weight: "10")): [GarageSession!]! @cost(weight: "10")
+  sessionById(id: UUID!): GarageSession @cost(weight: "10")
+  jobCards(where: JobCardFilterInput @cost(weight: "10") order: [JobCardSortInput!] @cost(weight: "10")): [JobCard!]! @cost(weight: "10")
+  jobCardById(id: UUID!): JobCard @cost(weight: "10")
+  customers(where: CustomerFilterInput @cost(weight: "10") order: [CustomerSortInput!] @cost(weight: "10")): [Customer!]! @cost(weight: "10")
+  customerById(id: UUID!): Customer @cost(weight: "10")
+  cars(where: CarFilterInput @cost(weight: "10") order: [CarSortInput!] @cost(weight: "10")): [Car!]! @cost(weight: "10")
+  carById(id: UUID!): Car @cost(weight: "10")
+}
+
+type SessionLog {
+  id: UUID!
+  sessionId: UUID!
+  session: GarageSession
+  fromStatus: SessionStatus!
+  toStatus: SessionStatus!
+  notes: String
+  changedByUserId: String
+  createdAt: DateTime!
+}
+
+type SessionMedia {
+  id: UUID!
+  sessionId: UUID!
+  session: GarageSession
+  mediaId: UUID!
+  media: AppMedia
+  stage: SessionStage!
+  createdAt: DateTime!
+}
+
+input AddressFilterInput {
+  and: [AddressFilterInput!]
+  or: [AddressFilterInput!]
+  id: UuidOperationFilterInput
+  country: StringOperationFilterInput
+  city: StringOperationFilterInput
+  street: StringOperationFilterInput
+  phoneCountryCode: StringOperationFilterInput
+}
+
+input AddressSortInput {
+  id: SortEnumType @cost(weight: "10")
+  country: SortEnumType @cost(weight: "10")
+  city: SortEnumType @cost(weight: "10")
+  street: SortEnumType @cost(weight: "10")
+  phoneCountryCode: SortEnumType @cost(weight: "10")
+}
+
+input AppMediaFilterInput {
+  and: [AppMediaFilterInput!]
+  or: [AppMediaFilterInput!]
+  id: UuidOperationFilterInput
+  url: UrlOperationFilterInput
+  alt: StringOperationFilterInput
+  type: MediaTypeOperationFilterInput
+  createdAt: DateTimeOperationFilterInput
+}
+
+input AppMediaSortInput {
+  id: SortEnumType @cost(weight: "10")
+  url: UriSortInput @cost(weight: "10")
+  alt: SortEnumType @cost(weight: "10")
+  type: SortEnumType @cost(weight: "10")
+  createdAt: SortEnumType @cost(weight: "10")
+}
+
+input ApplicationUserFilterInput {
+  and: [ApplicationUserFilterInput!]
+  or: [ApplicationUserFilterInput!]
+  fullName: StringOperationFilterInput
+  userType: UserTypeOperationFilterInput
+  organizationId: UuidOperationFilterInput
+  organization: OrganizationFilterInput
+  createdAt: DateTimeOperationFilterInput
+  isActive: BooleanOperationFilterInput
+  id: StringOperationFilterInput
+  userName: StringOperationFilterInput
+  normalizedUserName: StringOperationFilterInput
+  email: StringOperationFilterInput
+  normalizedEmail: StringOperationFilterInput
+  emailConfirmed: BooleanOperationFilterInput
+  passwordHash: StringOperationFilterInput
+  securityStamp: StringOperationFilterInput
+  concurrencyStamp: StringOperationFilterInput
+  phoneNumber: StringOperationFilterInput
+  phoneNumberConfirmed: BooleanOperationFilterInput
+  twoFactorEnabled: BooleanOperationFilterInput
+  lockoutEnd: DateTimeOperationFilterInput
+  lockoutEnabled: BooleanOperationFilterInput
+  accessFailedCount: IntOperationFilterInput
+}
+
+input BooleanOperationFilterInput {
+  eq: Boolean @cost(weight: "10")
+  neq: Boolean @cost(weight: "10")
+}
+
+input CarFilterInput {
+  and: [CarFilterInput!]
+  or: [CarFilterInput!]
+  id: UuidOperationFilterInput
+  make: StringOperationFilterInput
+  model: StringOperationFilterInput
+  year: IntOperationFilterInput
+  licensePlate: StringOperationFilterInput
+  vin: StringOperationFilterInput
+  color: StringOperationFilterInput
+  customerId: UuidOperationFilterInput
+  customer: CustomerFilterInput
+  organizationId: UuidOperationFilterInput
+  organization: OrganizationFilterInput
+  createdAt: DateTimeOperationFilterInput
+  updatedAt: DateTimeOperationFilterInput
+}
+
+input CarSortInput {
+  id: SortEnumType @cost(weight: "10")
+  make: SortEnumType @cost(weight: "10")
+  model: SortEnumType @cost(weight: "10")
+  year: SortEnumType @cost(weight: "10")
+  licensePlate: SortEnumType @cost(weight: "10")
+  vin: SortEnumType @cost(weight: "10")
+  color: SortEnumType @cost(weight: "10")
+  customerId: SortEnumType @cost(weight: "10")
+  customer: CustomerSortInput @cost(weight: "10")
+  organizationId: SortEnumType @cost(weight: "10")
+  organization: OrganizationSortInput @cost(weight: "10")
+  createdAt: SortEnumType @cost(weight: "10")
+  updatedAt: SortEnumType @cost(weight: "10")
+}
+
+input CreateCarInput {
+  customerId: UUID!
+  make: String!
+  model: String!
+  year: Int!
+  licensePlate: String!
+  vin: String
+  color: String
+}
+
+input CreateCustomerInput {
+  firstName: String!
+  lastName: String!
+  email: String
+  phoneNumber: String!
+  country: String
+  city: String
+  street: String
+}
+
+input CreateLookupItemInput {
+  category: String!
+  value: String!
+  parentId: UUID
+  metadata: String
+  sortOrder: Int! = 0
+}
+
+input CreateOrganizationInput {
+  name: String!
+  country: String!
+  city: String!
+  street: String!
+  phoneCountryCode: String!
+  logoUrl: URL
+  logoAlt: String
+}
+
+input CustomerFilterInput {
+  and: [CustomerFilterInput!]
+  or: [CustomerFilterInput!]
+  id: UuidOperationFilterInput
+  firstName: StringOperationFilterInput
+  lastName: StringOperationFilterInput
+  email: StringOperationFilterInput
+  phoneNumber: StringOperationFilterInput
+  addressId: UuidOperationFilterInput
+  address: AddressFilterInput
+  organizationId: UuidOperationFilterInput
+  organization: OrganizationFilterInput
+  cars: ListFilterInputTypeOfCarFilterInput
+  createdAt: DateTimeOperationFilterInput
+  updatedAt: DateTimeOperationFilterInput
+}
+
+input CustomerSortInput {
+  id: SortEnumType @cost(weight: "10")
+  firstName: SortEnumType @cost(weight: "10")
+  lastName: SortEnumType @cost(weight: "10")
+  email: SortEnumType @cost(weight: "10")
+  phoneNumber: SortEnumType @cost(weight: "10")
+  addressId: SortEnumType @cost(weight: "10")
+  address: AddressSortInput @cost(weight: "10")
+  organizationId: SortEnumType @cost(weight: "10")
+  organization: OrganizationSortInput @cost(weight: "10")
+  createdAt: SortEnumType @cost(weight: "10")
+  updatedAt: SortEnumType @cost(weight: "10")
+}
+
+input DateTimeOperationFilterInput {
+  eq: DateTime @cost(weight: "10")
+  neq: DateTime @cost(weight: "10")
+  in: [DateTime] @cost(weight: "10")
+  nin: [DateTime] @cost(weight: "10")
+  gt: DateTime @cost(weight: "10")
+  ngt: DateTime @cost(weight: "10")
+  gte: DateTime @cost(weight: "10")
+  ngte: DateTime @cost(weight: "10")
+  lt: DateTime @cost(weight: "10")
+  nlt: DateTime @cost(weight: "10")
+  lte: DateTime @cost(weight: "10")
+  nlte: DateTime @cost(weight: "10")
+}
+
+input DecimalOperationFilterInput {
+  eq: Decimal @cost(weight: "10")
+  neq: Decimal @cost(weight: "10")
+  in: [Decimal] @cost(weight: "10")
+  nin: [Decimal] @cost(weight: "10")
+  gt: Decimal @cost(weight: "10")
+  ngt: Decimal @cost(weight: "10")
+  gte: Decimal @cost(weight: "10")
+  ngte: Decimal @cost(weight: "10")
+  lt: Decimal @cost(weight: "10")
+  nlt: Decimal @cost(weight: "10")
+  lte: Decimal @cost(weight: "10")
+  nlte: Decimal @cost(weight: "10")
+}
+
+input GarageSessionFilterInput {
+  and: [GarageSessionFilterInput!]
+  or: [GarageSessionFilterInput!]
+  id: UuidOperationFilterInput
+  carId: UuidOperationFilterInput
+  car: CarFilterInput
+  customerId: UuidOperationFilterInput
+  customer: CustomerFilterInput
+  organizationId: UuidOperationFilterInput
+  organization: OrganizationFilterInput
+  status: SessionStatusOperationFilterInput
+  intakeNotes: StringOperationFilterInput
+  customerRequests: StringOperationFilterInput
+  inspectionNotes: StringOperationFilterInput
+  testDriveNotes: StringOperationFilterInput
+  initialReport: StringOperationFilterInput
+  media: ListFilterInputTypeOfSessionMediaFilterInput
+  logs: ListFilterInputTypeOfSessionLogFilterInput
+  createdAt: DateTimeOperationFilterInput
+  updatedAt: DateTimeOperationFilterInput
+}
+
+input GarageSessionSortInput {
+  id: SortEnumType @cost(weight: "10")
+  carId: SortEnumType @cost(weight: "10")
+  car: CarSortInput @cost(weight: "10")
+  customerId: SortEnumType @cost(weight: "10")
+  customer: CustomerSortInput @cost(weight: "10")
+  organizationId: SortEnumType @cost(weight: "10")
+  organization: OrganizationSortInput @cost(weight: "10")
+  status: SortEnumType @cost(weight: "10")
+  intakeNotes: SortEnumType @cost(weight: "10")
+  customerRequests: SortEnumType @cost(weight: "10")
+  inspectionNotes: SortEnumType @cost(weight: "10")
+  testDriveNotes: SortEnumType @cost(weight: "10")
+  initialReport: SortEnumType @cost(weight: "10")
+  createdAt: SortEnumType @cost(weight: "10")
+  updatedAt: SortEnumType @cost(weight: "10")
+}
+
+input IntOperationFilterInput {
+  eq: Int @cost(weight: "10")
+  neq: Int @cost(weight: "10")
+  in: [Int] @cost(weight: "10")
+  nin: [Int] @cost(weight: "10")
+  gt: Int @cost(weight: "10")
+  ngt: Int @cost(weight: "10")
+  gte: Int @cost(weight: "10")
+  ngte: Int @cost(weight: "10")
+  lt: Int @cost(weight: "10")
+  nlt: Int @cost(weight: "10")
+  lte: Int @cost(weight: "10")
+  nlte: Int @cost(weight: "10")
+}
+
+input JobCardFilterInput {
+  and: [JobCardFilterInput!]
+  or: [JobCardFilterInput!]
+  id: UuidOperationFilterInput
+  sessionId: UuidOperationFilterInput
+  session: GarageSessionFilterInput
+  carId: UuidOperationFilterInput
+  car: CarFilterInput
+  customerId: UuidOperationFilterInput
+  customer: CustomerFilterInput
+  organizationId: UuidOperationFilterInput
+  organization: OrganizationFilterInput
+  status: JobCardStatusOperationFilterInput
+  internalNotes: StringOperationFilterInput
+  items: ListFilterInputTypeOfJobItemFilterInput
+  totalEstimatedCost: DecimalOperationFilterInput
+  totalActualCost: DecimalOperationFilterInput
+  createdAt: DateTimeOperationFilterInput
+  updatedAt: DateTimeOperationFilterInput
+}
+
+input JobCardSortInput {
+  id: SortEnumType @cost(weight: "10")
+  sessionId: SortEnumType @cost(weight: "10")
+  session: GarageSessionSortInput @cost(weight: "10")
+  carId: SortEnumType @cost(weight: "10")
+  car: CarSortInput @cost(weight: "10")
+  customerId: SortEnumType @cost(weight: "10")
+  customer: CustomerSortInput @cost(weight: "10")
+  organizationId: SortEnumType @cost(weight: "10")
+  organization: OrganizationSortInput @cost(weight: "10")
+  status: SortEnumType @cost(weight: "10")
+  internalNotes: SortEnumType @cost(weight: "10")
+  totalEstimatedCost: SortEnumType @cost(weight: "10")
+  totalActualCost: SortEnumType @cost(weight: "10")
+  createdAt: SortEnumType @cost(weight: "10")
+  updatedAt: SortEnumType @cost(weight: "10")
+}
+
+input JobCardStatusOperationFilterInput {
+  eq: JobCardStatus @cost(weight: "10")
+  neq: JobCardStatus @cost(weight: "10")
+  in: [JobCardStatus!] @cost(weight: "10")
+  nin: [JobCardStatus!] @cost(weight: "10")
+}
+
+input JobItemFilterInput {
+  and: [JobItemFilterInput!]
+  or: [JobItemFilterInput!]
+  id: UuidOperationFilterInput
+  jobCardId: UuidOperationFilterInput
+  jobCard: JobCardFilterInput
+  description: StringOperationFilterInput
+  status: JobItemStatusOperationFilterInput
+  estimatedCost: DecimalOperationFilterInput
+  actualCost: DecimalOperationFilterInput
+  technicianNotes: StringOperationFilterInput
+  createdAt: DateTimeOperationFilterInput
+  updatedAt: DateTimeOperationFilterInput
+}
+
+input JobItemStatusOperationFilterInput {
+  eq: JobItemStatus @cost(weight: "10")
+  neq: JobItemStatus @cost(weight: "10")
+  in: [JobItemStatus!] @cost(weight: "10")
+  nin: [JobItemStatus!] @cost(weight: "10")
+}
+
+input ListFilterInputTypeOfApplicationUserFilterInput {
+  all: ApplicationUserFilterInput @cost(weight: "10")
+  none: ApplicationUserFilterInput @cost(weight: "10")
+  some: ApplicationUserFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
+}
+
+input ListFilterInputTypeOfCarFilterInput {
+  all: CarFilterInput @cost(weight: "10")
+  none: CarFilterInput @cost(weight: "10")
+  some: CarFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
+}
+
+input ListFilterInputTypeOfCustomerFilterInput {
+  all: CustomerFilterInput @cost(weight: "10")
+  none: CustomerFilterInput @cost(weight: "10")
+  some: CustomerFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
+}
+
+input ListFilterInputTypeOfJobItemFilterInput {
+  all: JobItemFilterInput @cost(weight: "10")
+  none: JobItemFilterInput @cost(weight: "10")
+  some: JobItemFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
+}
+
+input ListFilterInputTypeOfSessionLogFilterInput {
+  all: SessionLogFilterInput @cost(weight: "10")
+  none: SessionLogFilterInput @cost(weight: "10")
+  some: SessionLogFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
+}
+
+input ListFilterInputTypeOfSessionMediaFilterInput {
+  all: SessionMediaFilterInput @cost(weight: "10")
+  none: SessionMediaFilterInput @cost(weight: "10")
+  some: SessionMediaFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input MediaTypeOperationFilterInput {
+  eq: MediaType @cost(weight: "10")
+  neq: MediaType @cost(weight: "10")
+  in: [MediaType!] @cost(weight: "10")
+  nin: [MediaType!] @cost(weight: "10")
+}
+
+input OrganizationFilterInput {
+  and: [OrganizationFilterInput!]
+  or: [OrganizationFilterInput!]
+  id: UuidOperationFilterInput
+  name: StringOperationFilterInput
+  addressId: UuidOperationFilterInput
+  address: AddressFilterInput
+  logoId: UuidOperationFilterInput
+  logo: AppMediaFilterInput
+  users: ListFilterInputTypeOfApplicationUserFilterInput
+  customers: ListFilterInputTypeOfCustomerFilterInput
+  createdAt: DateTimeOperationFilterInput
+  isActive: BooleanOperationFilterInput
+}
+
+input OrganizationSortInput {
+  id: SortEnumType @cost(weight: "10")
+  name: SortEnumType @cost(weight: "10")
+  addressId: SortEnumType @cost(weight: "10")
+  address: AddressSortInput @cost(weight: "10")
+  logoId: SortEnumType @cost(weight: "10")
+  logo: AppMediaSortInput @cost(weight: "10")
+  createdAt: SortEnumType @cost(weight: "10")
+  isActive: SortEnumType @cost(weight: "10")
+}
+
+input RegisterInput {
+  email: String!
+  password: String!
+  fullName: String!
+  role: String!
+  userType: UserType!
+  organizationId: UUID!
+}
+
+input SessionLogFilterInput {
+  and: [SessionLogFilterInput!]
+  or: [SessionLogFilterInput!]
+  id: UuidOperationFilterInput
+  sessionId: UuidOperationFilterInput
+  session: GarageSessionFilterInput
+  fromStatus: SessionStatusOperationFilterInput
+  toStatus: SessionStatusOperationFilterInput
+  notes: StringOperationFilterInput
+  changedByUserId: StringOperationFilterInput
+  createdAt: DateTimeOperationFilterInput
+}
+
+input SessionMediaFilterInput {
+  and: [SessionMediaFilterInput!]
+  or: [SessionMediaFilterInput!]
+  id: UuidOperationFilterInput
+  sessionId: UuidOperationFilterInput
+  session: GarageSessionFilterInput
+  mediaId: UuidOperationFilterInput
+  media: AppMediaFilterInput
+  stage: SessionStageOperationFilterInput
+  createdAt: DateTimeOperationFilterInput
+}
+
+input SessionStageOperationFilterInput {
+  eq: SessionStage @cost(weight: "10")
+  neq: SessionStage @cost(weight: "10")
+  in: [SessionStage!] @cost(weight: "10")
+  nin: [SessionStage!] @cost(weight: "10")
+}
+
+input SessionStatusOperationFilterInput {
+  eq: SessionStatus @cost(weight: "10")
+  neq: SessionStatus @cost(weight: "10")
+  in: [SessionStatus!] @cost(weight: "10")
+  nin: [SessionStatus!] @cost(weight: "10")
+}
+
+input StringOperationFilterInput {
+  and: [StringOperationFilterInput!]
+  or: [StringOperationFilterInput!]
+  eq: String @cost(weight: "10")
+  neq: String @cost(weight: "10")
+  contains: String @cost(weight: "20")
+  ncontains: String @cost(weight: "20")
+  in: [String] @cost(weight: "10")
+  nin: [String] @cost(weight: "10")
+  startsWith: String @cost(weight: "20")
+  nstartsWith: String @cost(weight: "20")
+  endsWith: String @cost(weight: "20")
+  nendsWith: String @cost(weight: "20")
+}
+
+input UriSortInput {
+  absolutePath: SortEnumType @cost(weight: "10")
+  absoluteUri: SortEnumType @cost(weight: "10")
+  localPath: SortEnumType @cost(weight: "10")
+  authority: SortEnumType @cost(weight: "10")
+  hostNameType: SortEnumType @cost(weight: "10")
+  isDefaultPort: SortEnumType @cost(weight: "10")
+  isFile: SortEnumType @cost(weight: "10")
+  isLoopback: SortEnumType @cost(weight: "10")
+  pathAndQuery: SortEnumType @cost(weight: "10")
+  isUnc: SortEnumType @cost(weight: "10")
+  host: SortEnumType @cost(weight: "10")
+  port: SortEnumType @cost(weight: "10")
+  query: SortEnumType @cost(weight: "10")
+  fragment: SortEnumType @cost(weight: "10")
+  scheme: SortEnumType @cost(weight: "10")
+  originalString: SortEnumType @cost(weight: "10")
+  dnsSafeHost: SortEnumType @cost(weight: "10")
+  idnHost: SortEnumType @cost(weight: "10")
+  isAbsoluteUri: SortEnumType @cost(weight: "10")
+  userEscaped: SortEnumType @cost(weight: "10")
+  userInfo: SortEnumType @cost(weight: "10")
+}
+
+input UrlOperationFilterInput {
+  eq: URL @cost(weight: "10")
+  neq: URL @cost(weight: "10")
+  in: [URL] @cost(weight: "10")
+  nin: [URL] @cost(weight: "10")
+  gt: URL @cost(weight: "10")
+  ngt: URL @cost(weight: "10")
+  gte: URL @cost(weight: "10")
+  ngte: URL @cost(weight: "10")
+  lt: URL @cost(weight: "10")
+  nlt: URL @cost(weight: "10")
+  lte: URL @cost(weight: "10")
+  nlte: URL @cost(weight: "10")
+}
+
+input UserTypeOperationFilterInput {
+  eq: UserType @cost(weight: "10")
+  neq: UserType @cost(weight: "10")
+  in: [UserType!] @cost(weight: "10")
+  nin: [UserType!] @cost(weight: "10")
+}
+
+input UuidOperationFilterInput {
+  eq: UUID @cost(weight: "10")
+  neq: UUID @cost(weight: "10")
+  in: [UUID] @cost(weight: "10")
+  nin: [UUID] @cost(weight: "10")
+  gt: UUID @cost(weight: "10")
+  ngt: UUID @cost(weight: "10")
+  gte: UUID @cost(weight: "10")
+  ngte: UUID @cost(weight: "10")
+  lt: UUID @cost(weight: "10")
+  nlt: UUID @cost(weight: "10")
+  lte: UUID @cost(weight: "10")
+  nlte: UUID @cost(weight: "10")
+}
+
+"Defines when a policy shall be executed."
+enum ApplyPolicy {
+  "Before the resolver was executed."
+  BEFORE_RESOLVER
+  "After the resolver was executed."
+  AFTER_RESOLVER
+  "The policy is applied in the validation step before the execution."
+  VALIDATION
+}
+
+enum JobCardStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum JobItemStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum SessionStage {
+  INTAKE
+  INSPECTION
+  TEST_DRIVE
+  GENERAL
+}
+
+enum SessionStatus {
+  INTAKE
+  INSPECTION
+  TEST_DRIVE
+  REPORT_GENERATED
+  JOB_CARD_CREATED
+  COMPLETED
+  CANCELLED
+}
+
+enum SortEnumType {
+  ASC
+  DESC
+}
+
+enum UserType {
+  SYSTEM
+  ORGANIZATIONAL
+}
+
+"The purpose of the `cost` directive is to define a `weight` for GraphQL types, fields, and arguments. Static analysis can use these weights when calculating the overall cost of a query or response."
+directive @cost("The `weight` argument defines what value to add to the overall cost for every appearance, or possible appearance, of a type, field, argument, etc." weight: String!) on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM | INPUT_FIELD_DEFINITION
+
+"The `@specifiedBy` directive is used within the type system definition language to provide a URL for specifying the behavior of custom scalar definitions."
+directive @specifiedBy("The specifiedBy URL points to a human-readable specification. This field will only read a result for scalar types." url: String!) on SCALAR
+
+"The `DateTime` scalar represents an ISO-8601 compliant date time type."
+scalar DateTime @specifiedBy(url: "https:\/\/www.graphql-scalars.com\/date-time")
+
+"The `Decimal` scalar type represents a decimal floating-point number."
+scalar Decimal
+
+scalar URL @specifiedBy(url: "https:\/\/tools.ietf.org\/html\/rfc3986")
+
+scalar UUID @specifiedBy(url: "https:\/\/tools.ietf.org\/html\/rfc4122")
+
+"The `Upload` scalar type represents a file upload."
+scalar Upload

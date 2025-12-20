@@ -42,7 +42,7 @@ class AuthTextField extends StatelessWidget {
             ),
             prefixIcon: Icon(
               icon,
-              color: const Color(0xFF6DD5FA),
+              color: const Color(0xFF1B75BC),
               size: 22,
             ),
             border: InputBorder.none,

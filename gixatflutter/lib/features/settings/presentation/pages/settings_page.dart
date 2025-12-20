@@ -121,7 +121,7 @@ class SettingsPage extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
   }) => ListTile(
-      leading: Icon(icon, color: const Color(0xFF6366F1), size: 22),
+      leading: Icon(icon, color: const Color(0xFF1B75BC), size: 22),
       title: Text(
         title,
         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),

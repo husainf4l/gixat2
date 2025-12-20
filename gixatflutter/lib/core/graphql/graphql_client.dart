@@ -3,7 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class GraphQLConfig {
-  static const String _endpoint = 'https://gixat.com/graphql/';
+  static const String _endpoint = 'http://localhost:8002/graphql/';
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
   static HttpLink get httpLink => HttpLink(_endpoint);

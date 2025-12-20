@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Colors
-  static const Color primary = Color(0xFF3B82F6); // Blue
-  static const Color primaryDark = Color(0xFF1E40AF);
+  static const Color primary = Color(0xFF1B75BC); // Gixat Blue
+  static const Color primaryDark = Color(0xFF155A91);
   static const Color secondary = Color(0xFF64748B); // Slate
   static const Color background = Color(0xFFF8FAFC);
   static const Color surface = Color(0xFFFFFFFF);

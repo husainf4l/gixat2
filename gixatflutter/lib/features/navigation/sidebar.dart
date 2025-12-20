@@ -63,11 +63,11 @@ class _AppSidebarState extends State<AppSidebar> {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                  color: const Color(0xFF1B75BC).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.person_rounded,
-                    color: Color(0xFF6366F1), size: 20),
+                    color: Color(0xFF1B75BC), size: 20),
               ),
               title: const Text(
                 'Profile',
@@ -150,7 +150,7 @@ class _AppSidebarState extends State<AppSidebar> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF6366F1),
+                      color: const Color(0xFF1B75BC),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Image.asset(
@@ -282,7 +282,7 @@ class _AppSidebarState extends State<AppSidebar> {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                Color(0xFF6366F1),
+                                Color(0xFF1B75BC),
                                 Color(0xFF8B5CF6),
                               ],
                             ),

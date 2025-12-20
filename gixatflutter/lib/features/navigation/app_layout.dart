@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
 class AppLayout extends StatelessWidget {
@@ -79,19 +79,19 @@ class AppLayout extends StatelessWidget {
             const SizedBox(height: 24),
             _buildAddOption(
               context,
-              icon: CupertinoIcons.calendar_badge_plus,
+              icon: FontAwesomeIcons.calendarPlus,
               label: 'New Session',
               onTap: () => Navigator.pop(context),
             ),
             _buildAddOption(
               context,
-              icon: CupertinoIcons.doc_on_doc,
+              icon: FontAwesomeIcons.fileSignature,
               label: 'New Job Card',
               onTap: () => Navigator.pop(context),
             ),
             _buildAddOption(
               context,
-              icon: CupertinoIcons.person_add,
+              icon: FontAwesomeIcons.userPlus,
               label: 'New Client',
               onTap: () => Navigator.pop(context),
             ),
@@ -108,7 +108,7 @@ class AppLayout extends StatelessWidget {
     required String label,
     required VoidCallback onTap,
   }) => ListTile(
-      leading: Icon(icon, color: const Color(0xFF6366F1)),
+      leading: FaIcon(icon, color: const Color(0xFF1B75BC)),
       title: Text(label),
       onTap: onTap,
     );
@@ -121,29 +121,29 @@ class AppLayout extends StatelessWidget {
         onTap: (index) => _onItemTapped(context, index),
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF6366F1),
+        selectedItemColor: const Color(0xFF1B75BC),
         unselectedItemColor: Colors.grey[400],
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.time),
+            icon: FaIcon(FontAwesomeIcons.clock, size: 24),
             label: 'Sessions',
           ),
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.doc_text),
+            icon: FaIcon(FontAwesomeIcons.fileLines, size: 24),
             label: 'Job Cards',
           ),
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.add_circled_solid, size: 32),
+            icon: FaIcon(FontAwesomeIcons.circlePlus, size: 32),
             label: 'Add',
           ),
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.person_2),
+            icon: FaIcon(FontAwesomeIcons.users, size: 24),
             label: 'Clients',
           ),
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.settings),
+            icon: FaIcon(FontAwesomeIcons.gear, size: 24),
             label: 'Settings',
           ),
         ],

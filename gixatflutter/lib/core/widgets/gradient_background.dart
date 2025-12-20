@@ -12,9 +12,9 @@ class GradientBackground extends StatelessWidget {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFF6DD5FA), // Light cyan
-              Color(0xFF2193B0), // Sky blue
-              Color(0xFF00C9A7), // Soft teal
+              Color(0xFF4FA3E0), // Lighter Gixat Blue
+              Color(0xFF1B75BC), // Gixat Blue
+              Color(0xFF155A91), // Darker Gixat Blue
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,

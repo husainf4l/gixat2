@@ -69,7 +69,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6366F1),
+              backgroundColor: const Color(0xFF1B75BC),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(
                 horizontal: 20,
@@ -184,13 +184,13 @@ class _InvoicesPageState extends State<InvoicesPage> {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                    color: const Color(0xFF1B75BC).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: const Icon(
                     Icons.receipt_rounded,
                     size: 56,
-                    color: Color(0xFF6366F1),
+                    color: Color(0xFF1B75BC),
                   ),
                 ),
                 const SizedBox(height: 28),
@@ -225,7 +225,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6366F1),
+                    backgroundColor: const Color(0xFF1B75BC),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 28,
@@ -282,13 +282,13 @@ class _InvoicesPageState extends State<InvoicesPage> {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF6366F1)
+                              color: const Color(0xFF1B75BC)
                                   .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
                               Icons.receipt_long_rounded,
-                              color: Color(0xFF6366F1),
+                              color: Color(0xFF1B75BC),
                               size: 28,
                             ),
                           ),
@@ -492,7 +492,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
-                              color: Color(0xFF6366F1),
+                              color: Color(0xFF1B75BC),
                               width: 2,
                             ),
                           ),
@@ -598,10 +598,10 @@ class _InvoicesPageState extends State<InvoicesPage> {
                                         }
                                       },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF6366F1),
+                                  backgroundColor: const Color(0xFF1B75BC),
                                   foregroundColor: Colors.white,
                                   disabledBackgroundColor:
-                                      const Color(0xFF6366F1)
+                                      const Color(0xFF1B75BC)
                                           .withValues(alpha: 0.5),
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 32,
@@ -690,7 +690,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(
-              color: Color(0xFF6366F1),
+              color: Color(0xFF1B75BC),
               width: 2,
             ),
           ),

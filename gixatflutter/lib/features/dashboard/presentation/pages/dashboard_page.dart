@@ -142,7 +142,7 @@ class _DashboardView extends StatelessWidget {
                               label: 'Today\'s Sessions',
                               value: '${stats.todaySessions}',
                               icon: Icons.access_time_rounded,
-                              color: const Color(0xFF6366F1),
+                              color: const Color(0xFF1B75BC),
                               trend: stats.todaySessions > 0
                                   ? '+${stats.todaySessions}'
                                   : '0',
@@ -539,13 +539,13 @@ class _EmptyState extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                color: const Color(0xFF1B75BC).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
                 icon,
                 size: 40,
-                color: const Color(0xFF6366F1).withValues(alpha: 0.6),
+                color: const Color(0xFF1B75BC).withValues(alpha: 0.6),
               ),
             ),
             const SizedBox(height: 16),

@@ -32,7 +32,7 @@ class AuthCard extends StatelessWidget {
                 spreadRadius: 0,
               ),
               BoxShadow(
-                color: const Color(0xFF6DD5FA).withValues(alpha: 0.1),
+                color: const Color(0xFF1B75BC).withValues(alpha: 0.1),
                 blurRadius: 60,
                 offset: const Offset(0, 20),
                 spreadRadius: 0,
