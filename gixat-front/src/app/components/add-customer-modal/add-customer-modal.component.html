@@ -1,0 +1,221 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in" (click)="close()">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-slide-up" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900">New Customer</h2>
+          <p class="text-sm text-gray-600 mt-0.5">Add a new customer to your database</p>
+        </div>
+        <button 
+          type="button" 
+          (click)="close()"
+          class="text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg p-2 transition-all">
+          <i class="ri-close-line text-xl"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="customerForm" (ngSubmit)="onSubmit()" class="overflow-y-auto max-h-[calc(90vh-160px)]">
+      <div class="px-6 py-5 space-y-5">
+        <!-- Error Message -->
+        @if (errorMessage()) {
+          <div class="p-3 bg-red-50 border-l-4 border-red-500 rounded flex items-start gap-3">
+            <i class="ri-error-warning-line text-red-600 text-lg mt-0.5"></i>
+            <p class="text-sm text-red-800 flex-1">{{ errorMessage() }}</p>
+          </div>
+        }
+
+        <!-- Personal Information -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- First Name -->
+          <div>
+            <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1.5">
+              First Name <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="firstName"
+              formControlName="firstName"
+              class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
+              placeholder="John"
+            />
+            @if (getFieldError('firstName')) {
+              <p class="mt-1 text-xs text-red-600">{{ getFieldError('firstName') }}</p>
+            }
+          </div>
+
+          <!-- Last Name -->
+          <div>
+            <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1.5">
+              Last Name <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="lastName"
+              formControlName="lastName"
+              class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
+              placeholder="Doe"
+            />
+            @if (getFieldError('lastName')) {
+              <p class="mt-1 text-xs text-red-600">{{ getFieldError('lastName') }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- Country Selection -->
+        <div>
+          <label for="country" class="block text-sm font-medium text-gray-700 mb-1.5">
+            Country
+          </label>
+          <select
+            id="country"
+            formControlName="country"
+            class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer bg-white"
+          >
+            <option value="">Select a country</option>
+            @for (country of countries(); track country.id) {
+              <option [value]="country.country">{{ country.country }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Phone Number with Code -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">
+              Phone Number <span class="text-red-500">*</span>
+              @if (phoneNumberLength()) {
+                <span class="text-blue-600 text-xs">({{ phoneNumberLength() }} digits)</span>
+              }
+            </label>
+            <div class="flex gap-2">
+              <!-- Phone Code (small) -->
+              <input
+                type="text"
+                formControlName="phoneCountryCode"
+                placeholder="+1"
+                class="w-16 px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm text-center bg-gray-50"
+              />
+              <!-- Phone Number -->
+              <input
+                type="tel"
+                id="phoneNumber"
+                formControlName="phoneNumber"
+                [placeholder]="phoneNumberLength() ? '0'.repeat(phoneNumberLength()!) : '1234567890'"
+                [maxlength]="phoneNumberLength() || 15"
+                class="flex-1 px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
+              />
+            </div>
+            @if (getFieldError('phoneCountryCode')) {
+              <p class="mt-1 text-xs text-red-600">{{ getFieldError('phoneCountryCode') }}</p>
+            }
+            @if (getFieldError('phoneNumber')) {
+              <p class="mt-1 text-xs text-red-600">
+                @if (phoneNumberLength()) {
+                  Must be exactly {{ phoneNumberLength() }} digits
+                } @else {
+                  {{ getFieldError('phoneNumber') }}
+                }
+              </p>
+            }
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              formControlName="email"
+              class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
+              placeholder="john.doe@example.com"
+            />
+            @if (getFieldError('email')) {
+              <p class="mt-1 text-xs text-red-600">{{ getFieldError('email') }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- Address Information -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <i class="ri-map-pin-line text-gray-400"></i>
+            <h3 class="text-sm font-medium text-gray-700">Address (Optional)</h3>
+          </div>
+          <div class="space-y-4 pl-6">
+            <!-- City -->
+            <div>
+              <label for="city" class="block text-sm font-medium text-gray-700 mb-1.5">
+                City
+              </label>
+              <select
+                id="city"
+                formControlName="city"
+                [disabled]="!customerForm.get('country')?.value || availableCities().length === 0"
+                class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="">
+                  {{ customerForm.get('country')?.value ? 'Select a city' : 'Select country first' }}
+                </option>
+                @for (city of availableCities(); track city.id) {
+                  <option [value]="city.city">{{ city.city }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Street -->
+            <div>
+              <label for="street" class="block text-sm font-medium text-gray-700 mb-1.5">
+                Street Address
+              </label>
+              <input
+                type="text"
+                id="street"
+                formControlName="street"
+                class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
+                placeholder="123 Main Street"
+              />
+            </div>
+
+            @if (selectedCountryMetadata()?.phoneCode) {
+              <p class="text-xs text-gray-500">
+                <i class="ri-information-line"></i>
+                Phone code auto-filled for {{ customerForm.get('country')?.value }}
+              </p>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+        <button
+          type="button"
+          (click)="close()"
+          [disabled]="isSubmitting()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="isSubmitting()"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
+        >
+          @if (isSubmitting()) {
+            <i class="ri-loader-4-line animate-spin"></i>
+            <span>Creating...</span>
+          } @else {
+            <i class="ri-add-line"></i>
+            <span>Create Customer</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

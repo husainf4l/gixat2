@@ -2,11 +2,13 @@
   <!-- Left Side: Image (3/2 aspect ratio feel in a split layout) -->
   <div class="hidden lg:block lg:w-1/2 relative overflow-hidden">
     <img 
-      src="/hero/modern_garage_login.png" 
+      ngSrc="/hero/modern_garage_login.png" 
       alt="Login background" 
-      class="absolute inset-0 w-full h-full object-cover"
+      fill
+      priority
+      class="object-cover"
     />
-    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+    <div class="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
     <div class="absolute bottom-12 left-12 right-12 text-white">
       <h2 class="text-4xl font-semibold tracking-tight leading-tight mb-4">
         Welcome back to the future of garage management.

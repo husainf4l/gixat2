@@ -1,0 +1,114 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-5xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Customers</h1>
+          <p class="mt-1 text-sm text-gray-600">Manage your customer database</p>
+        </div>
+        <button 
+          (click)="addCustomer()"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          <i class="ri-user-add-line"></i>
+          Add Customer
+        </button>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i class="ri-search-line text-gray-400"></i>
+        </div>
+        <input
+          type="text"
+          [value]="searchQuery()"
+          (input)="onSearchChange($any($event.target).value)"
+          placeholder="Search by name, phone, or car..."
+          class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    @if (errorMessage(); as err) {
+      <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <p class="text-sm text-red-800">{{ err }}</p>
+      </div>
+    }
+
+    <!-- Results Count -->
+    <div class="mb-4">
+      <p class="text-sm text-gray-600">
+        {{ customers().length }} {{ customers().length === 1 ? 'customer' : 'customers' }} found
+      </p>
+    </div>
+
+    <!-- Customer List -->
+    <div class="bg-white border border-gray-200 rounded-lg divide-y divide-gray-200">
+      @for (customer of customers(); track customer.id) {
+        <button
+          (click)="openCustomer(customer.id)"
+          class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left group"
+        >
+          <div class="flex items-center gap-4 flex-1 min-w-0">
+            <!-- Avatar -->
+            <div class="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+              {{ customer.name ? customer.name[0].toUpperCase() : '?' }}
+            </div>
+            
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <h3 class="text-base font-semibold text-gray-900 truncate">{{ customer.name }}</h3>
+              <div class="mt-1 flex items-center gap-4 text-sm text-gray-600">
+                <span class="flex items-center gap-1">
+                  <i class="ri-phone-line"></i>
+                  {{ customer.phone }}
+                </span>
+                <span class="flex items-center gap-1">
+                  <i class="ri-car-line"></i>
+                  {{ customer.carsLabel }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Arrow -->
+          <div class="flex-shrink-0 ml-4">
+            <i class="ri-arrow-right-s-line text-gray-400 text-xl group-hover:text-gray-600 transition-colors"></i>
+          </div>
+        </button>
+      }
+      
+      @empty {
+        <div class="px-6 py-12 text-center">
+          <i class="ri-user-search-line text-5xl text-gray-300 mb-4"></i>
+          <p class="text-gray-600">No customers found</p>
+          @if (searchQuery()) {
+            <p class="text-sm text-gray-500 mt-1">Try a different search term</p>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Add Customer Modal -->
+@if (showAddModal()) {
+  <app-add-customer-modal
+    (closeModal)="onModalClose()"
+    (customerCreated)="onCustomerCreated($event)"
+  />
+}
+
+<!-- Add Car Modal -->
+@if (showAddCarModal() && newCustomerId()) {
+  <app-add-car-modal
+    [customerId]="newCustomerId()!"
+    [customerName]="newCustomerName() || ''"
+    (closeModal)="onCarModalClose()"
+    (carCreated)="onCarCreated()"
+    (createSession)="onCreateSession($event)"
+  />
+}

@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LogoComponent } from '../../../components/logo/logo.component';
@@ -8,7 +8,7 @@ import { AuthService } from '../../../services/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, ReactiveFormsModule, LogoComponent],
+  imports: [CommonModule, RouterLink, FormsModule, ReactiveFormsModule, LogoComponent, NgOptimizedImage],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -21,7 +21,7 @@ export class LoginComponent {
 
   loginForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required]],
     rememberMe: [false]
   });
 
@@ -29,13 +29,27 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       this.errorMessage.set(null);
       const { email, password } = this.loginForm.value;
-      this.authService.login({ email, password }).subscribe({
+      const input = { email, password };
+      
+      this.authService.login(input).subscribe({
         next: (response) => {
           if (response.login.error) {
             this.errorMessage.set(response.login.error);
           } else {
-            // Token is now handled via HTTP-only cookie
-            this.router.navigate(['/dashboard']);
+            // Token is handled via HTTP-only cookie
+            // Check if user has organization
+            this.authService.me().subscribe({
+              next: (userData) => {
+                if (userData.me.organizationId) {
+                  this.router.navigate(['/dashboard']);
+                } else {
+                  this.router.navigate(['/organization-setup']);
+                }
+              },
+              error: () => {
+                this.router.navigate(['/dashboard']);
+              }
+            });
           }
         },
         error: (error) => {

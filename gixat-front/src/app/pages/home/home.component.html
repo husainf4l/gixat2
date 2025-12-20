@@ -1,11 +1,11 @@
 <section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-white">
     <!-- Background Gradient -->
     <div class="absolute inset-0 opacity-20">
-        <div class="absolute bottom-0 left-[-20%] right-0 top-[-10%] h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(128,90,213,0.3),rgba(255,255,255,0))]"></div>
-        <div class="absolute bottom-0 right-[-20%] top-[-10%] h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(0,123,255,0.3),rgba(255,255,255,0))]"></div>
+        <div class="absolute bottom-0 left-[-20%] right-0 top-[-10%] h-125 w-125 rounded-full bg-[radial-gradient(circle_farthest-side,rgba(128,90,213,0.3),rgba(255,255,255,0))]"></div>
+        <div class="absolute bottom-0 right-[-20%] top-[-10%] h-125 w-125 rounded-full bg-[radial-gradient(circle_farthest-side,rgba(0,123,255,0.3),rgba(255,255,255,0))]"></div>
     </div>
 
-    <div class="relative z-10 w-full max-w-[1600px] mx-auto px-6 sm:px-8 lg:px-12 py-16">
+    <div class="relative z-10 w-full max-w-400 mx-auto px-6 sm:px-8 lg:px-12 py-16">
         <div class="grid lg:grid-cols-2 gap-20 lg:gap-32 items-center">
             
             <!-- Left: Header Section -->
@@ -43,14 +43,16 @@
             </div>
 
             <!-- Right: 3D Carousel Section -->
-            <div class="relative w-full h-[500px] md:h-[600px] flex items-center justify-center">
+            <div class="relative w-full h-125 md:h-150 flex items-center justify-center">
                 <div class="relative w-full h-full flex items-center justify-center" style="perspective: 1000px;">
                     <!-- Carousel Items -->
                     @for (image of images; track image.id) {
-                        <div [ngStyle]="getItemStyles(image.id)" class="absolute w-[200px] h-[355px] md:w-[250px] md:h-[444px] transition-all duration-500 ease-in-out flex items-center justify-center">
-                            <img [src]="image.src" 
+                        <div [ngStyle]="getItemStyles(image.id)" class="absolute w-50 h-88.75 md:w-62.5 md:h-111 transition-all duration-500 ease-in-out flex items-center justify-center">
+                            <img [ngSrc]="image.src" 
                                  [alt]="image.alt" 
-                                 class="object-cover w-full h-full rounded-3xl border-2 border-slate-200 shadow-2xl" />
+                                 fill
+                                 [priority]="image.id === 2"
+                                 class="object-cover rounded-3xl border-2 border-slate-200 shadow-2xl" />
                         </div>
                     }
                 </div>

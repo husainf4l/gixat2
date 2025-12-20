@@ -6,6 +6,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard';
 import { DashboardLayoutComponent } from './layouts/dashboard-layout/dashboard-layout';
 import { OrganizationSetupComponent } from './pages/organization-setup/organization-setup';
 import { authGuard } from './auth.guard';
+import { CustomersComponent } from './pages/customers/customers.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -17,7 +18,8 @@ export const routes: Routes = [
     component: DashboardLayoutComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', component: DashboardComponent }
+      { path: '', component: DashboardComponent },
+      { path: 'customers', component: CustomersComponent }
     ]
   }
 ];

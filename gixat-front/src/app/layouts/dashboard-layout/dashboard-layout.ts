@@ -7,21 +7,7 @@ import { SidebarComponent } from '../../components/sidebar/sidebar';
   selector: 'app-dashboard-layout',
   standalone: true,
   imports: [CommonModule, RouterOutlet, SidebarComponent],
-  template: `
-    <div class="flex min-h-screen bg-slate-50">
-      <!-- Sidebar -->
-      <app-sidebar />
-
-      <!-- Main Content -->
-      <main class="flex-1 ml-64">
-        <router-outlet />
-      </main>
-    </div>
-  `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `]
+  templateUrl: './dashboard-layout.html',
+  styleUrl: './dashboard-layout.css'
 })
 export class DashboardLayoutComponent {}

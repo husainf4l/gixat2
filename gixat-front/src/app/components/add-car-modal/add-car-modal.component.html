@@ -1,0 +1,249 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in" (click)="close()">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-slide-up" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900">Add Vehicle</h2>
+          <p class="text-sm text-gray-600 mt-0.5">
+            @if (customerName()) {
+              Add a vehicle for {{ customerName() }}
+            } @else {
+              Add a new vehicle to this customer
+            }
+          </p>
+        </div>
+        <button 
+          type="button" 
+          (click)="close()"
+          class="text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg p-2 transition-all">
+          <i class="ri-close-line text-xl"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="carForm" (ngSubmit)="onSubmit()" class="overflow-y-auto max-h-[calc(90vh-160px)]">
+      <div class="px-6 py-5 space-y-5">
+        <!-- Error Message -->
+        @if (errorMessage()) {
+          <div class="p-3 bg-red-50 border-l-4 border-red-500 rounded flex items-start gap-3">
+            <i class="ri-error-warning-line text-red-600 text-lg mt-0.5"></i>
+            <p class="text-sm text-red-800 flex-1">{{ errorMessage() }}</p>
+          </div>
+        }
+
+        <!-- Vehicle Information -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Make -->
+          <div class="relative">
+            <label for="make" class="block text-sm font-medium text-gray-700 mb-1.5">
+              Make <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="make"
+              formControlName="make"
+              (focus)="showMakeSuggestions.set(true)"
+              (blur)="hideMakeSuggestions()"
+              autocomplete="off"
+              class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
+              placeholder="Type to search or enter new..."
+            />
+            @if (getFieldError('make')) {
+              <p class="mt-1 text-xs text-red-600">{{ getFieldError('make') }}</p>
+            }
+            
+            <!-- Suggestions dropdown -->
+            @if (showMakeSuggestions() && filteredMakes().length > 0) {
+              <div class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                @for (make of filteredMakes(); track make.id) {
+                  <button
+                    type="button"
+                    (mousedown)="selectMake(make.make)"
+                    class="w-full px-3.5 py-2 text-left text-sm hover:bg-green-50 transition-colors border-b border-gray-100 last:border-b-0"
+                  >
+                    {{ make.make }}
+                    @if (make.children?.length > 0) {
+                      <span class="text-xs text-gray-500 ml-1">({{ make.children.length }} models)</span>
+                    }
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Model -->
+          <div class="relative">
+            <label for="model" class="block text-sm font-medium text-gray-700 mb-1.5">
+              Model <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="model"
+              formControlName="model"
+              (focus)="showModelSuggestions.set(true)"
+              (blur)="hideModelSuggestions()"
+              autocomplete="off"
+              class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
+              placeholder="Type to search or enter new..."
+            />
+            @if (getFieldError('model')) {
+              <p class="mt-1 text-xs text-red-600">{{ getFieldError('model') }}</p>
+            }
+            
+            <!-- Suggestions dropdown -->
+            @if (showModelSuggestions() && filteredModels().length > 0) {
+              <div class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                @for (model of filteredModels(); track model.id) {
+                  <button
+                    type="button"
+                    (mousedown)="selectModel(model.model)"
+                    class="w-full px-3.5 py-2 text-left text-sm hover:bg-green-50 transition-colors border-b border-gray-100 last:border-b-0"
+                  >
+                    {{ model.model }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Year & License Plate -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Year -->
+          <div>
+            <label for="year" class="block text-sm font-medium text-gray-700 mb-1.5">
+              Year <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              id="year"
+              formControlName="year"
+              class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
+              placeholder="2024"
+            />
+            @if (getFieldError('year')) {
+              <p class="mt-1 text-xs text-red-600">{{ getFieldError('year') }}</p>
+            }
+          </div>
+
+          <!-- License Plate -->
+          <div>
+            <label for="licensePlate" class="block text-sm font-medium text-gray-700 mb-1.5">
+              License Plate <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="licensePlate"
+              formControlName="licensePlate"
+              class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm uppercase"
+              placeholder="ABC-1234"
+            />
+            @if (getFieldError('licensePlate')) {
+              <p class="mt-1 text-xs text-red-600">{{ getFieldError('licensePlate') }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- Optional Details -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <i class="ri-information-line text-gray-400"></i>
+            <h3 class="text-sm font-medium text-gray-700">Additional Details (Optional)</h3>
+          </div>
+          <div class="space-y-4 pl-6">
+            <!-- VIN -->
+            <div>
+              <label for="vin" class="block text-sm font-medium text-gray-700 mb-1.5">
+                VIN (Vehicle Identification Number)
+                <span class="text-xs text-gray-500 font-normal ml-1">(17 characters)</span>
+              </label>
+              <input
+                type="text"
+                id="vin"
+                formControlName="vin"
+                maxlength="17"
+                class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm uppercase font-mono"
+                placeholder="1HGBH41JXMN109186"
+              />
+              @if (getFieldError('vin')) {
+                <p class="mt-1 text-xs text-red-600">{{ getFieldError('vin') }}</p>
+              }
+            </div>
+
+            <!-- Color -->
+            <div>
+              <label for="color" class="block text-sm font-medium text-gray-700 mb-1.5">
+                Color
+              </label>
+              <input
+                type="text"
+                id="color"
+                formControlName="color"
+                class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
+                placeholder="Silver"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+        @if (!createdCarId()) {
+          <!-- Initial state: Submit form -->
+          <div class="flex justify-end gap-3">
+            <button
+              type="button"
+              (click)="close()"
+              [disabled]="isSubmitting()"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              [disabled]="isSubmitting()"
+              class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
+            >
+              @if (isSubmitting()) {
+                <i class="ri-loader-4-line animate-spin"></i>
+                <span>Adding...</span>
+              } @else {
+                <i class="ri-add-line"></i>
+                <span>Add Vehicle</span>
+              }
+            </button>
+          </div>
+        } @else {
+          <!-- After car created: Choose next action -->
+          <div class="space-y-3">
+            <div class="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+              <i class="ri-checkbox-circle-fill text-green-600 text-lg"></i>
+              <p class="text-sm text-green-800 font-medium">Vehicle added successfully!</p>
+            </div>
+            <div class="flex justify-end gap-3">
+              <button
+                type="button"
+                (click)="onSaveOnly()"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+              >
+                <i class="ri-save-line"></i>
+                <span>Save & Close</span>
+              </button>
+              <button
+                type="button"
+                (click)="onCreateSession()"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm"
+              >
+                <i class="ri-calendar-check-line"></i>
+                <span>Create Session</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </form>
+  </div>
+</div>
