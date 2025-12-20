@@ -1,13 +1,15 @@
 using GixatBackend.Data;
 using GixatBackend.Modules.Lookup.Models;
 using Microsoft.EntityFrameworkCore;
+using HotChocolate.Authorization;
 
 namespace GixatBackend.Modules.Lookup.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Query)]
-public class LookupQueries
+[Authorize]
+internal static class LookupQueries
 {
-    public async Task<IEnumerable<LookupItem>> GetAutocompleteItemsAsync(
+    public static async Task<IEnumerable<LookupItem>> GetAutocompleteItemsAsync(
         string category,
         string? query,
         Guid? parentId,
@@ -35,7 +37,7 @@ public class LookupQueries
             .ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<string>> GetCategoriesAsync(
+    public static async Task<IEnumerable<string>> GetCategoriesAsync(
         [Service] ApplicationDbContext context)
     {
         ArgumentNullException.ThrowIfNull(context);

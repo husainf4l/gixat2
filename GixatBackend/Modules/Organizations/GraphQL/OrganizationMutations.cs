@@ -3,22 +3,27 @@ using GixatBackend.Modules.Common.Models;
 using GixatBackend.Modules.Common.Services;
 using GixatBackend.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
+using HotChocolate.Authorization;
 
 namespace GixatBackend.Modules.Organizations.GraphQL;
 
-public record CreateOrganizationInput(
+[SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Required by HotChocolate for schema discovery")]
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated by HotChocolate")]
+public sealed record CreateOrganizationInput(
     string Name, 
     string Country, 
     string City, 
     string Street, 
     string PhoneCountryCode,
-    string? LogoUrl,
+    Uri? LogoUrl,
     string? LogoAlt);
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
-public class OrganizationMutations
+[Authorize]
+internal static class OrganizationMutations
 {
-    public async Task<Organization> CreateOrganizationAsync(
+    public static async Task<Organization> CreateOrganizationAsync(
         CreateOrganizationInput input,
         [Service] ApplicationDbContext context)
     {
@@ -33,10 +38,10 @@ public class OrganizationMutations
             PhoneCountryCode = input.PhoneCountryCode
         };
 
-        Media? logo = null;
-        if (!string.IsNullOrEmpty(input.LogoUrl))
+        AppMedia? logo = null;
+        if (input.LogoUrl != null)
         {
-            logo = new Media
+            logo = new AppMedia
             {
                 Url = input.LogoUrl,
                 Alt = input.LogoAlt,
@@ -57,7 +62,7 @@ public class OrganizationMutations
         return organization;
     }
 
-    public async Task<bool> AssignUserToOrganizationAsync(
+    public static async Task<bool> AssignUserToOrganizationAsync(
         Guid userId,
         Guid organizationId,
         [Service] ApplicationDbContext context)
@@ -76,7 +81,7 @@ public class OrganizationMutations
         return true;
     }
 
-    public async Task<Organization> UpdateMyOrganizationAsync(
+    public static async Task<Organization> UpdateMyOrganizationAsync(
         string name,
         [Service] ApplicationDbContext context,
         [Service] ITenantService tenantService)

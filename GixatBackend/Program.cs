@@ -69,27 +69,54 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "YourSuperSecretKeyWithAtLeast32Chars!"))
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var token = context.Request.Cookies["access_token"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                context.Token = token;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 builder.Services
     .AddGraphQLServer()
     .AddQueryType()
-        .AddTypeExtension<AuthQueries>()
-        .AddTypeExtension<OrganizationQueries>()
-        .AddTypeExtension<LookupQueries>()
-        .AddTypeExtension<SessionQueries>()
-        .AddTypeExtension<JobCardQueries>()
-        .AddTypeExtension<CustomerQueries>()
+#pragma warning disable CA2263 // Prefer generic overload - Static types cannot be used as type arguments
+        .AddType(typeof(AuthQueries))
+        .AddType(typeof(UserExtensions))
+        .AddType(typeof(OrganizationQueries))
+        .AddType(typeof(LookupQueries))
+        .AddType(typeof(SessionQueries))
+        .AddType(typeof(JobCardQueries))
+        .AddType(typeof(CustomerQueries))
     .AddMutationType()
-        .AddTypeExtension<AuthMutations>()
-        .AddTypeExtension<OrganizationMutations>()
-        .AddTypeExtension<MediaMutations>()
-        .AddTypeExtension<LookupMutations>()
-        .AddTypeExtension<SessionMutations>()
-        .AddTypeExtension<JobCardMutations>()
-        .AddTypeExtension<CustomerMutations>()
+        .AddType(typeof(AuthMutations))
+        .AddType(typeof(OrganizationMutations))
+        .AddType(typeof(MediaMutations))
+        .AddType(typeof(LookupMutations))
+        .AddType(typeof(SessionMutations))
+        .AddType(typeof(JobCardMutations))
+        .AddType(typeof(CustomerMutations))
+#pragma warning restore CA2263
     .AddUploadType()
     .AddProjections()
     .AddFiltering()
@@ -113,7 +140,7 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex) when (ex is not OperationCanceledException)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
+        ProgramLogMessages.LogSeedingError(logger, ex);
     }
 }
 
@@ -125,9 +152,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGraphQL();
 
 await app.RunAsync().ConfigureAwait(false);
+
+internal static partial class ProgramLogMessages
+{
+    [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while seeding the database.")]
+    public static partial void LogSeedingError(ILogger logger, Exception ex);
+}

@@ -6,19 +6,23 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace GixatBackend.Modules.Common.Services
 {
-    public class S3Service : IS3Service
+    [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated by DI")]
+    internal sealed class S3Service : IS3Service
     {
         private readonly IAmazonS3 _s3Client;
         private readonly string _bucketName;
 
         public S3Service(IAmazonS3 s3Client, IConfiguration configuration)
         {
+            ArgumentNullException.ThrowIfNull(configuration);
             _s3Client = s3Client;
             _bucketName = Environment.GetEnvironmentVariable("AWS_S3_BUCKET_NAME") 
                           ?? configuration["AWS:S3BucketName"] 
-                          ?? throw new ArgumentNullException("AWS_S3_BUCKET_NAME not configured.");
+                          ?? throw new ArgumentNullException(nameof(configuration), "AWS_S3_BUCKET_NAME not configured.");
         }
 
         public async Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType)
@@ -35,7 +39,7 @@ namespace GixatBackend.Modules.Common.Services
             };
 
             using var fileTransferUtility = new TransferUtility(_s3Client);
-            await fileTransferUtility.UploadAsync(uploadRequest);
+            await fileTransferUtility.UploadAsync(uploadRequest).ConfigureAwait(false);
 
             return fileKey;
         }
@@ -48,15 +52,16 @@ namespace GixatBackend.Modules.Common.Services
                 Key = fileKey
             };
 
-            await _s3Client.DeleteObjectAsync(deleteRequest);
+            await _s3Client.DeleteObjectAsync(deleteRequest).ConfigureAwait(false);
         }
 
-        public string GetFileUrl(string fileKey)
+        public Uri GetFileUrl(string fileKey)
         {
             // For me-central-1 and other regions, the URL format is:
             // https://{bucket-name}.s3.{region}.amazonaws.com/{key}
             var region = Environment.GetEnvironmentVariable("AWS_REGION") ?? "me-central-1";
-            return $"https://{_bucketName}.s3.{region}.amazonaws.com/{fileKey}";
+            return new Uri($"https://{_bucketName}.s3.{region}.amazonaws.com/{fileKey}");
         }
     }
 }
+

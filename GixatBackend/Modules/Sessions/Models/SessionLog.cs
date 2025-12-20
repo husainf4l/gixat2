@@ -1,8 +1,10 @@
 using GixatBackend.Modules.Sessions.Enums;
+using System.Diagnostics.CodeAnalysis;
 
 namespace GixatBackend.Modules.Sessions.Models;
 
-public class SessionLog
+[SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Required to be public for HotChocolate type discovery")]
+public sealed class SessionLog
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     

@@ -9,9 +9,12 @@ using GixatBackend.Modules.JobCards.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace GixatBackend.Data;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated by DI")]
+internal sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
     private readonly ITenantService _tenantService;
 
@@ -23,7 +26,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<Organization> Organizations { get; set; }
     public DbSet<Address> Addresses { get; set; }
-    public DbSet<Media> Medias { get; set; }
+    public DbSet<AppMedia> Medias { get; set; }
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Car> Cars { get; set; }
     public DbSet<LookupItem> LookupItems { get; set; }

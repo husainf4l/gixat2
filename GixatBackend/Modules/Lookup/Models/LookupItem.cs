@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace GixatBackend.Modules.Lookup.Models;
 
-public class LookupItem
+[SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Required to be public for HotChocolate type discovery")]
+public sealed class LookupItem
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     
@@ -20,13 +23,13 @@ public class LookupItem
     public Guid? ParentId { get; set; }
     public LookupItem? Parent { get; set; }
     
-    public ICollection<LookupItem> Children { get; set; } = new List<LookupItem>();
+    public ICollection<LookupItem> Children { get; } = new List<LookupItem>();
     
     /// <summary>
     /// Optional metadata for extra information
     /// </summary>
     public string? Metadata { get; set; }
     
-    public int SortOrder { get; set; } = 0;
+    public int SortOrder { get; set; }
     public bool IsActive { get; set; } = true;
 }

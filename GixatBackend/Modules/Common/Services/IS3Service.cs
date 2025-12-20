@@ -1,12 +1,14 @@
 using System.IO;
 using System.Threading.Tasks;
+using System;
 
 namespace GixatBackend.Modules.Common.Services
 {
-    public interface IS3Service
+    internal interface IS3Service
     {
         Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType);
         Task DeleteFileAsync(string fileKey);
-        string GetFileUrl(string fileKey);
+        Uri GetFileUrl(string fileKey);
     }
 }
+

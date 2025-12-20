@@ -5,11 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GixatBackend.Data;
 
-public static class DbInitializer
+internal static class DbInitializer
 {
     public static async Task SeedLookupDataAsync(ApplicationDbContext context)
     {
-        if (await context.LookupItems.AnyAsync())
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (await context.LookupItems.AnyAsync().ConfigureAwait(false))
         {
             return; // Already seeded
         }
@@ -29,7 +31,7 @@ public static class DbInitializer
         };
 
         context.LookupItems.AddRange(makes);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
 
         var toyota = makes.First(m => m.Value == "Toyota");
         var bmw = makes.First(m => m.Value == "BMW");
@@ -65,12 +67,14 @@ public static class DbInitializer
         };
 
         context.LookupItems.AddRange(colors);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public static async Task SeedExampleDataAsync(ApplicationDbContext context)
     {
-        if (await context.Organizations.AnyAsync())
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (await context.Organizations.AnyAsync().ConfigureAwait(false))
         {
             return; // Already seeded
         }
@@ -81,7 +85,7 @@ public static class DbInitializer
         };
 
         context.Organizations.Add(organization);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
 
         var customers = new List<Customer>
         {
@@ -104,7 +108,7 @@ public static class DbInitializer
         };
 
         context.Customers.AddRange(customers);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
 
         var cars = new List<Car>
         {
@@ -141,6 +145,6 @@ public static class DbInitializer
         };
 
         context.Cars.AddRange(cars);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
     }
 }

@@ -1,8 +1,11 @@
 using System.Security.Claims;
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace GixatBackend.Modules.Common.Services;
 
-public class TenantService : ITenantService
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated by DI")]
+internal sealed class TenantService : ITenantService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 

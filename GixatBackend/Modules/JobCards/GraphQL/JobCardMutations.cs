@@ -2,13 +2,15 @@ using GixatBackend.Data;
 using GixatBackend.Modules.JobCards.Models;
 using GixatBackend.Modules.Sessions.Enums;
 using Microsoft.EntityFrameworkCore;
+using HotChocolate.Authorization;
 
 namespace GixatBackend.Modules.JobCards.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
-public class JobCardMutations
+[Authorize]
+internal static class JobCardMutations
 {
-    public async Task<JobCard> CreateJobCardFromSessionAsync(
+    public static async Task<JobCard> CreateJobCardFromSessionAsync(
         Guid sessionId,
         ApplicationDbContext context)
     {
@@ -51,7 +53,7 @@ public class JobCardMutations
         return jobCard;
     }
 
-    public async Task<JobCard> AddJobItemAsync(
+    public static async Task<JobCard> AddJobItemAsync(
         Guid jobCardId,
         string description,
         decimal estimatedCost,
@@ -84,7 +86,7 @@ public class JobCardMutations
         return jobCard;
     }
 
-    public async Task<JobItem> UpdateJobItemStatusAsync(
+    public static async Task<JobItem> UpdateJobItemStatusAsync(
         Guid itemId,
         JobItemStatus status,
         decimal actualCost,
@@ -119,7 +121,7 @@ public class JobCardMutations
         return item;
     }
 
-    public async Task<JobCard> UpdateJobCardStatusAsync(
+    public static async Task<JobCard> UpdateJobCardStatusAsync(
         Guid jobCardId,
         JobCardStatus status,
         ApplicationDbContext context)

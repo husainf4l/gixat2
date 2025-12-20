@@ -1,6 +1,6 @@
 namespace GixatBackend.Modules.Common.Services;
 
-public interface ITenantService
+internal interface ITenantService
 {
     Guid? OrganizationId { get; }
 }

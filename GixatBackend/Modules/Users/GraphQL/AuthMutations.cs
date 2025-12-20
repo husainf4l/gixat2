@@ -6,22 +6,27 @@ using GixatBackend.Modules.Users.Models;
 using GixatBackend.Modules.Users.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using HotChocolate.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace GixatBackend.Modules.Users.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
-public class AuthMutations
+internal static class AuthMutations
 {
-    public async Task<AuthPayload> RegisterAsync(
+    [AllowAnonymous]
+    public static async Task<AuthPayload> RegisterAsync(
         RegisterInput input,
         [Service] UserManager<ApplicationUser> userManager,
         [Service] RoleManager<IdentityRole> roleManager,
-        [Service] IConfiguration configuration)
+        [Service] IConfiguration configuration,
+        [Service] IHttpContextAccessor httpContextAccessor)
     {
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(userManager);
         ArgumentNullException.ThrowIfNull(roleManager);
         ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(httpContextAccessor);
 
         var user = new ApplicationUser
         {
@@ -48,17 +53,34 @@ public class AuthMutations
         await userManager.AddToRoleAsync(user, input.Role).ConfigureAwait(false);
 
         var token = await GenerateJwtToken(user, userManager, configuration).ConfigureAwait(false);
+
+        // Set HTTP-only cookie for web clients
+        var httpContext = httpContextAccessor.HttpContext;
+        if (httpContext != null)
+        {
+            httpContext.Response.Cookies.Append("access_token", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None, // Required for cross-origin if frontend is on different port/domain
+                Expires = DateTime.UtcNow.AddDays(7)
+            });
+        }
+
         return new AuthPayload(token, user);
     }
 
-    public async Task<AuthPayload> LoginAsync(
+    [AllowAnonymous]
+    public static async Task<AuthPayload> LoginAsync(
         LoginInput input,
         [Service] UserManager<ApplicationUser> userManager,
-        [Service] IConfiguration configuration)
+        [Service] IConfiguration configuration,
+        [Service] IHttpContextAccessor httpContextAccessor)
     {
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(userManager);
         ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(httpContextAccessor);
 
         var user = await userManager.FindByEmailAsync(input.Email).ConfigureAwait(false);
 
@@ -68,10 +90,24 @@ public class AuthMutations
         }
 
         var token = await GenerateJwtToken(user, userManager, configuration).ConfigureAwait(false);
+
+        // Set HTTP-only cookie for web clients
+        var httpContext = httpContextAccessor.HttpContext;
+        if (httpContext != null)
+        {
+            httpContext.Response.Cookies.Append("access_token", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None, // Required for cross-origin
+                Expires = DateTime.UtcNow.AddDays(7)
+            });
+        }
+
         return new AuthPayload(token, user);
     }
 
-    private async Task<string> GenerateJwtToken(ApplicationUser user, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+    private static async Task<string> GenerateJwtToken(ApplicationUser user, UserManager<ApplicationUser> userManager, IConfiguration configuration)
     {
         var claims = new List<Claim>
         {
@@ -81,9 +117,9 @@ public class AuthMutations
             new Claim(ClaimTypes.NameIdentifier, user.Id)
         };
 
-        if (user.OrganizationId != Guid.Empty)
+        if (user.OrganizationId.HasValue)
         {
-            claims.Add(new Claim("OrganizationId", user.OrganizationId.ToString(null, CultureInfo.InvariantCulture)));
+            claims.Add(new Claim("OrganizationId", user.OrganizationId.Value.ToString(null, CultureInfo.InvariantCulture)));
         }
 
         var roles = await userManager.GetRolesAsync(user).ConfigureAwait(false);

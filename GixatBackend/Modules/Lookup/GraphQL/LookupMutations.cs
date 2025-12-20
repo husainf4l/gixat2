@@ -1,9 +1,12 @@
 using GixatBackend.Data;
 using GixatBackend.Modules.Lookup.Models;
+using System.Diagnostics.CodeAnalysis;
+using HotChocolate.Authorization;
 
 namespace GixatBackend.Modules.Lookup.GraphQL;
 
-public record CreateLookupItemInput(
+[SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Required to be public for HotChocolate type discovery")]
+public sealed record CreateLookupItemInput(
     string Category,
     string Value,
     Guid? ParentId = null,
@@ -11,12 +14,16 @@ public record CreateLookupItemInput(
     int SortOrder = 0);
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
-public class LookupMutations
+[Authorize]
+internal static class LookupMutations
 {
-    public async Task<LookupItem> CreateLookupItemAsync(
+    public static async Task<LookupItem> CreateLookupItemAsync(
         CreateLookupItemInput input,
         [Service] ApplicationDbContext context)
     {
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(context);
+
         var item = new LookupItem
         {
             Category = input.Category,
@@ -27,7 +34,7 @@ public class LookupMutations
         };
 
         context.LookupItems.Add(item);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
         return item;
     }
 }

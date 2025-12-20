@@ -1,6 +1,6 @@
 namespace GixatBackend.Modules.Common.Models;
 
-public interface IMustHaveOrganization
+internal interface IMustHaveOrganization
 {
     Guid OrganizationId { get; set; }
 }

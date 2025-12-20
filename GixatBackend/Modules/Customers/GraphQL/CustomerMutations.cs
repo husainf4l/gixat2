@@ -2,10 +2,14 @@ using GixatBackend.Data;
 using GixatBackend.Modules.Customers.Models;
 using GixatBackend.Modules.Common.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
+using HotChocolate.Authorization;
 
 namespace GixatBackend.Modules.Customers.GraphQL;
 
-public record CreateCustomerInput(
+[SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Required by HotChocolate for schema discovery")]
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated by HotChocolate")]
+public sealed record CreateCustomerInput(
     string FirstName,
     string LastName,
     string? Email,
@@ -14,7 +18,9 @@ public record CreateCustomerInput(
     string? City,
     string? Street);
 
-public record CreateCarInput(
+[SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Required by HotChocolate for schema discovery")]
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated by HotChocolate")]
+public sealed record CreateCarInput(
     Guid CustomerId,
     string Make,
     string Model,
@@ -24,9 +30,10 @@ public record CreateCarInput(
     string? Color);
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
-public class CustomerMutations
+[Authorize]
+internal static class CustomerMutations
 {
-    public async Task<Customer> CreateCustomerAsync(
+    public static async Task<Customer> CreateCustomerAsync(
         CreateCustomerInput input,
         ApplicationDbContext context)
     {
@@ -56,7 +63,7 @@ public class CustomerMutations
         return customer;
     }
 
-    public async Task<Car> CreateCarAsync(
+    public static async Task<Car> CreateCarAsync(
         CreateCarInput input,
         ApplicationDbContext context)
     {

@@ -1,9 +1,11 @@
 using GixatBackend.Modules.Common.Models;
 using GixatBackend.Modules.Organizations.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace GixatBackend.Modules.Customers.Models;
 
-public class Car : IMustHaveOrganization
+[SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Required to be public for HotChocolate type discovery")]
+public sealed class Car : IMustHaveOrganization
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Make { get; set; } = string.Empty;

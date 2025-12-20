@@ -2,13 +2,15 @@ using GixatBackend.Data;
 using GixatBackend.Modules.Sessions.Enums;
 using GixatBackend.Modules.Sessions.Models;
 using Microsoft.EntityFrameworkCore;
+using HotChocolate.Authorization;
 
 namespace GixatBackend.Modules.Sessions.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
-public class SessionMutations
+[Authorize]
+internal static class SessionMutations
 {
-    public async Task<GarageSession> CreateSessionAsync(
+    public static async Task<GarageSession> CreateSessionAsync(
         Guid carId,
         Guid customerId,
         string? intakeNotes,
@@ -47,7 +49,7 @@ public class SessionMutations
         return session;
     }
 
-    public async Task<GarageSession> UpdateSessionStatusAsync(
+    public static async Task<GarageSession> UpdateSessionStatusAsync(
         Guid sessionId,
         SessionStatus newStatus,
         string? notes,
@@ -79,7 +81,7 @@ public class SessionMutations
         return session;
     }
 
-    public async Task<GarageSession> UpdateIntakeAsync(
+    public static async Task<GarageSession> UpdateIntakeAsync(
         Guid sessionId,
         string? intakeNotes,
         string? customerRequests,
@@ -101,7 +103,7 @@ public class SessionMutations
         return session;
     }
 
-    public async Task<GarageSession> UpdateInspectionAsync(
+    public static async Task<GarageSession> UpdateInspectionAsync(
         Guid sessionId,
         string? inspectionNotes,
         ApplicationDbContext context)
@@ -121,7 +123,7 @@ public class SessionMutations
         return session;
     }
 
-    public async Task<GarageSession> UpdateTestDriveAsync(
+    public static async Task<GarageSession> UpdateTestDriveAsync(
         Guid sessionId,
         string? testDriveNotes,
         ApplicationDbContext context)
@@ -141,7 +143,7 @@ public class SessionMutations
         return session;
     }
 
-    public async Task<GarageSession> GenerateInitialReportAsync(
+    public static async Task<GarageSession> GenerateInitialReportAsync(
         Guid sessionId,
         string report,
         ApplicationDbContext context)

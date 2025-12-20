@@ -1,22 +1,24 @@
 using GixatBackend.Data;
 using GixatBackend.Modules.Sessions.Models;
 using Microsoft.EntityFrameworkCore;
+using HotChocolate.Authorization;
 
 namespace GixatBackend.Modules.Sessions.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Query)]
-public class SessionQueries
+[Authorize]
+internal static class SessionQueries
 {
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<GarageSession> GetSessions(ApplicationDbContext context)
+    public static IQueryable<GarageSession> GetSessions(ApplicationDbContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
         return context.GarageSessions;
     }
 
-    public async Task<GarageSession?> GetSessionByIdAsync(Guid id, ApplicationDbContext context)
+    public static async Task<GarageSession?> GetSessionByIdAsync(Guid id, ApplicationDbContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
         return await context.GarageSessions

@@ -1,22 +1,24 @@
 using GixatBackend.Data;
 using GixatBackend.Modules.JobCards.Models;
 using Microsoft.EntityFrameworkCore;
+using HotChocolate.Authorization;
 
 namespace GixatBackend.Modules.JobCards.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Query)]
-public class JobCardQueries
+[Authorize]
+internal static class JobCardQueries
 {
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<JobCard> GetJobCards(ApplicationDbContext context)
+    public static IQueryable<JobCard> GetJobCards(ApplicationDbContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
         return context.JobCards;
     }
 
-    public async Task<JobCard?> GetJobCardByIdAsync(Guid id, ApplicationDbContext context)
+    public static async Task<JobCard?> GetJobCardByIdAsync(Guid id, ApplicationDbContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
         return await context.JobCards

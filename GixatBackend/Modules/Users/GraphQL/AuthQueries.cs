@@ -6,9 +6,10 @@ using HotChocolate.Authorization;
 namespace GixatBackend.Modules.Users.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Query)]
-public class AuthQueries
+[Authorize]
+internal static class AuthQueries
 {
-    public async Task<ApplicationUser?> GetMeAsync(
+    public static async Task<ApplicationUser?> GetMeAsync(
         ClaimsPrincipal claimsPrincipal,
         [Service] UserManager<ApplicationUser> userManager)
     {
