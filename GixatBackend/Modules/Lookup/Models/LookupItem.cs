@@ -23,7 +23,7 @@ public sealed class LookupItem
     public Guid? ParentId { get; set; }
     public LookupItem? Parent { get; set; }
     
-    public ICollection<LookupItem> Children { get; } = new List<LookupItem>();
+    public ICollection<LookupItem> Children { get; set; } = new List<LookupItem>();
     
     /// <summary>
     /// Optional metadata for extra information

@@ -2,6 +2,7 @@ using GixatBackend.Data;
 using GixatBackend.Modules.Customers.Models;
 using Microsoft.EntityFrameworkCore;
 using HotChocolate.Authorization;
+using System.Globalization;
 
 namespace GixatBackend.Modules.Customers.GraphQL;
 
@@ -9,6 +10,7 @@ namespace GixatBackend.Modules.Customers.GraphQL;
 [Authorize]
 internal static class CustomerQueries
 {
+    [UsePaging]
     [UseProjection]
     [UseFiltering]
     [UseSorting]
@@ -16,6 +18,32 @@ internal static class CustomerQueries
     {
         ArgumentNullException.ThrowIfNull(context);
         return context.Customers;
+    }
+
+    [UsePaging]
+    [UseProjection]
+    public static IQueryable<Customer> SearchCustomers(
+        string query,
+        ApplicationDbContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        
+        var searchQuery = query.Trim().ToUpperInvariant();
+        
+        return context.Customers
+            .Include(c => c.Cars)
+            .Where(c => 
+                c.FirstName.ToUpperInvariant().Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                c.LastName.ToUpperInvariant().Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                (c.Email != null && c.Email.ToUpperInvariant().Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) ||
+                c.PhoneNumber.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                c.Cars.Any(car => 
+                    car.Make.ToUpperInvariant().Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                    car.Model.ToUpperInvariant().Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                    car.LicensePlate.ToUpperInvariant().Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                    (car.VIN != null && car.VIN.ToUpperInvariant().Contains(searchQuery, StringComparison.OrdinalIgnoreCase))
+                )
+            );
     }
 
     public static async Task<Customer?> GetCustomerByIdAsync(Guid id, ApplicationDbContext context)
@@ -27,6 +55,7 @@ internal static class CustomerQueries
             .FirstOrDefaultAsync(c => c.Id == id).ConfigureAwait(false);
     }
 
+    [UsePaging]
     [UseProjection]
     [UseFiltering]
     [UseSorting]

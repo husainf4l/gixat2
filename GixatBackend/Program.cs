@@ -1,5 +1,6 @@
 using System.Text;
 using GixatBackend.Modules.Users.Models;
+using GixatBackend.Modules.Users.Services;
 using GixatBackend.Data;
 using GixatBackend.Modules.Users.GraphQL;
 using GixatBackend.Modules.Organizations.GraphQL;
@@ -8,6 +9,7 @@ using GixatBackend.Modules.Lookup.GraphQL;
 using GixatBackend.Modules.Sessions.GraphQL;
 using GixatBackend.Modules.JobCards.GraphQL;
 using GixatBackend.Modules.Customers.GraphQL;
+using GixatBackend.Modules.Invites.GraphQL;
 using GixatBackend.Modules.Common.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -16,6 +18,11 @@ using Microsoft.IdentityModel.Tokens;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
+using System.Security.Cryptography;
+
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("GixatBackend.Tests")]
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +37,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITenantService, TenantService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // AWS Configuration
 var awsOptions = builder.Configuration.GetAWSOptions();
@@ -59,6 +67,12 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    var publicKeyPem = builder.Configuration["Jwt:PublicKey"] 
+        ?? throw new InvalidOperationException("Jwt:PublicKey is not configured.");
+    
+    var rsa = RSA.Create();
+    rsa.ImportFromPem(publicKeyPem);
+
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -67,7 +81,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "YourSuperSecretKeyWithAtLeast32Chars!"))
+        IssuerSigningKey = new RsaSecurityKey(rsa)
     };
 
     options.Events = new JwtBearerEvents
@@ -91,6 +105,14 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         policy.WithOrigins("http://localhost:4200")
+              .SetIsOriginAllowed(origin => 
+              {
+                  var host = new Uri(origin).Host;
+                  return host == "localhost" || host == "127.0.0.1" || 
+                         host.StartsWith("192.168.", StringComparison.Ordinal) || 
+                         host.StartsWith("10.", StringComparison.Ordinal) || 
+                         host.StartsWith("172.", StringComparison.Ordinal);
+              })
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -108,6 +130,7 @@ builder.Services
         .AddType(typeof(SessionQueries))
         .AddType(typeof(JobCardQueries))
         .AddType(typeof(CustomerQueries))
+        .AddType(typeof(InviteQueries))
     .AddMutationType()
         .AddType(typeof(AuthMutations))
         .AddType(typeof(OrganizationMutations))
@@ -116,11 +139,18 @@ builder.Services
         .AddType(typeof(SessionMutations))
         .AddType(typeof(JobCardMutations))
         .AddType(typeof(CustomerMutations))
+        .AddType(typeof(InviteMutations))
 #pragma warning restore CA2263
     .AddUploadType()
     .AddProjections()
     .AddFiltering()
     .AddSorting()
+    .ModifyPagingOptions(options =>
+    {
+        options.DefaultPageSize = 50;
+        options.MaxPageSize = 100;
+        options.IncludeTotalCount = true;
+    })
     .AddAuthorization();
 
 builder.Services.AddOpenApi();

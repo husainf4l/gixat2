@@ -6,6 +6,7 @@ using GixatBackend.Modules.Customers.Models;
 using GixatBackend.Modules.Lookup.Models;
 using GixatBackend.Modules.Sessions.Models;
 using GixatBackend.Modules.JobCards.Models;
+using GixatBackend.Modules.Invites.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,6 +36,7 @@ internal sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<SessionLog> SessionLogs { get; set; }
     public DbSet<JobCard> JobCards { get; set; }
     public DbSet<JobItem> JobItems { get; set; }
+    public DbSet<UserInvite> UserInvites { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -87,6 +89,7 @@ internal sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             builder.Entity<GarageSession>().HasQueryFilter(s => s.OrganizationId == organizationId.Value);
             builder.Entity<JobCard>().HasQueryFilter(j => j.OrganizationId == organizationId.Value);
             builder.Entity<ApplicationUser>().HasQueryFilter(u => u.OrganizationId == organizationId.Value);
+            builder.Entity<UserInvite>().HasQueryFilter(i => i.OrganizationId == organizationId.Value);
         }
     }
 

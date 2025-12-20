@@ -1,0 +1,96 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  GixatBackend -> /Users/husain/Desktop/gixat2/GixatBackend/bin/Debug/net10.0/GixatBackend.dll
+  GixatBackend.Tests -> /Users/husain/Desktop/gixat2/GixatBackend/GixatBackend.Tests/bin/Debug/net10.0/GixatBackend.Tests.dll
+Test run for /Users/husain/Desktop/gixat2/GixatBackend/GixatBackend.Tests/bin/Debug/net10.0/GixatBackend.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.1 (arm64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.15]     GixatBackend.Tests.Modules.Users.Services.AuthServiceTests.RegisterAsync_ShouldReturnError_WhenUserCreationFails [FAIL]
+[xUnit.net 00:00:00.16]     GixatBackend.Tests.Modules.Users.Services.AuthServiceTests.LoginAsync_ShouldReturnError_WhenPasswordIsInvalid [FAIL]
+[xUnit.net 00:00:00.16]     GixatBackend.Tests.Modules.Users.Services.AuthServiceTests.LoginAsync_ShouldReturnError_WhenUserNotFound [FAIL]
+[xUnit.net 00:00:00.16]     GixatBackend.Tests.Modules.Users.Services.AuthServiceTests.RegisterAsync_ShouldCreateUserAndReturnToken_WhenInputIsValid [FAIL]
+[xUnit.net 00:00:00.16]     GixatBackend.Tests.Modules.Users.Services.AuthServiceTests.LoginAsync_ShouldReturnToken_WhenCredentialsAreValid [FAIL]
+  Failed GixatBackend.Tests.Modules.Users.Services.AuthServiceTests.RegisterAsync_ShouldReturnError_WhenUserCreationFails [1 ms]
+  Error Message:
+   System.ArgumentException : Can not create proxy for type GixatBackend.Modules.Common.Services.ITenantService because it is not accessible. Make it public, or internal and mark your assembly with [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] attribute, because assembly GixatBackend is not strong-named. (Parameter 'interfaceToProxy')
+  Stack Trace:
+     at Castle.DynamicProxy.DefaultProxyBuilder.AssertValidTypeForTarget(Type type, Type target, String paramName)
+   at Castle.DynamicProxy.DefaultProxyBuilder.AssertValidType(Type target, String paramName)
+   at Castle.DynamicProxy.DefaultProxyBuilder.CreateInterfaceProxyTypeWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options)
+   at Castle.DynamicProxy.ProxyGenerator.CreateInterfaceProxyTypeWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options)
+   at Castle.DynamicProxy.ProxyGenerator.CreateInterfaceProxyWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options, IInterceptor[] interceptors)
+   at Moq.CastleProxyFactory.CreateProxy(Type mockType, IInterceptor interceptor, Type[] interfaces, Object[] arguments) in /_/src/Moq/Interception/CastleProxyFactory.cs:line 50
+   at Moq.Mock`1.InitializeInstance() in /_/src/Moq/Mock`1.cs:line 309
+   at Moq.Mock`1.OnGetObject() in /_/src/Moq/Mock`1.cs:line 323
+   at Moq.Mock.get_Object() in /_/src/Moq/Mock.cs:line 181
+   at Moq.Mock`1.get_Object() in /_/src/Moq/Mock`1.cs:line 281
+   at GixatBackend.Tests.Modules.Users.Services.AuthServiceTests..ctor() in /Users/husain/Desktop/gixat2/GixatBackend/GixatBackend.Tests/Modules/Users/Services/AuthServiceTests.cs:line 50
+   at System.RuntimeType.CreateInstanceDefaultCtor(Boolean publicOnly, Boolean wrapExceptions)
+  Failed GixatBackend.Tests.Modules.Users.Services.AuthServiceTests.LoginAsync_ShouldReturnError_WhenPasswordIsInvalid [1 ms]
+  Error Message:
+   System.ArgumentException : Can not create proxy for type GixatBackend.Modules.Common.Services.ITenantService because it is not accessible. Make it public, or internal and mark your assembly with [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] attribute, because assembly GixatBackend is not strong-named. (Parameter 'interfaceToProxy')
+  Stack Trace:
+     at Castle.DynamicProxy.DefaultProxyBuilder.AssertValidTypeForTarget(Type type, Type target, String paramName)
+   at Castle.DynamicProxy.DefaultProxyBuilder.AssertValidType(Type target, String paramName)
+   at Castle.DynamicProxy.DefaultProxyBuilder.CreateInterfaceProxyTypeWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options)
+   at Castle.DynamicProxy.ProxyGenerator.CreateInterfaceProxyTypeWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options)
+   at Castle.DynamicProxy.ProxyGenerator.CreateInterfaceProxyWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options, IInterceptor[] interceptors)
+   at Moq.CastleProxyFactory.CreateProxy(Type mockType, IInterceptor interceptor, Type[] interfaces, Object[] arguments) in /_/src/Moq/Interception/CastleProxyFactory.cs:line 50
+   at Moq.Mock`1.InitializeInstance() in /_/src/Moq/Mock`1.cs:line 309
+   at Moq.Mock`1.OnGetObject() in /_/src/Moq/Mock`1.cs:line 323
+   at Moq.Mock.get_Object() in /_/src/Moq/Mock.cs:line 181
+   at Moq.Mock`1.get_Object() in /_/src/Moq/Mock`1.cs:line 281
+   at GixatBackend.Tests.Modules.Users.Services.AuthServiceTests..ctor() in /Users/husain/Desktop/gixat2/GixatBackend/GixatBackend.Tests/Modules/Users/Services/AuthServiceTests.cs:line 50
+   at System.RuntimeType.CreateInstanceDefaultCtor(Boolean publicOnly, Boolean wrapExceptions)
+  Failed GixatBackend.Tests.Modules.Users.Services.AuthServiceTests.LoginAsync_ShouldReturnError_WhenUserNotFound [1 ms]
+  Error Message:
+   System.ArgumentException : Can not create proxy for type GixatBackend.Modules.Common.Services.ITenantService because it is not accessible. Make it public, or internal and mark your assembly with [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] attribute, because assembly GixatBackend is not strong-named. (Parameter 'interfaceToProxy')
+  Stack Trace:
+     at Castle.DynamicProxy.DefaultProxyBuilder.AssertValidTypeForTarget(Type type, Type target, String paramName)
+   at Castle.DynamicProxy.DefaultProxyBuilder.AssertValidType(Type target, String paramName)
+   at Castle.DynamicProxy.DefaultProxyBuilder.CreateInterfaceProxyTypeWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options)
+   at Castle.DynamicProxy.ProxyGenerator.CreateInterfaceProxyTypeWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options)
+   at Castle.DynamicProxy.ProxyGenerator.CreateInterfaceProxyWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options, IInterceptor[] interceptors)
+   at Moq.CastleProxyFactory.CreateProxy(Type mockType, IInterceptor interceptor, Type[] interfaces, Object[] arguments) in /_/src/Moq/Interception/CastleProxyFactory.cs:line 50
+   at Moq.Mock`1.InitializeInstance() in /_/src/Moq/Mock`1.cs:line 309
+   at Moq.Mock`1.OnGetObject() in /_/src/Moq/Mock`1.cs:line 323
+   at Moq.Mock.get_Object() in /_/src/Moq/Mock.cs:line 181
+   at Moq.Mock`1.get_Object() in /_/src/Moq/Mock`1.cs:line 281
+   at GixatBackend.Tests.Modules.Users.Services.AuthServiceTests..ctor() in /Users/husain/Desktop/gixat2/GixatBackend/GixatBackend.Tests/Modules/Users/Services/AuthServiceTests.cs:line 50
+   at System.RuntimeType.CreateInstanceDefaultCtor(Boolean publicOnly, Boolean wrapExceptions)
+  Failed GixatBackend.Tests.Modules.Users.Services.AuthServiceTests.RegisterAsync_ShouldCreateUserAndReturnToken_WhenInputIsValid [1 ms]
+  Error Message:
+   System.ArgumentException : Can not create proxy for type GixatBackend.Modules.Common.Services.ITenantService because it is not accessible. Make it public, or internal and mark your assembly with [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] attribute, because assembly GixatBackend is not strong-named. (Parameter 'interfaceToProxy')
+  Stack Trace:
+     at Castle.DynamicProxy.DefaultProxyBuilder.AssertValidTypeForTarget(Type type, Type target, String paramName)
+   at Castle.DynamicProxy.DefaultProxyBuilder.AssertValidType(Type target, String paramName)
+   at Castle.DynamicProxy.DefaultProxyBuilder.CreateInterfaceProxyTypeWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options)
+   at Castle.DynamicProxy.ProxyGenerator.CreateInterfaceProxyTypeWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options)
+   at Castle.DynamicProxy.ProxyGenerator.CreateInterfaceProxyWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options, IInterceptor[] interceptors)
+   at Moq.CastleProxyFactory.CreateProxy(Type mockType, IInterceptor interceptor, Type[] interfaces, Object[] arguments) in /_/src/Moq/Interception/CastleProxyFactory.cs:line 50
+   at Moq.Mock`1.InitializeInstance() in /_/src/Moq/Mock`1.cs:line 309
+   at Moq.Mock`1.OnGetObject() in /_/src/Moq/Mock`1.cs:line 323
+   at Moq.Mock.get_Object() in /_/src/Moq/Mock.cs:line 181
+   at Moq.Mock`1.get_Object() in /_/src/Moq/Mock`1.cs:line 281
+   at GixatBackend.Tests.Modules.Users.Services.AuthServiceTests..ctor() in /Users/husain/Desktop/gixat2/GixatBackend/GixatBackend.Tests/Modules/Users/Services/AuthServiceTests.cs:line 50
+   at System.RuntimeType.CreateInstanceDefaultCtor(Boolean publicOnly, Boolean wrapExceptions)
+  Failed GixatBackend.Tests.Modules.Users.Services.AuthServiceTests.LoginAsync_ShouldReturnToken_WhenCredentialsAreValid [1 ms]
+  Error Message:
+   System.ArgumentException : Can not create proxy for type GixatBackend.Modules.Common.Services.ITenantService because it is not accessible. Make it public, or internal and mark your assembly with [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] attribute, because assembly GixatBackend is not strong-named. (Parameter 'interfaceToProxy')
+  Stack Trace:
+     at Castle.DynamicProxy.DefaultProxyBuilder.AssertValidTypeForTarget(Type type, Type target, String paramName)
+   at Castle.DynamicProxy.DefaultProxyBuilder.AssertValidType(Type target, String paramName)
+   at Castle.DynamicProxy.DefaultProxyBuilder.CreateInterfaceProxyTypeWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options)
+   at Castle.DynamicProxy.ProxyGenerator.CreateInterfaceProxyTypeWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options)
+   at Castle.DynamicProxy.ProxyGenerator.CreateInterfaceProxyWithoutTarget(Type interfaceToProxy, Type[] additionalInterfacesToProxy, ProxyGenerationOptions options, IInterceptor[] interceptors)
+   at Moq.CastleProxyFactory.CreateProxy(Type mockType, IInterceptor interceptor, Type[] interfaces, Object[] arguments) in /_/src/Moq/Interception/CastleProxyFactory.cs:line 50
+   at Moq.Mock`1.InitializeInstance() in /_/src/Moq/Mock`1.cs:line 309
+   at Moq.Mock`1.OnGetObject() in /_/src/Moq/Mock`1.cs:line 323
+   at Moq.Mock.get_Object() in /_/src/Moq/Mock.cs:line 181
+   at Moq.Mock`1.get_Object() in /_/src/Moq/Mock`1.cs:line 281
+   at GixatBackend.Tests.Modules.Users.Services.AuthServiceTests..ctor() in /Users/husain/Desktop/gixat2/GixatBackend/GixatBackend.Tests/Modules/Users/Services/AuthServiceTests.cs:line 50
+   at System.RuntimeType.CreateInstanceDefaultCtor(Boolean publicOnly, Boolean wrapExceptions)
+
+Failed!  - Failed:     5, Passed:     1, Skipped:     0, Total:     6, Duration: 66 ms - GixatBackend.Tests.dll (net10.0)
