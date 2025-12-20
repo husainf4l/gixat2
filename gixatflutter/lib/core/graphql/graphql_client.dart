@@ -17,7 +17,7 @@ class GraphQLConfig {
 
   static Future<GraphQLClient> getClient({bool withAuth = false}) async {
     Link link;
-    
+
     if (withAuth) {
       final auth = await authLink;
       link = auth.concat(httpLink);

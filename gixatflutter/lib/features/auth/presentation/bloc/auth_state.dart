@@ -24,9 +24,8 @@ class AuthAuthenticated extends AuthState {
 
 /// Unauthenticated state - no token or invalid token
 class AuthUnauthenticated extends AuthState {
-  final String? message;
-
   const AuthUnauthenticated({this.message});
+  final String? message;
 
   @override
   List<Object?> get props => [message];
@@ -34,9 +33,8 @@ class AuthUnauthenticated extends AuthState {
 
 /// Error state - something went wrong
 class AuthError extends AuthState {
-  final String message;
-
   const AuthError({required this.message});
+  final String message;
 
   @override
   List<Object?> get props => [message];

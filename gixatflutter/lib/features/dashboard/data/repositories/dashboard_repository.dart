@@ -1,6 +1,7 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
-import '../models/dashboard_data.dart';
+
 import '../../../../core/graphql/graphql_client.dart';
+import '../models/dashboard_data.dart';
 
 class DashboardRepository {
   Future<DashboardData> getDashboardData() async {
@@ -47,9 +48,9 @@ class DashboardRepository {
         ),
       );
 
-      final List<Organization> organizations = [];
+      final organizations = <Organization>[];
       if (orgsResult.data?['organizations'] != null) {
-        for (var org in orgsResult.data!['organizations']) {
+        for (final org in orgsResult.data!['organizations']) {
           organizations.add(Organization.fromJson(org));
         }
       }

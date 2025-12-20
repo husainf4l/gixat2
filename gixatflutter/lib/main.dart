@@ -9,10 +9,10 @@ import 'router/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize GraphQL
   await initHiveForFlutter();
-  
+
   // Initialize services
   final storage = SecureStorageService();
   final authRepository = AuthRepository(storage: storage);
@@ -23,30 +23,27 @@ void main() async {
 }
 
 class GixatApp extends StatelessWidget {
+  const GixatApp({
+    required this.authRepository,
+    Key? key,
+  }) : super(key: key);
   final AuthRepository authRepository;
 
-  const GixatApp({
-    Key? key,
-    required this.authRepository,
-  }) : super(key: key);
-
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AuthCubit(authRepository: authRepository),
-      child: Builder(
-        builder: (context) {
-          final authCubit = context.read<AuthCubit>();
-          final router = createAppRouter(authCubit);
-          
-          return MaterialApp.router(
-            title: 'Gixat',
-            theme: AppTheme.lightTheme,
-            routerConfig: router,
-            debugShowCheckedModeBanner: false,
-          );
-        },
-      ),
-    );
-  }
+  Widget build(BuildContext context) => BlocProvider(
+        create: (context) => AuthCubit(authRepository: authRepository),
+        child: Builder(
+          builder: (context) {
+            final authCubit = context.read<AuthCubit>();
+            final router = createAppRouter(authCubit);
+
+            return MaterialApp.router(
+              title: 'Gixat',
+              theme: AppTheme.lightTheme,
+              routerConfig: router,
+              debugShowCheckedModeBanner: false,
+            );
+          },
+        ),
+      );
 }

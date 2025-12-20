@@ -24,21 +24,19 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return BlocListener<AuthCubit, AuthState>(
-      listener: (context, state) {
-        if (state is AuthAuthenticated) {
-          context.go('/dashboard');
-        } else if (state is AuthUnauthenticated) {
-          context.go('/login');
-        }
-      },
-      child: const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: GixatLogoSplash(logoText: 'GIXAT'),
+  Widget build(BuildContext context) => BlocListener<AuthCubit, AuthState>(
+        listener: (context, state) {
+          if (state is AuthAuthenticated) {
+            context.go('/dashboard');
+          } else if (state is AuthUnauthenticated) {
+            context.go('/login');
+          }
+        },
+        child: const Scaffold(
+          backgroundColor: Colors.white,
+          body: Center(
+            child: GixatLogoSplash(logoText: 'GIXAT'),
+          ),
         ),
-      ),
-    );
-  }
+      );
 }

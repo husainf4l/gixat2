@@ -3,18 +3,17 @@ import 'package:dio_smart_retry/dio_smart_retry.dart';
 import '../storage/secure_storage_service.dart';
 
 class NetworkClient {
-  static const String _baseUrl = 'https://api.gixat.com/api/v1';
-
-  final Dio _dio;
-  final SecureStorageService _storage;
-
   NetworkClient({
-    Dio? dio,
     required SecureStorageService storage,
+    Dio? dio,
   })  : _dio = dio ?? Dio(),
         _storage = storage {
     _initializeDio();
   }
+  static const String _baseUrl = 'https://api.gixat.com/api/v1';
+
+  final Dio _dio;
+  final SecureStorageService _storage;
 
   void _initializeDio() {
     _dio.options = BaseOptions(
@@ -58,14 +57,13 @@ class NetworkClient {
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
-  }) {
-    return _dio.get<T>(
-      path,
-      queryParameters: queryParameters,
-      options: options,
-      cancelToken: cancelToken,
-    );
-  }
+  }) =>
+      _dio.get<T>(
+        path,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+      );
 
   Future<Response<T>> post<T>(
     String path, {
@@ -73,15 +71,14 @@ class NetworkClient {
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
-  }) {
-    return _dio.post<T>(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-      cancelToken: cancelToken,
-    );
-  }
+  }) =>
+      _dio.post<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+      );
 
   Future<Response<T>> put<T>(
     String path, {
@@ -89,15 +86,14 @@ class NetworkClient {
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
-  }) {
-    return _dio.put<T>(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-      cancelToken: cancelToken,
-    );
-  }
+  }) =>
+      _dio.put<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+      );
 
   Future<Response<T>> delete<T>(
     String path, {
@@ -105,21 +101,19 @@ class NetworkClient {
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
-  }) {
-    return _dio.delete<T>(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-      cancelToken: cancelToken,
-    );
-  }
+  }) =>
+      _dio.delete<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+      );
 }
 
 class _AuthInterceptor extends Interceptor {
-  final SecureStorageService _storage;
-
   _AuthInterceptor(this._storage);
+  final SecureStorageService _storage;
 
   @override
   Future<void> onRequest(

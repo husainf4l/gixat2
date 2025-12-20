@@ -1,16 +1,14 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../data/models/user_model.dart';
 import '../../data/repositories/auth_repository.dart';
 
 part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  final AuthRepository _authRepository;
-
   AuthCubit({required AuthRepository authRepository})
       : _authRepository = authRepository,
         super(const AuthInitial());
+  final AuthRepository _authRepository;
 
   /// Check authentication on app startup
   Future<void> checkAuth() async {

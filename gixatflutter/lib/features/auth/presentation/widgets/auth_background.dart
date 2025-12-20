@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 
 class AuthBackground extends StatelessWidget {
+  const AuthBackground({
+    required this.child,
+    Key? key,
+  }) : super(key: key);
   final Widget child;
 
-  const AuthBackground({
-    Key? key,
-    required this.child,
-  }) : super(key: key);
-
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: child,
-    );
-  }
+  Widget build(BuildContext context) => Container(
+        color: Colors.white,
+        child: child,
+      );
 }

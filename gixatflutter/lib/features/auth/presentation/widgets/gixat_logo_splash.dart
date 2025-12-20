@@ -46,7 +46,7 @@ class _GixatLogoSplashState extends State<GixatLogoSplash>
     );
 
     // Pulsing opacity (0.7 to 1.0)
-    _fadeAnimation = Tween<double>(begin: 0.7, end: 1.0).animate(
+    _fadeAnimation = Tween<double>(begin: 0.7, end: 1).animate(
       CurvedAnimation(
         parent: _controller,
         curve: Curves.easeInOut,
@@ -62,7 +62,7 @@ class _GixatLogoSplashState extends State<GixatLogoSplash>
     );
 
     // Dramatic glow pulse (0.3 to 1.0)
-    _glowAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
+    _glowAnimation = Tween<double>(begin: 0.3, end: 1).animate(
       CurvedAnimation(
         parent: _controller,
         curve: Curves.easeInOut,
@@ -83,14 +83,12 @@ class _GixatLogoSplashState extends State<GixatLogoSplash>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, _) {
-            return Transform.scale(
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) => Transform.scale(
               scale: _scaleAnimation.value,
               child: Transform.rotate(
                 angle: _rotationAnimation.value,
@@ -136,10 +134,8 @@ class _GixatLogoSplashState extends State<GixatLogoSplash>
                   ),
                 ),
               ),
-            );
-          },
+            ),
+          ),
         ),
-      ),
-    );
-  }
+      );
 }

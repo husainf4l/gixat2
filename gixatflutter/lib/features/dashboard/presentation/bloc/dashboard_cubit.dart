@@ -1,7 +1,8 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../../data/repositories/dashboard_repository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../data/models/dashboard_data.dart';
+import '../../data/repositories/dashboard_repository.dart';
 
 // States
 abstract class DashboardState extends Equatable {
@@ -20,18 +21,16 @@ class DashboardLoading extends DashboardState {
 }
 
 class DashboardLoaded extends DashboardState {
-  final DashboardData data;
-
   DashboardLoaded(this.data);
+  final DashboardData data;
 
   @override
   List<Object?> get props => [data];
 }
 
 class DashboardError extends DashboardState {
-  final String message;
-
   DashboardError(this.message);
+  final String message;
 
   @override
   List<Object?> get props => [message];
@@ -39,9 +38,8 @@ class DashboardError extends DashboardState {
 
 // Cubit
 class DashboardCubit extends Cubit<DashboardState> {
-  final DashboardRepository repository;
-
   DashboardCubit({required this.repository}) : super(DashboardInitial());
+  final DashboardRepository repository;
 
   Future<void> loadDashboard() async {
     emit(DashboardLoading());
