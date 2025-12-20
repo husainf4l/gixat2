@@ -1,6 +1,6 @@
 using GixatBackend.Modules.Common.Models;
-using GixatBackend.Modules.Media.Models;
 using GixatBackend.Modules.Users.Models;
+using GixatBackend.Modules.Customers.Models;
 
 namespace GixatBackend.Modules.Organizations.Models;
 
@@ -13,9 +13,10 @@ public class Organization
     public Address? Address { get; set; }
     
     public Guid? LogoId { get; set; }
-    public Media.Models.Media? Logo { get; set; }
+    public Media? Logo { get; set; }
     
     public ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
+    public ICollection<Customer> Customers { get; set; } = new List<Customer>();
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public bool IsActive { get; set; } = true;

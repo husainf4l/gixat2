@@ -1,4 +1,4 @@
-namespace GixatBackend.Modules.Media.Models;
+namespace GixatBackend.Modules.Common.Models;
 
 public enum MediaType
 {

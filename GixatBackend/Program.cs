@@ -3,10 +3,19 @@ using GixatBackend.Modules.Users.Models;
 using GixatBackend.Data;
 using GixatBackend.Modules.Users.GraphQL;
 using GixatBackend.Modules.Organizations.GraphQL;
+using GixatBackend.Modules.Common.GraphQL;
+using GixatBackend.Modules.Lookup.GraphQL;
+using GixatBackend.Modules.Sessions.GraphQL;
+using GixatBackend.Modules.JobCards.GraphQL;
+using GixatBackend.Modules.Customers.GraphQL;
+using GixatBackend.Modules.Common.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Amazon;
+using Amazon.Runtime;
+using Amazon.S3;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +27,19 @@ var connectionString = $"Host={Environment.GetEnvironmentVariable("DB_SERVER")};
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ITenantService, TenantService>();
+
+// AWS Configuration
+var awsOptions = builder.Configuration.GetAWSOptions();
+awsOptions.Credentials = new BasicAWSCredentials(
+    Environment.GetEnvironmentVariable("AWS_ACCESS_KEY"),
+    Environment.GetEnvironmentVariable("AWS_SECRET_KEY"));
+awsOptions.Region = RegionEndpoint.GetBySystemName(Environment.GetEnvironmentVariable("AWS_REGION") ?? "me-central-1");
+builder.Services.AddDefaultAWSOptions(awsOptions);
+builder.Services.AddAWSService<IAmazonS3>();
+builder.Services.AddScoped<IS3Service, S3Service>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -56,9 +78,19 @@ builder.Services
     .AddQueryType()
         .AddTypeExtension<AuthQueries>()
         .AddTypeExtension<OrganizationQueries>()
+        .AddTypeExtension<LookupQueries>()
+        .AddTypeExtension<SessionQueries>()
+        .AddTypeExtension<JobCardQueries>()
+        .AddTypeExtension<CustomerQueries>()
     .AddMutationType()
         .AddTypeExtension<AuthMutations>()
         .AddTypeExtension<OrganizationMutations>()
+        .AddTypeExtension<MediaMutations>()
+        .AddTypeExtension<LookupMutations>()
+        .AddTypeExtension<SessionMutations>()
+        .AddTypeExtension<JobCardMutations>()
+        .AddTypeExtension<CustomerMutations>()
+    .AddUploadType()
     .AddProjections()
     .AddFiltering()
     .AddSorting()
@@ -67,6 +99,23 @@ builder.Services
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// Seed Data
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        await DbInitializer.SeedLookupDataAsync(context).ConfigureAwait(false);
+        await DbInitializer.SeedExampleDataAsync(context).ConfigureAwait(false);
+    }
+    catch (Exception ex) when (ex is not OperationCanceledException)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -81,4 +130,4 @@ app.UseAuthorization();
 
 app.MapGraphQL();
 
-app.Run();
+await app.RunAsync().ConfigureAwait(false);

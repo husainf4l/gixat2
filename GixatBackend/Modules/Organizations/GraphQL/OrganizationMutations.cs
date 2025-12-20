@@ -1,7 +1,8 @@
 using GixatBackend.Modules.Organizations.Models;
 using GixatBackend.Modules.Common.Models;
-using GixatBackend.Modules.Media.Models;
+using GixatBackend.Modules.Common.Services;
 using GixatBackend.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace GixatBackend.Modules.Organizations.GraphQL;
 
@@ -29,10 +30,10 @@ public class OrganizationMutations
             PhoneCountryCode = input.PhoneCountryCode
         };
 
-        Media.Models.Media? logo = null;
+        Media? logo = null;
         if (!string.IsNullOrEmpty(input.LogoUrl))
         {
-            logo = new Media.Models.Media
+            logo = new Media
             {
                 Url = input.LogoUrl,
                 Alt = input.LogoAlt,
@@ -65,5 +66,21 @@ public class OrganizationMutations
         await context.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task<Organization> UpdateMyOrganizationAsync(
+        string name,
+        [Service] ApplicationDbContext context,
+        [Service] ITenantService tenantService)
+    {
+        var orgId = tenantService.OrganizationId;
+        if (!orgId.HasValue) throw new Exception("Not authorized");
+
+        var organization = await context.Organizations.FindAsync(orgId.Value);
+        if (organization == null) throw new Exception("Organization not found");
+
+        organization.Name = name;
+        await context.SaveChangesAsync();
+        return organization;
     }
 }

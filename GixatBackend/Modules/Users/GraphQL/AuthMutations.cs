@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using GixatBackend.Modules.Users.Models;
+using GixatBackend.Modules.Users.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
@@ -69,6 +70,11 @@ public class AuthMutations
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(ClaimTypes.NameIdentifier, user.Id)
         };
+
+        if (user.OrganizationId != Guid.Empty)
+        {
+            claims.Add(new Claim("OrganizationId", user.OrganizationId.ToString()));
+        }
 
         var roles = await userManager.GetRolesAsync(user);
         foreach (var role in roles)
