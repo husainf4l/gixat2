@@ -107,6 +107,20 @@ internal sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 }
             }
         }
+        else
+        {
+            // Check if there are any entities that require an organization
+            var entitiesRequiringOrg = ChangeTracker.Entries<IMustHaveOrganization>()
+                .Where(e => e.State == EntityState.Added)
+                .ToList();
+            
+            if (entitiesRequiringOrg.Any())
+            {
+                throw new InvalidOperationException(
+                    $"Cannot create entities that require an organization when user is not associated with an organization. " +
+                    $"Entities: {string.Join(", ", entitiesRequiringOrg.Select(e => e.Entity.GetType().Name))}");
+            }
+        }
 
         return base.SaveChangesAsync(cancellationToken);
     }

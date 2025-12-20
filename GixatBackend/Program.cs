@@ -88,10 +88,15 @@ builder.Services.AddAuthentication(options =>
     {
         OnMessageReceived = context =>
         {
-            var token = context.Request.Cookies["access_token"];
-            if (!string.IsNullOrEmpty(token))
+            // First, try to get token from Authorization header (default behavior)
+            // If not present, fall back to cookie
+            if (string.IsNullOrEmpty(context.Token))
             {
-                context.Token = token;
+                var token = context.Request.Cookies["access_token"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    context.Token = token;
+                }
             }
             return Task.CompletedTask;
         }
@@ -151,6 +156,7 @@ builder.Services
         options.MaxPageSize = 100;
         options.IncludeTotalCount = true;
     })
+    .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = builder.Environment.IsDevelopment())
     .AddAuthorization();
 
 builder.Services.AddOpenApi();

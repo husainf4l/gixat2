@@ -1,6 +1,7 @@
 using GixatBackend.Data;
 using GixatBackend.Modules.Customers.Models;
 using GixatBackend.Modules.Common.Models;
+using GixatBackend.Modules.Common.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 using HotChocolate.Authorization;
@@ -16,7 +17,8 @@ public sealed record CreateCustomerInput(
     string PhoneNumber,
     string? Country,
     string? City,
-    string? Street);
+    string? Street,
+    string? PhoneCountryCode);
 
 [SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Required by HotChocolate for schema discovery")]
 [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated by HotChocolate")]
@@ -54,7 +56,8 @@ internal static class CustomerMutations
             {
                 Country = input.Country,
                 City = input.City ?? "",
-                Street = input.Street ?? ""
+                Street = input.Street ?? "",
+                PhoneCountryCode = input.PhoneCountryCode ?? ""
             };
         }
 

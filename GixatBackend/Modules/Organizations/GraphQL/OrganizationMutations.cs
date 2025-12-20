@@ -84,8 +84,7 @@ internal static class OrganizationMutations
         await context.SaveChangesAsync().ConfigureAwait(false);
 
         var user = await context.Users
-            .FirstOrDefaultAsync(u => u.Id == userId)
-            .ConfigureAwait(false) ?? throw new InvalidOperationException("User not found");
+            .FirstOrDefaultAsync(u => u.Id == userId).ConfigureAwait(false) ?? throw new InvalidOperationException("User not found");
 
         if (user.OrganizationId.HasValue)
         {
