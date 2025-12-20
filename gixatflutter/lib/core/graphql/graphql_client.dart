@@ -1,17 +1,48 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:gql_http_link/gql_http_link.dart';
 
 class GraphQLConfig {
-  static const String _endpoint = 'http://192.168.1.77:8002/graphql';
+  // Use production endpoint by default
+  // For local development, set this to your local IP
+  static const String _endpoint = kDebugMode 
+    ? 'http://192.168.1.77:8002/graphql'  // Local development
+    : 'https://gixat.com/graphql';        // Production
+  
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
+  static const Duration _timeout = Duration(seconds: 30);
 
   static HttpLink get httpLink => HttpLink(
     _endpoint,
     defaultHeaders: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
     },
   );
+
+  // Create a link with error handling
+  static Link get _linkWithErrorHandling {
+    return Link.function((request, [forward]) async* {
+      try {
+        yield* forward!(request).timeout(
+          _timeout,
+          onTimeout: (sink) {
+            sink.addError(
+              Exception(
+                'Connection timeout. Please check your internet connection and try again.'
+              ),
+            );
+          },
+        );
+      } catch (e) {
+        if (kDebugMode) {
+          print('GraphQL Error: $e');
+        }
+        rethrow;
+      }
+    });
+  }
 
   static Future<AuthLink> get authLink async {
     final token = await _storage.read(key: 'auth_token');
@@ -25,9 +56,16 @@ class GraphQLConfig {
 
     if (withAuth) {
       final auth = await authLink;
-      link = auth.concat(httpLink);
+      link = Link.from([
+        _linkWithErrorHandling,
+        auth,
+        httpLink,
+      ]);
     } else {
-      link = httpLink;
+      link = Link.from([
+        _linkWithErrorHandling,
+        httpLink,
+      ]);
     }
 
     return GraphQLClient(
@@ -53,7 +91,11 @@ class GraphQLConfig {
       getToken: () async => token != null ? 'Bearer $token' : null,
     );
 
-    final link = authLink.concat(httpLink);
+    final link = Link.from([
+      _linkWithErrorHandling,
+      authLink,
+      httpLink,
+    ]);
 
     return ValueNotifier(
       GraphQLClient(

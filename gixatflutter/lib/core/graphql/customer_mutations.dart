@@ -6,9 +6,13 @@ mutation CreateCustomer($input: CreateCustomerInput!) {
     lastName
     phoneNumber
     email
-    country
-    city
-    street
+    address {
+      id
+      country
+      city
+      street
+      phoneCountryCode
+    }
   }
 }
 ''';

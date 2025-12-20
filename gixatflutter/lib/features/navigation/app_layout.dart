@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import '../clients/presentation/widgets/create_customer_form.dart';
 
 class AppLayout extends StatelessWidget {
@@ -50,10 +51,13 @@ class AppLayout extends StatelessWidget {
   }
 
   void _showAddOptions(BuildContext context) {
+    // Capture the GraphQL client from the outer context before showing the modal
+    final clientNotifier = GraphQLProvider.of(context);
+    
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
+      builder: (modalContext) => Container(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -80,27 +84,31 @@ class AppLayout extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             _buildAddOption(
-              context,
+              modalContext,
               icon: FontAwesomeIcons.calendarPlus,
               label: 'New Session',
-              onTap: () => Navigator.pop(context),
+              onTap: () => Navigator.pop(modalContext),
             ),
             _buildAddOption(
-              context,
+              modalContext,
               icon: FontAwesomeIcons.fileSignature,
               label: 'New Job Card',
-              onTap: () => Navigator.pop(context),
+              onTap: () => Navigator.pop(modalContext),
             ),
             _buildAddOption(
-              context,
+              modalContext,
               icon: FontAwesomeIcons.userPlus,
               label: 'New Client',
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(modalContext);
+                // Use the captured GraphQL client from the outer context
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const CreateCustomerForm(),
+                    builder: (context) => GraphQLProvider(
+                      client: clientNotifier,
+                      child: const CreateCustomerForm(),
+                    ),
                     fullscreenDialog: true,
                   ),
                 );

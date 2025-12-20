@@ -1,4 +1,7 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import '../../../../core/graphql/customer_mutations.dart';
 import '../../../../core/graphql/lookup_queries.dart';
@@ -17,6 +20,7 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
   final _phoneController = TextEditingController();
   final _streetController = TextEditingController();
   bool _isLoading = false;
+  bool _isLoadingCountries = false;
   
   // Lookup state
   String? _selectedCountry;
@@ -24,9 +28,64 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
   List<Map<String, dynamic>> _countries = [];
   List<Map<String, dynamic>> _cities = [];
   
+  // Phone metadata
+  String _phonePrefix = '';
+  int _phoneLength = 0;
+  
   // Cache parsed GraphQL documents
   static final _createMutationDoc = gql(createCustomerMutation);
   static final _countriesQueryDoc = gql(getCountriesWithCitiesQuery);
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch countries in background without blocking UI
+    _fetchCountries();
+  }
+
+  Future<void> _fetchCountries() async {
+    setState(() => _isLoadingCountries = true);
+    
+    try {
+      final client = GraphQLProvider.of(context).value;
+      final result = await client.query(
+        QueryOptions(
+          document: _countriesQueryDoc,
+          fetchPolicy: FetchPolicy.cacheFirst,
+        ),
+      );
+
+      if (!mounted) return;
+
+      if (result.hasException) {
+        // Silently fail - user can still create customer without country/city
+        if (kDebugMode) {
+          print('Failed to load countries: ${result.exception}');
+        }
+      } else if (result.data != null) {
+        final items = result.data!['lookupItems'] as List;
+        final countriesData = items
+            .map((item) => {
+                  'value': item['value'] as String,
+                  'metadata': item['metadata'] as String?,
+                  'children': item['children'] as List,
+                })
+            .toList();
+
+        setState(() {
+          _countries = countriesData;
+        });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching countries: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingCountries = false);
+      }
+    }
+  }
   
   @override
   void dispose() {
@@ -172,6 +231,49 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
     );
   }
 
+  void _parseCountryMetadata(String? metadata) {
+    if (metadata == null || metadata.isEmpty) {
+      setState(() {
+        _phonePrefix = '';
+        _phoneLength = 0;
+      });
+      return;
+    }
+
+    try {
+      final data = jsonDecode(metadata) as Map<String, dynamic>;
+      setState(() {
+        _phonePrefix = data['phoneCode'] as String? ?? '';
+        _phoneLength = data['phoneLength'] as int? ?? 0;
+      });
+    } catch (e) {
+      setState(() {
+        _phonePrefix = '';
+        _phoneLength = 0;
+      });
+    }
+  }
+
+  String? _validatePhoneNumber(String? value) {
+    if (value?.isEmpty ?? true) {
+      return 'Phone number is required';
+    }
+    
+    // Remove spaces and special characters for length validation
+    final cleanNumber = value!.replaceAll(RegExp(r'[\s\-\(\)]'), '');
+    
+    if (_phoneLength > 0 && cleanNumber.length != _phoneLength) {
+      return 'Phone number must be $_phoneLength digits';
+    }
+    
+    // Basic validation: only numbers, spaces, and common separators
+    if (!RegExp(r'^[\d\s\-\(\)\+]+$').hasMatch(value)) {
+      return 'Invalid phone number format';
+    }
+    
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
       backgroundColor: Colors.white,
@@ -210,136 +312,112 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
         ),
       ),
       body: SafeArea(
-        child: Query(
-          options: QueryOptions(
-            document: _countriesQueryDoc,
-            fetchPolicy: FetchPolicy.cacheFirst,
-          ),
-          builder: (result, {fetchMore, refetch}) {
-            if (result.isLoading && result.data == null) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            // Extract countries data outside of build
-            // to avoid setState during build
-            var countriesData = <Map<String, dynamic>>[];
-            if (result.data != null) {
-              final items = result.data!['lookupItems'] as List;
-              countriesData = items
-                  .map((item) => {
-                        'value': item['value'] as String,
-                        'children': item['children'] as List,
-                      })
-                  .toList();
-              
-              // Update state after build completes
-              if (_countries.isEmpty && countriesData.isNotEmpty) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    setState(() {
-                      _countries = countriesData;
-                    });
-                  }
-                });
-              }
-            }
-
-            return Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        children: [
-                          _buildTextField(
-                            controller: _nameController,
-                            label: 'Full Name',
-                            hint: 'Enter customer name',
-                            icon: Icons.person_outline_rounded,
-                            validator: (value) {
-                              if (value?.isEmpty ?? true) {
-                                return 'Name is required';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 20),
-                          _buildTextField(
-                            controller: _phoneController,
-                            label: 'Phone Number',
-                            hint: '+962 7X XXX XXXX',
-                            icon: Icons.phone_outlined,
-                            keyboardType: TextInputType.phone,
-                            validator: (value) {
-                              if (value?.isEmpty ?? true) {
-                                return 'Phone number is required';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 20),
-                          _buildTextField(
-                            controller: _emailController,
-                            label: 'Email (Optional)',
-                            hint: 'customer@example.com',
-                            icon: Icons.email_outlined,
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          const SizedBox(height: 20),
-                          if (_countries.isNotEmpty)
-                            _buildDropdown(
-                              label: 'Country (Optional)',
-                              hint: 'Select country',
-                              icon: Icons.flag_outlined,
-                              value: _selectedCountry,
-                              items: _countries
-                                  .map((country) => country['value'] as String)
-                                  .toList(),
-                              onChanged: (value) {
-                              setState(() {
-                                _selectedCountry = value;
-                                _selectedCity = null;
-                                final selected = _countries.firstWhere(
-                                  (c) => c['value'] == value,
-                                );
-                                _cities = (selected['children'] as List)
-                                    .map((city) => {
-                                          'value': city['value'] as String,
-                                        })
-                                    .toList();
-                              });
-                            },
-                          ),
-                          if (_selectedCountry != null) ...[
-                            const SizedBox(height: 20),
-                            _buildDropdown(
-                              label: 'City (Optional)',
-                              hint: 'Select city',
-                              icon: Icons.location_city_outlined,
-                              value: _selectedCity,
-                              items: _cities
-                                  .map((city) => city['value'] as String)
-                                  .toList(),
-                              onChanged: (value) {
-                                setState(() => _selectedCity = value);
-                              },
-                            ),
-                          ],
-                          const SizedBox(height: 20),
-                          _buildTextField(
-                            controller: _streetController,
-                            label: 'Street Address (Optional)',
-                            hint: 'Street name and number',
-                            icon: Icons.home_outlined,
-                            maxLines: 2,
-                          ),
-                        ],
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      _buildTextField(
+                        controller: _nameController,
+                        label: 'Full Name',
+                        hint: 'Enter customer name',
+                        icon: Icons.person_outline_rounded,
+                        validator: (value) {
+                          if (value?.isEmpty ?? true) {
+                            return 'Name is required';
+                          }
+                          return null;
+                        },
                       ),
-                    ),
+                      const SizedBox(height: 20),
+                      _buildPhoneTextField(
+                        controller: _phoneController,
+                        label: 'Phone Number',
+                        hint: _phonePrefix.isNotEmpty 
+                          ? '$_phonePrefix XXX XXXX' 
+                          : 'Enter phone number',
+                        icon: Icons.phone_outlined,
+                        prefix: _phonePrefix.isNotEmpty ? _phonePrefix : null,
+                        validator: _validatePhoneNumber,
+                      ),
+                      const SizedBox(height: 20),
+                      _buildTextField(
+                        controller: _emailController,
+                        label: 'Email (Optional)',
+                        hint: 'customer@example.com',
+                        icon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      const SizedBox(height: 20),
+                      if (_countries.isNotEmpty)
+                        _buildDropdown(
+                          label: 'Country (Optional)',
+                          hint: 'Select country',
+                          icon: Icons.flag_outlined,
+                          value: _selectedCountry,
+                          items: _countries
+                              .map((country) => country['value'] as String)
+                              .toList(),
+                          onChanged: (value) {
+                          setState(() {
+                            _selectedCountry = value;
+                            _selectedCity = null;
+                            final selected = _countries.firstWhere(
+                              (c) => c['value'] == value,
+                            );
+                            
+                            // Parse country metadata for phone code and length
+                            _parseCountryMetadata(selected['metadata'] as String?);
+                            
+                            _cities = (selected['children'] as List)
+                                .map((city) => {
+                                      'value': city['value'] as String,
+                                    })
+                                .toList();
+                          });
+                        },
+                      )
+                      else if (_isLoadingCountries)
+                        _buildLoadingDropdown('Country (Loading...)', Icons.flag_outlined)
+                      else
+                        _buildTextField(
+                          controller: TextEditingController(),
+                          label: 'Country (Optional)',
+                          hint: 'Enter country name',
+                          icon: Icons.flag_outlined,
+                        ),
+                      if (_selectedCountry != null) ...[
+                        const SizedBox(height: 20),
+                        _buildDropdown(
+                          label: 'City (Optional)',
+                          hint: 'Select city',
+                          icon: Icons.location_city_outlined,
+                          value: _selectedCity,
+                          items: _cities
+                              .map((city) => city['value'] as String)
+                              .toList(),
+                          onChanged: (value) {
+                            setState(() => _selectedCity = value);
+                          },
+                        ),
+                      ],
+                      const SizedBox(height: 20),
+                      _buildTextField(
+                        controller: _streetController,
+                        label: 'Street Address (Optional)',
+                        hint: 'Street name and number',
+                        icon: Icons.home_outlined,
+                        maxLines: 2,
+                      ),
+                    ],
                   ),
-                  Container(
+                ),
+              ),
+              Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -417,10 +495,147 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
                   ),
                 ],
               ),
-            );
-          },
+            ),
+          ),
+      );
+
+
+  Widget _buildLoadingDropdown(String label, IconData icon) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1A1A2E),
+          ),
         ),
-      ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9FAFB),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[300]!),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: const Color(0xFF6B7280), size: 20),
+              const SizedBox(width: 12),
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Loading...',
+                style: TextStyle(color: Colors.grey[400], fontSize: 14),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPhoneTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    String? prefix,
+    String? Function(String?)? validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1A1A2E),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          keyboardType: TextInputType.phone,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[\d\s\-\(\)\+]')),
+          ],
+          validator: validator,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(
+              color: Colors.grey[400],
+              fontSize: 14,
+            ),
+            prefixIcon: Icon(
+              icon,
+              color: const Color(0xFF6B7280),
+              size: 20,
+            ),
+            prefixText: prefix != null ? '$prefix ' : null,
+            prefixStyle: const TextStyle(
+              color: Color(0xFF1A1A2E),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+            helperText: _phoneLength > 0 
+              ? 'Required length: $_phoneLength digits' 
+              : null,
+            helperStyle: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 12,
+            ),
+            filled: true,
+            fillColor: const Color(0xFFF9FAFB),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.grey[300]!,
+                width: 1,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.grey[300]!,
+                width: 1,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: Color(0xFF1B75BC),
+                width: 2,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: Color(0xFFEF4444),
+                width: 1,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: Color(0xFFEF4444),
+                width: 2,
+              ),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -577,3 +792,4 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
       ],
     );
   }
+}

@@ -7,6 +7,7 @@ query GetCountriesWithCities {
     children {
       id
       value
+      metadata
     }
   }
 }
