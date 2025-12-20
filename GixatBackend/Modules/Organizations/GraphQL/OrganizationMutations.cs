@@ -22,6 +22,9 @@ public class OrganizationMutations
         CreateOrganizationInput input,
         [Service] ApplicationDbContext context)
     {
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(context);
+
         var address = new Address
         {
             Country = input.Country,
@@ -49,7 +52,7 @@ public class OrganizationMutations
         };
 
         context.Organizations.Add(organization);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
 
         return organization;
     }
@@ -59,11 +62,16 @@ public class OrganizationMutations
         Guid organizationId,
         [Service] ApplicationDbContext context)
     {
-        var user = await context.Users.FindAsync(userId.ToString());
-        if (user == null) return false;
+        ArgumentNullException.ThrowIfNull(context);
+
+        var user = await context.Users.FindAsync(userId.ToString()).ConfigureAwait(false);
+        if (user == null)
+        {
+            return false;
+        }
 
         user.OrganizationId = organizationId;
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
 
         return true;
     }
@@ -73,14 +81,23 @@ public class OrganizationMutations
         [Service] ApplicationDbContext context,
         [Service] ITenantService tenantService)
     {
-        var orgId = tenantService.OrganizationId;
-        if (!orgId.HasValue) throw new Exception("Not authorized");
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(tenantService);
 
-        var organization = await context.Organizations.FindAsync(orgId.Value);
-        if (organization == null) throw new Exception("Organization not found");
+        var orgId = tenantService.OrganizationId;
+        if (!orgId.HasValue)
+        {
+            throw new InvalidOperationException("Not authorized");
+        }
+
+        var organization = await context.Organizations.FindAsync(orgId.Value).ConfigureAwait(false);
+        if (organization == null)
+        {
+            throw new InvalidOperationException("Organization not found");
+        }
 
         organization.Name = name;
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
         return organization;
     }
 }

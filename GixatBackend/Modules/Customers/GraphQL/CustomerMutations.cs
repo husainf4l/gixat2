@@ -30,6 +30,9 @@ public class CustomerMutations
         CreateCustomerInput input,
         ApplicationDbContext context)
     {
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(context);
+
         var customer = new Customer
         {
             FirstName = input.FirstName,
@@ -49,7 +52,7 @@ public class CustomerMutations
         }
 
         context.Customers.Add(customer);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
         return customer;
     }
 
@@ -57,9 +60,15 @@ public class CustomerMutations
         CreateCarInput input,
         ApplicationDbContext context)
     {
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(context);
+
         // Verify customer belongs to the same organization (Global Filter handles this)
-        var customer = await context.Customers.FindAsync(input.CustomerId);
-        if (customer == null) throw new Exception("Customer not found in your organization");
+        var customer = await context.Customers.FindAsync(input.CustomerId).ConfigureAwait(false);
+        if (customer == null)
+        {
+            throw new InvalidOperationException("Customer not found in your organization");
+        }
 
         var car = new Car
         {
@@ -73,7 +82,7 @@ public class CustomerMutations
         };
 
         context.Cars.Add(car);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
         return car;
     }
 }

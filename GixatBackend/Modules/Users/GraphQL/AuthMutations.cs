@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Globalization;
 using GixatBackend.Modules.Users.Models;
 using GixatBackend.Modules.Users.Enums;
 using Microsoft.AspNetCore.Identity;
@@ -17,6 +18,11 @@ public class AuthMutations
         [Service] RoleManager<IdentityRole> roleManager,
         [Service] IConfiguration configuration)
     {
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(userManager);
+        ArgumentNullException.ThrowIfNull(roleManager);
+        ArgumentNullException.ThrowIfNull(configuration);
+
         var user = new ApplicationUser
         {
             UserName = input.Email,
@@ -27,7 +33,7 @@ public class AuthMutations
             IsActive = true
         };
 
-        var result = await userManager.CreateAsync(user, input.Password);
+        var result = await userManager.CreateAsync(user, input.Password).ConfigureAwait(false);
 
         if (!result.Succeeded)
         {
@@ -35,13 +41,13 @@ public class AuthMutations
         }
 
         // Ensure role exists and add user to role
-        if (!await roleManager.RoleExistsAsync(input.Role))
+        if (!await roleManager.RoleExistsAsync(input.Role).ConfigureAwait(false))
         {
-            await roleManager.CreateAsync(new IdentityRole(input.Role));
+            await roleManager.CreateAsync(new IdentityRole(input.Role)).ConfigureAwait(false);
         }
-        await userManager.AddToRoleAsync(user, input.Role);
+        await userManager.AddToRoleAsync(user, input.Role).ConfigureAwait(false);
 
-        var token = await GenerateJwtToken(user, userManager, configuration);
+        var token = await GenerateJwtToken(user, userManager, configuration).ConfigureAwait(false);
         return new AuthPayload(token, user);
     }
 
@@ -50,14 +56,18 @@ public class AuthMutations
         [Service] UserManager<ApplicationUser> userManager,
         [Service] IConfiguration configuration)
     {
-        var user = await userManager.FindByEmailAsync(input.Email);
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(userManager);
+        ArgumentNullException.ThrowIfNull(configuration);
 
-        if (user == null || !await userManager.CheckPasswordAsync(user, input.Password))
+        var user = await userManager.FindByEmailAsync(input.Email).ConfigureAwait(false);
+
+        if (user == null || !await userManager.CheckPasswordAsync(user, input.Password).ConfigureAwait(false))
         {
             return new AuthPayload(null, null, "Invalid email or password");
         }
 
-        var token = await GenerateJwtToken(user, userManager, configuration);
+        var token = await GenerateJwtToken(user, userManager, configuration).ConfigureAwait(false);
         return new AuthPayload(token, user);
     }
 
@@ -73,10 +83,10 @@ public class AuthMutations
 
         if (user.OrganizationId != Guid.Empty)
         {
-            claims.Add(new Claim("OrganizationId", user.OrganizationId.ToString()));
+            claims.Add(new Claim("OrganizationId", user.OrganizationId.ToString(null, CultureInfo.InvariantCulture)));
         }
 
-        var roles = await userManager.GetRolesAsync(user);
+        var roles = await userManager.GetRolesAsync(user).ConfigureAwait(false);
         foreach (var role in roles)
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
@@ -84,7 +94,7 @@ public class AuthMutations
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"] ?? "YourSuperSecretKeyWithAtLeast32Chars!"));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var expires = DateTime.Now.AddDays(Convert.ToDouble(configuration["Jwt:ExpireDays"] ?? "7"));
+        var expires = DateTime.Now.AddDays(Convert.ToDouble(configuration["Jwt:ExpireDays"] ?? "7", CultureInfo.InvariantCulture));
 
         var token = new JwtSecurityToken(
             configuration["Jwt:Issuer"],

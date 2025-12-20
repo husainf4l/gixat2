@@ -12,8 +12,14 @@ public class AuthQueries
         ClaimsPrincipal claimsPrincipal,
         [Service] UserManager<ApplicationUser> userManager)
     {
+        ArgumentNullException.ThrowIfNull(claimsPrincipal);
+        ArgumentNullException.ThrowIfNull(userManager);
+
         var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId == null) return null;
-        return await userManager.FindByIdAsync(userId);
+        if (userId == null)
+        {
+            return null;
+        }
+        return await userManager.FindByIdAsync(userId).ConfigureAwait(false);
     }
 }
