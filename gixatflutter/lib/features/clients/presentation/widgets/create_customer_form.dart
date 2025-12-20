@@ -502,8 +502,8 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
     TextInputType? keyboardType,
     int maxLines = 1,
     String? Function(String?)? validator,
-  }) =>
-      Column(
+  }) {
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -577,4 +577,3 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
       ],
     );
   }
-}

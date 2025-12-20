@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'core/storage/secure_storage_service.dart';
 import 'core/theme/app_theme.dart';
@@ -45,7 +44,7 @@ class GixatApp extends StatelessWidget {
             final authCubit = context.read<AuthCubit>();
             final router = createAppRouter(authCubit);
 
-            return GetMaterialApp.router(
+            return MaterialApp.router(
               title: 'Gixat',
               theme: AppTheme.lightTheme,
               routerDelegate: router.routerDelegate,
