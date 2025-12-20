@@ -19,82 +19,111 @@ class _ClientsPageState extends State<ClientsPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFF5F7FA),
-      child: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: _buildContent(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
-      child: SafeArea(
-        bottom: false,
+  Widget build(BuildContext context) => Container(
+        color: const Color(0xFFF5F7FA),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildTitleRow(),
-            const SizedBox(height: 24),
-            _buildSearchAndFilter(),
+            _buildHeader(),
+            Expanded(
+              child: _buildContent(),
+            ),
           ],
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildTitleRow() {
-    return Row(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5F7FA),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.menu_rounded, size: 24),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            color: const Color(0xFF1A1A2E),
+  Widget _buildHeader() => Container(
+        color: Colors.white,
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+        child: SafeArea(
+          bottom: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTitleRow(),
+              const SizedBox(height: 24),
+              _buildSearchAndFilter(),
+            ],
           ),
         ),
-        const Spacer(),
-        ElevatedButton.icon(
-          onPressed: () => _showAddClientDialog(context),
-          icon: const Icon(Icons.add, size: 18),
-          label: const Text(
-            'New Client',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF6366F1),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 14,
-            ),
-            shape: RoundedRectangleBorder(
+      );
+
+  Widget _buildTitleRow() => Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F7FA),
               borderRadius: BorderRadius.circular(12),
             ),
-            elevation: 0,
+            child: IconButton(
+              icon: const Icon(Icons.menu_rounded, size: 24),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+              color: const Color(0xFF1A1A2E),
+            ),
           ),
-        ),
-      ],
-    );
-  }
+          const Spacer(),
+          ElevatedButton.icon(
+            onPressed: () => _showAddClientDialog(context),
+            icon: const Icon(Icons.add, size: 18),
+            label: const Text(
+              'New Client',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6366F1),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 14,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+          ),
+        ],
+      );
 
-  Widget _buildSearchAndFilter() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
+  Widget _buildSearchAndFilter() => Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F7FA),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFFE5E7EB),
+                  width: 1,
+                ),
+              ),
+              child: TextField(
+                controller: _searchController,
+                decoration: const InputDecoration(
+                  hintText: 'Search by name, email, or phone...',
+                  hintStyle: TextStyle(
+                    color: Color(0xFF9CA3AF),
+                    fontSize: 14,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: Color(0xFF6B7280),
+                    size: 20,
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+                onChanged: (value) {
+                  // TODO: Implement search functionality
+                },
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
               color: const Color(0xFFF5F7FA),
               borderRadius: BorderRadius.circular(12),
@@ -103,156 +132,116 @@ class _ClientsPageState extends State<ClientsPage> {
                 width: 1,
               ),
             ),
-            child: TextField(
-              controller: _searchController,
-              decoration: const InputDecoration(
-                hintText: 'Search by name, email, or phone...',
-                hintStyle: TextStyle(
-                  color: Color(0xFF9CA3AF),
-                  fontSize: 14,
-                ),
-                prefixIcon: Icon(
-                  Icons.search_rounded,
-                  color: Color(0xFF6B7280),
-                  size: 20,
-                ),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
+            child: DropdownButton<String>(
+              value: _selectedFilter,
+              underline: const SizedBox(),
+              icon: const Icon(Icons.filter_list_rounded, size: 20),
+              style: const TextStyle(
+                color: Color(0xFF1A1A2E),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
+              items: ['All', 'Active', 'VIP', 'Recent']
+                  .map((filter) => DropdownMenuItem(
+                        value: filter,
+                        child: Text(filter),
+                      ))
+                  .toList(),
               onChanged: (value) {
-                // TODO: Implement search functionality
+                if (value != null) {
+                  setState(() => _selectedFilter = value);
+                }
               },
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5F7FA),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: const Color(0xFFE5E7EB),
-              width: 1,
-            ),
-          ),
-          child: DropdownButton<String>(
-            value: _selectedFilter,
-            underline: const SizedBox(),
-            icon: const Icon(Icons.filter_list_rounded, size: 20),
-            style: const TextStyle(
-              color: Color(0xFF1A1A2E),
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-            items: ['All', 'Active', 'VIP', 'Recent']
-                .map((filter) => DropdownMenuItem(
-                      value: filter,
-                      child: Text(filter),
-                    ))
-                .toList(),
-            onChanged: (value) {
-              if (value != null) {
-                setState(() => _selectedFilter = value);
-              }
-            },
-          ),
-        ),
-      ],
-    );
-  }
+        ],
+      );
 
-  Widget _buildContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: _buildEmptyState(),
-    );
-  }
+  Widget _buildContent() => SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: _buildEmptyState(),
+      );
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 500),
-        child: Container(
-          padding: const EdgeInsets.all(48),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 20,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(24),
+  Widget _buildEmptyState() => Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: Container(
+            padding: const EdgeInsets.all(48),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, 4),
                 ),
-                child: const Icon(
-                  Icons.people_rounded,
-                  size: 56,
-                  color: Color(0xFF6366F1),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: const Icon(
+                    Icons.people_rounded,
+                    size: 56,
+                    color: Color(0xFF6366F1),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 28),
-              const Text(
-                'No clients yet',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1A1A2E),
+                const SizedBox(height: 28),
+                const Text(
+                  'No clients yet',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1A1A2E),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Create your first client to get started.\nClients will sync with the backend when available.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                  height: 1.6,
-                ),
-              ),
-              const SizedBox(height: 36),
-              ElevatedButton.icon(
-                onPressed: () => _showAddClientDialog(context),
-                icon: const Icon(Icons.add, size: 20),
-                label: const Text(
-                  'Create First Client',
+                const SizedBox(height: 12),
+                Text(
+                  'Create your first client to get started.\n'
+                  'Clients will sync with the backend when available.',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[600],
+                    height: 1.6,
                   ),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6366F1),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 28,
-                    vertical: 16,
+                const SizedBox(height: 36),
+                ElevatedButton.icon(
+                  onPressed: () => _showAddClientDialog(context),
+                  icon: const Icon(Icons.add, size: 20),
+                  label: const Text(
+                    'Create First Client',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6366F1),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 28,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
                   ),
-                  elevation: 0,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
   void _showAddClientDialog(BuildContext context) {
     final formKey = GlobalKey<FormState>();
@@ -289,7 +278,8 @@ class _ClientsPageState extends State<ClientsPage> {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF6366F1).withOpacity(0.1),
+                              color: const Color(0xFF6366F1)
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -425,7 +415,9 @@ class _ClientsPageState extends State<ClientsPage> {
                                           await Future.delayed(
                                               const Duration(seconds: 1));
 
-                                          if (!context.mounted) return;
+                                          if (!context.mounted) {
+                                            return;
+                                          }
 
                                           setButtonState(
                                               () => _isCreating = false);
@@ -441,7 +433,8 @@ class _ClientsPageState extends State<ClientsPage> {
                                                         const EdgeInsets.all(6),
                                                     decoration: BoxDecoration(
                                                       color: Colors.white
-                                                          .withOpacity(0.2),
+                                                          .withValues(
+                                                              alpha: 0.2),
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               8),
@@ -456,7 +449,9 @@ class _ClientsPageState extends State<ClientsPage> {
                                                   const SizedBox(width: 12),
                                                   Expanded(
                                                     child: Text(
-                                                      'Client ${nameController.text} created successfully!',
+                                                      'Client '
+                                                      '${nameController.text} '
+                                                      'created successfully!',
                                                       style: const TextStyle(
                                                           fontSize: 14),
                                                     ),
@@ -483,7 +478,8 @@ class _ClientsPageState extends State<ClientsPage> {
                                   backgroundColor: const Color(0xFF6366F1),
                                   foregroundColor: Colors.white,
                                   disabledBackgroundColor:
-                                      const Color(0xFF6366F1).withOpacity(0.5),
+                                      const Color(0xFF6366F1)
+                                          .withValues(alpha: 0.5),
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 32,
                                     vertical: 16,
@@ -528,17 +524,15 @@ class _ClientsPageState extends State<ClientsPage> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title.toUpperCase(),
-      style: const TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.w700,
-        color: Color(0xFF6B7280),
-        letterSpacing: 1,
-      ),
-    );
-  }
+  Widget _buildSectionHeader(String title) => Text(
+        title.toUpperCase(),
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF6B7280),
+          letterSpacing: 1,
+        ),
+      );
 
   Widget _buildTextField({
     required TextEditingController controller,
@@ -547,52 +541,51 @@ class _ClientsPageState extends State<ClientsPage> {
     required IconData icon,
     bool isRequired = false,
     TextInputType? keyboardType,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: isRequired ? '$label *' : label,
-        hintText: hint,
-        hintStyle: const TextStyle(
-          color: Color(0xFF9CA3AF),
-          fontSize: 14,
-        ),
-        prefixIcon: Icon(
-          icon,
-          color: const Color(0xFF6B7280),
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: Color(0xFF6366F1),
-            width: 2,
+  }) =>
+      TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          labelText: isRequired ? '$label *' : label,
+          hintText: hint,
+          hintStyle: const TextStyle(
+            color: Color(0xFF9CA3AF),
+            fontSize: 14,
           ),
+          prefixIcon: Icon(
+            icon,
+            color: const Color(0xFF6B7280),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(
+              color: Color(0xFF6366F1),
+              width: 2,
+            ),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFEF4444)),
+          ),
+          filled: true,
+          fillColor: const Color(0xFFF9FAFB),
+          contentPadding: const EdgeInsets.all(16),
         ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFEF4444)),
-        ),
-        filled: true,
-        fillColor: const Color(0xFFF9FAFB),
-        contentPadding: const EdgeInsets.all(16),
-      ),
-      validator: isRequired
-          ? (value) {
-              if (value?.isEmpty ?? true) {
-                return '$label is required';
+        validator: isRequired
+            ? (value) {
+                if (value?.isEmpty ?? true) {
+                  return '$label is required';
+                }
+                return null;
               }
-              return null;
-            }
-          : null,
-    );
-  }
+            : null,
+      );
 }

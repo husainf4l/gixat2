@@ -43,7 +43,9 @@ class _LoginPageState extends State<LoginPage> {
           child: BlocConsumer<AuthCubit, AuthState>(
             listener: (context, state) {
               if (state is AuthAuthenticated) {
-                context.go('/dashboard');
+                context.go('/sessions');
+              } else if (state is AuthNeedsGarage) {
+                context.go('/garage-selection');
               } else if (state is AuthError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -136,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
                                 },
                                 style: TextButton.styleFrom(
                                   padding: EdgeInsets.zero,
-                                  minimumSize: const Size(0, 0),
+                                  minimumSize: Size.zero,
                                   tapTargetSize:
                                       MaterialTapTargetSize.shrinkWrap,
                                 ),

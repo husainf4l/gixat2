@@ -57,3 +57,19 @@ const String meQuery = r'''
     }
   }
 ''';
+
+const String createOrganizationMutation = r'''
+  mutation CreateOrganization($input: CreateOrganizationInput!) {
+    createOrganization(input: $input) {
+      id
+      name
+      address {
+        id
+        country
+        city
+        street
+        phoneCountryCode
+      }
+    }
+  }
+''';

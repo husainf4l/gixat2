@@ -54,7 +54,7 @@ class _AppSidebarState extends State<AppSidebar> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -63,7 +63,7 @@ class _AppSidebarState extends State<AppSidebar> {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withOpacity(0.1),
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.person_rounded,
@@ -85,7 +85,7 @@ class _AppSidebarState extends State<AppSidebar> {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEF4444).withOpacity(0.1),
+                  color: const Color(0xFFEF4444).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.logout_rounded,
@@ -124,7 +124,7 @@ class _AppSidebarState extends State<AppSidebar> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(4, 0),
             ),
@@ -140,7 +140,7 @@ class _AppSidebarState extends State<AppSidebar> {
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     width: 1,
                   ),
                 ),
@@ -261,7 +261,7 @@ class _AppSidebarState extends State<AppSidebar> {
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     width: 1,
                   ),
                 ),
@@ -322,7 +322,7 @@ class _AppSidebarState extends State<AppSidebar> {
                                   _userEmail,
                                   style: TextStyle(
                                     fontSize: 11,
-                                    color: Colors.white.withOpacity(0.6),
+                                    color: Colors.white.withValues(alpha: 0.6),
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -332,7 +332,7 @@ class _AppSidebarState extends State<AppSidebar> {
                         ),
                         Icon(
                           Icons.more_vert_rounded,
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                           size: 20,
                         ),
                       ],
@@ -358,7 +358,7 @@ class _SectionHeader extends StatelessWidget {
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
-            color: Colors.white.withOpacity(0.5),
+            color: Colors.white.withValues(alpha: 0.5),
             letterSpacing: 1,
           ),
         ),
@@ -385,7 +385,9 @@ class _NavItem extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         child: Material(
-          color: isActive ? Colors.white.withOpacity(0.15) : Colors.transparent,
+          color: isActive
+              ? Colors.white.withValues(alpha: 0.15)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             onTap: onTap,
@@ -397,8 +399,9 @@ class _NavItem extends StatelessWidget {
                   Icon(
                     icon,
                     size: 22,
-                    color:
-                        isActive ? Colors.white : Colors.white.withOpacity(0.6),
+                    color: isActive
+                        ? Colors.white
+                        : Colors.white.withValues(alpha: 0.6),
                   ),
                   const SizedBox(width: 12),
                   Text(
@@ -408,7 +411,7 @@ class _NavItem extends StatelessWidget {
                       fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                       color: isActive
                           ? Colors.white
-                          : Colors.white.withOpacity(0.7),
+                          : Colors.white.withValues(alpha: 0.7),
                     ),
                   ),
                 ],

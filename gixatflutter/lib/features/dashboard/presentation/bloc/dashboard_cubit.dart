@@ -46,7 +46,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     try {
       final data = await repository.getDashboardData();
       emit(DashboardLoaded(data));
-    } catch (e) {
+    } on Exception catch (e) {
       emit(DashboardError(e.toString()));
     }
   }
@@ -55,7 +55,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     try {
       final data = await repository.getDashboardData();
       emit(DashboardLoaded(data));
-    } catch (e) {
+    } on Exception catch (e) {
       emit(DashboardError(e.toString()));
     }
   }

@@ -19,8 +19,7 @@ class _InventoryPageState extends State<InventoryPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       color: const Color(0xFFF5F7FA),
       child: Column(
         children: [
@@ -31,10 +30,8 @@ class _InventoryPageState extends State<InventoryPage> {
         ],
       ),
     );
-  }
 
-  Widget _buildHeader() {
-    return Container(
+  Widget _buildHeader() => Container(
       color: Colors.white,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
       child: SafeArea(
@@ -49,10 +46,8 @@ class _InventoryPageState extends State<InventoryPage> {
         ),
       ),
     );
-  }
 
-  Widget _buildTitleRow() {
-    return Row(
+  Widget _buildTitleRow() => Row(
       children: [
         Container(
           decoration: BoxDecoration(
@@ -88,10 +83,8 @@ class _InventoryPageState extends State<InventoryPage> {
         ),
       ],
     );
-  }
 
-  Widget _buildSearchAndFilter() {
-    return Row(
+  Widget _buildSearchAndFilter() => Row(
       children: [
         Expanded(
           child: Container(
@@ -163,17 +156,13 @@ class _InventoryPageState extends State<InventoryPage> {
         ),
       ],
     );
-  }
 
-  Widget _buildContent() {
-    return SingleChildScrollView(
+  Widget _buildContent() => SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: _buildEmptyState(),
     );
-  }
 
-  Widget _buildEmptyState() {
-    return Center(
+  Widget _buildEmptyState() => Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 500),
         child: Container(
@@ -183,7 +172,7 @@ class _InventoryPageState extends State<InventoryPage> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
+                color: Colors.black.withValues(alpha: 0.08),
                 blurRadius: 20,
                 offset: const Offset(0, 4),
               ),
@@ -195,7 +184,7 @@ class _InventoryPageState extends State<InventoryPage> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withOpacity(0.1),
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: const Icon(
@@ -215,7 +204,8 @@ class _InventoryPageState extends State<InventoryPage> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Create your first inventory item to get started.\nInventory will sync with the backend when available.',
+                'Create your first inventory item to get started.\n'
+                'Inventory will sync with the backend when available.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -252,7 +242,6 @@ class _InventoryPageState extends State<InventoryPage> {
         ),
       ),
     );
-  }
 
   void _showAddInventoryDialog(BuildContext context) {
     final formKey = GlobalKey<FormState>();
@@ -261,8 +250,8 @@ class _InventoryPageState extends State<InventoryPage> {
     final quantityController = TextEditingController();
     final priceController = TextEditingController();
     final minStockController = TextEditingController();
-    String selectedCategory = 'Parts';
-    final List<String> categories = ['Parts', 'Tools', 'Fluids', 'Other'];
+    var selectedCategory = 'Parts';
+    final categories = <String>['Parts', 'Tools', 'Fluids', 'Other'];
 
     showDialog(
       context: context,
@@ -292,7 +281,8 @@ class _InventoryPageState extends State<InventoryPage> {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF6366F1).withOpacity(0.1),
+                              color: const Color(0xFF6366F1)
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -348,7 +338,7 @@ class _InventoryPageState extends State<InventoryPage> {
                           ),
                         ),
                         child: DropdownButtonFormField<String>(
-                          value: selectedCategory,
+                          initialValue: selectedCategory,
                           decoration: const InputDecoration(
                             labelText: 'Category',
                             prefixIcon: Icon(
@@ -399,7 +389,10 @@ class _InventoryPageState extends State<InventoryPage> {
                               hint: '0.00',
                               icon: Icons.attach_money_rounded,
                               isRequired: true,
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
                             ),
                           ),
                         ],
@@ -449,12 +442,16 @@ class _InventoryPageState extends State<InventoryPage> {
                                           await Future.delayed(
                                               const Duration(seconds: 1));
 
-                                          if (!context.mounted) return;
+                                          if (!context.mounted) {
+                                            return;
+                                          }
 
                                           setButtonState(
                                               () => _isCreating = false);
                                           setState(() => _isCreating = false);
 
+                                          final itemName =
+                                              itemNameController.text;
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             SnackBar(
@@ -465,7 +462,8 @@ class _InventoryPageState extends State<InventoryPage> {
                                                         const EdgeInsets.all(6),
                                                     decoration: BoxDecoration(
                                                       color: Colors.white
-                                                          .withOpacity(0.2),
+                                                          .withValues(
+                                                              alpha: 0.2),
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               8),
@@ -480,7 +478,8 @@ class _InventoryPageState extends State<InventoryPage> {
                                                   const SizedBox(width: 12),
                                                   Expanded(
                                                     child: Text(
-                                                      '${itemNameController.text} added to inventory successfully!',
+                                                      '$itemName added to '
+                                                      'inventory successfully!',
                                                       style: const TextStyle(
                                                           fontSize: 14),
                                                     ),
@@ -507,7 +506,8 @@ class _InventoryPageState extends State<InventoryPage> {
                                   backgroundColor: const Color(0xFF6366F1),
                                   foregroundColor: Colors.white,
                                   disabledBackgroundColor:
-                                      const Color(0xFF6366F1).withOpacity(0.5),
+                                      const Color(0xFF6366F1)
+                                          .withValues(alpha: 0.5),
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 32,
                                     vertical: 16,
@@ -552,8 +552,7 @@ class _InventoryPageState extends State<InventoryPage> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
+  Widget _buildSectionHeader(String title) => Text(
       title.toUpperCase(),
       style: const TextStyle(
         fontSize: 11,
@@ -562,7 +561,6 @@ class _InventoryPageState extends State<InventoryPage> {
         letterSpacing: 1,
       ),
     );
-  }
 
   Widget _buildTextField({
     required TextEditingController controller,
@@ -571,8 +569,7 @@ class _InventoryPageState extends State<InventoryPage> {
     required IconData icon,
     bool isRequired = false,
     TextInputType? keyboardType,
-  }) {
-    return TextFormField(
+  }) => TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       decoration: InputDecoration(
@@ -626,5 +623,4 @@ class _InventoryPageState extends State<InventoryPage> {
             }
           : null,
     );
-  }
 }

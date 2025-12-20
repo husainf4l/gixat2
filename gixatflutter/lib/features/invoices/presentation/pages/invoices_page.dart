@@ -19,82 +19,111 @@ class _InvoicesPageState extends State<InvoicesPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFF5F7FA),
-      child: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: _buildContent(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
-      child: SafeArea(
-        bottom: false,
+  Widget build(BuildContext context) => Container(
+        color: const Color(0xFFF5F7FA),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildTitleRow(),
-            const SizedBox(height: 24),
-            _buildSearchAndFilter(),
+            _buildHeader(),
+            Expanded(
+              child: _buildContent(),
+            ),
           ],
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildTitleRow() {
-    return Row(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5F7FA),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.menu_rounded, size: 24),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            color: const Color(0xFF1A1A2E),
+  Widget _buildHeader() => Container(
+        color: Colors.white,
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+        child: SafeArea(
+          bottom: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTitleRow(),
+              const SizedBox(height: 24),
+              _buildSearchAndFilter(),
+            ],
           ),
         ),
-        const Spacer(),
-        ElevatedButton.icon(
-          onPressed: () => _showAddInvoiceDialog(context),
-          icon: const Icon(Icons.add, size: 18),
-          label: const Text(
-            'New Invoice',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF6366F1),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 14,
-            ),
-            shape: RoundedRectangleBorder(
+      );
+
+  Widget _buildTitleRow() => Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F7FA),
               borderRadius: BorderRadius.circular(12),
             ),
-            elevation: 0,
+            child: IconButton(
+              icon: const Icon(Icons.menu_rounded, size: 24),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+              color: const Color(0xFF1A1A2E),
+            ),
           ),
-        ),
-      ],
-    );
-  }
+          const Spacer(),
+          ElevatedButton.icon(
+            onPressed: () => _showAddInvoiceDialog(context),
+            icon: const Icon(Icons.add, size: 18),
+            label: const Text(
+              'New Invoice',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6366F1),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 14,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+          ),
+        ],
+      );
 
-  Widget _buildSearchAndFilter() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
+  Widget _buildSearchAndFilter() => Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F7FA),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFFE5E7EB),
+                  width: 1,
+                ),
+              ),
+              child: TextField(
+                controller: _searchController,
+                decoration: const InputDecoration(
+                  hintText: 'Search by client, invoice number...',
+                  hintStyle: TextStyle(
+                    color: Color(0xFF9CA3AF),
+                    fontSize: 14,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: Color(0xFF6B7280),
+                    size: 20,
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+                onChanged: (value) {
+                  // TODO: Implement search functionality
+                },
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
               color: const Color(0xFFF5F7FA),
               borderRadius: BorderRadius.circular(12),
@@ -103,156 +132,116 @@ class _InvoicesPageState extends State<InvoicesPage> {
                 width: 1,
               ),
             ),
-            child: TextField(
-              controller: _searchController,
-              decoration: const InputDecoration(
-                hintText: 'Search by client, invoice number...',
-                hintStyle: TextStyle(
-                  color: Color(0xFF9CA3AF),
-                  fontSize: 14,
-                ),
-                prefixIcon: Icon(
-                  Icons.search_rounded,
-                  color: Color(0xFF6B7280),
-                  size: 20,
-                ),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
+            child: DropdownButton<String>(
+              value: _selectedFilter,
+              underline: const SizedBox(),
+              icon: const Icon(Icons.filter_list_rounded, size: 20),
+              style: const TextStyle(
+                color: Color(0xFF1A1A2E),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
+              items: ['All', 'Draft', 'Sent', 'Paid', 'Overdue']
+                  .map((filter) => DropdownMenuItem(
+                        value: filter,
+                        child: Text(filter),
+                      ))
+                  .toList(),
               onChanged: (value) {
-                // TODO: Implement search functionality
+                if (value != null) {
+                  setState(() => _selectedFilter = value);
+                }
               },
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5F7FA),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: const Color(0xFFE5E7EB),
-              width: 1,
-            ),
-          ),
-          child: DropdownButton<String>(
-            value: _selectedFilter,
-            underline: const SizedBox(),
-            icon: const Icon(Icons.filter_list_rounded, size: 20),
-            style: const TextStyle(
-              color: Color(0xFF1A1A2E),
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-            items: ['All', 'Draft', 'Sent', 'Paid', 'Overdue']
-                .map((filter) => DropdownMenuItem(
-                      value: filter,
-                      child: Text(filter),
-                    ))
-                .toList(),
-            onChanged: (value) {
-              if (value != null) {
-                setState(() => _selectedFilter = value);
-              }
-            },
-          ),
-        ),
-      ],
-    );
-  }
+        ],
+      );
 
-  Widget _buildContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: _buildEmptyState(),
-    );
-  }
+  Widget _buildContent() => SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: _buildEmptyState(),
+      );
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 500),
-        child: Container(
-          padding: const EdgeInsets.all(48),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 20,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(24),
+  Widget _buildEmptyState() => Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: Container(
+            padding: const EdgeInsets.all(48),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, 4),
                 ),
-                child: const Icon(
-                  Icons.receipt_rounded,
-                  size: 56,
-                  color: Color(0xFF6366F1),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: const Icon(
+                    Icons.receipt_rounded,
+                    size: 56,
+                    color: Color(0xFF6366F1),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 28),
-              const Text(
-                'No invoices yet',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1A1A2E),
+                const SizedBox(height: 28),
+                const Text(
+                  'No invoices yet',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1A1A2E),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Create your first invoice to get started.\nInvoices will sync with the backend when available.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                  height: 1.6,
-                ),
-              ),
-              const SizedBox(height: 36),
-              ElevatedButton.icon(
-                onPressed: () => _showAddInvoiceDialog(context),
-                icon: const Icon(Icons.add, size: 20),
-                label: const Text(
-                  'Create First Invoice',
+                const SizedBox(height: 12),
+                Text(
+                  'Create your first invoice to get started.\n'
+                  'Invoices will sync with the backend when available.',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[600],
+                    height: 1.6,
                   ),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6366F1),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 28,
-                    vertical: 16,
+                const SizedBox(height: 36),
+                ElevatedButton.icon(
+                  onPressed: () => _showAddInvoiceDialog(context),
+                  icon: const Icon(Icons.add, size: 20),
+                  label: const Text(
+                    'Create First Invoice',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6366F1),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 28,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
                   ),
-                  elevation: 0,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
   void _showAddInvoiceDialog(BuildContext context) {
     final formKey = GlobalKey<FormState>();
@@ -260,9 +249,10 @@ class _InvoicesPageState extends State<InvoicesPage> {
     final amountController = TextEditingController();
     final itemsController = TextEditingController();
     DateTime? selectedDueDate = DateTime.now().add(const Duration(days: 30));
-    String selectedStatus = 'Draft';
-    final invoiceNumber = 'INV-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
-    final List<String> statuses = ['Draft', 'Sent', 'Paid'];
+    var selectedStatus = 'Draft';
+    final invoiceNumber =
+        'INV-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+    final statuses = <String>['Draft', 'Sent', 'Paid'];
 
     showDialog(
       context: context,
@@ -292,7 +282,8 @@ class _InvoicesPageState extends State<InvoicesPage> {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF6366F1).withOpacity(0.1),
+                              color: const Color(0xFF6366F1)
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -356,7 +347,8 @@ class _InvoicesPageState extends State<InvoicesPage> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF10B981).withOpacity(0.1),
+                                color: const Color(0xFF10B981)
+                                    .withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: const Text(
@@ -394,7 +386,8 @@ class _InvoicesPageState extends State<InvoicesPage> {
                         hint: '0.00',
                         icon: Icons.attach_money_rounded,
                         isRequired: true,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
                       ),
                       const SizedBox(height: 14),
                       OutlinedButton.icon(
@@ -403,13 +396,15 @@ class _InvoicesPageState extends State<InvoicesPage> {
                             context: context,
                             initialDate: selectedDueDate ?? DateTime.now(),
                             firstDate: DateTime.now(),
-                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                            lastDate:
+                                DateTime.now().add(const Duration(days: 365)),
                           );
                           if (date != null) {
                             setDialogState(() => selectedDueDate = date);
                           }
                         },
-                        icon: const Icon(Icons.calendar_today_rounded, size: 18),
+                        icon:
+                            const Icon(Icons.calendar_today_rounded, size: 18),
                         label: Text(
                           selectedDueDate != null
                               ? 'Due: ${selectedDueDate!.day}/${selectedDueDate!.month}/${selectedDueDate!.year}'
@@ -439,7 +434,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
                           ),
                         ),
                         child: DropdownButtonFormField<String>(
-                          value: selectedStatus,
+                          initialValue: selectedStatus,
                           decoration: const InputDecoration(
                             labelText: 'Status',
                             prefixIcon: Icon(
@@ -544,7 +539,9 @@ class _InvoicesPageState extends State<InvoicesPage> {
                                           await Future.delayed(
                                               const Duration(seconds: 1));
 
-                                          if (!context.mounted) return;
+                                          if (!context.mounted) {
+                                            return;
+                                          }
 
                                           setButtonState(
                                               () => _isCreating = false);
@@ -560,7 +557,8 @@ class _InvoicesPageState extends State<InvoicesPage> {
                                                         const EdgeInsets.all(6),
                                                     decoration: BoxDecoration(
                                                       color: Colors.white
-                                                          .withOpacity(0.2),
+                                                          .withValues(
+                                                              alpha: 0.2),
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               8),
@@ -575,7 +573,8 @@ class _InvoicesPageState extends State<InvoicesPage> {
                                                   const SizedBox(width: 12),
                                                   Expanded(
                                                     child: Text(
-                                                      'Invoice $invoiceNumber created successfully!',
+                                                      'Invoice $invoiceNumber '
+                                                      'created successfully!',
                                                       style: const TextStyle(
                                                           fontSize: 14),
                                                     ),
@@ -602,7 +601,8 @@ class _InvoicesPageState extends State<InvoicesPage> {
                                   backgroundColor: const Color(0xFF6366F1),
                                   foregroundColor: Colors.white,
                                   disabledBackgroundColor:
-                                      const Color(0xFF6366F1).withOpacity(0.5),
+                                      const Color(0xFF6366F1)
+                                          .withValues(alpha: 0.5),
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 32,
                                     vertical: 16,
@@ -647,17 +647,15 @@ class _InvoicesPageState extends State<InvoicesPage> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title.toUpperCase(),
-      style: const TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.w700,
-        color: Color(0xFF6B7280),
-        letterSpacing: 1,
-      ),
-    );
-  }
+  Widget _buildSectionHeader(String title) => Text(
+        title.toUpperCase(),
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF6B7280),
+          letterSpacing: 1,
+        ),
+      );
 
   Widget _buildTextField({
     required TextEditingController controller,
@@ -666,55 +664,54 @@ class _InvoicesPageState extends State<InvoicesPage> {
     required IconData icon,
     bool isRequired = false,
     TextInputType? keyboardType,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: isRequired ? '$label *' : label,
-        hintText: hint,
-        hintStyle: const TextStyle(
-          color: Color(0xFF9CA3AF),
-          fontSize: 14,
-        ),
-        prefixIcon: Icon(
-          icon,
-          color: const Color(0xFF6B7280),
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: Color(0xFF6366F1),
-            width: 2,
+  }) =>
+      TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          labelText: isRequired ? '$label *' : label,
+          hintText: hint,
+          hintStyle: const TextStyle(
+            color: Color(0xFF9CA3AF),
+            fontSize: 14,
           ),
+          prefixIcon: Icon(
+            icon,
+            color: const Color(0xFF6B7280),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(
+              color: Color(0xFF6366F1),
+              width: 2,
+            ),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFEF4444)),
+          ),
+          filled: true,
+          fillColor: const Color(0xFFF9FAFB),
+          contentPadding: const EdgeInsets.all(16),
         ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFEF4444)),
-        ),
-        filled: true,
-        fillColor: const Color(0xFFF9FAFB),
-        contentPadding: const EdgeInsets.all(16),
-      ),
-      validator: isRequired
-          ? (value) {
-              if (value?.isEmpty ?? true) {
-                return '$label is required';
+        validator: isRequired
+            ? (value) {
+                if (value?.isEmpty ?? true) {
+                  return '$label is required';
+                }
+                if (label == 'Amount' && double.tryParse(value!) == null) {
+                  return 'Please enter a valid amount';
+                }
+                return null;
               }
-              if (label == 'Amount' && double.tryParse(value!) == null) {
-                return 'Please enter a valid amount';
-              }
-              return null;
-            }
-          : null,
-    );
-  }
+            : null,
+      );
 }

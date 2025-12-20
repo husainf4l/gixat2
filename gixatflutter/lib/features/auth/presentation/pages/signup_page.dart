@@ -36,7 +36,6 @@ class _SignUpPageState extends State<SignUpPage> {
   void _handleSignUp() {
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthCubit>().register(
-            garageName: _garageNameController.text,
             ownerName: _ownerNameController.text,
             email: _emailController.text,
             password: _passwordController.text,
@@ -51,7 +50,9 @@ class _SignUpPageState extends State<SignUpPage> {
           child: BlocConsumer<AuthCubit, AuthState>(
             listener: (context, state) {
               if (state is AuthAuthenticated) {
-                context.go('/dashboard');
+                context.go('/sessions');
+              } else if (state is AuthNeedsGarage) {
+                context.go('/garage-selection');
               } else if (state is AuthError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -102,27 +103,15 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                             const SizedBox(height: 40),
 
-                            // Garage Name Field
-                            AuthInputField(
-                              hint: 'Garage Name',
-                              icon: Icons.store_outlined,
-                              controller: _garageNameController,
-                              validator: (value) {
-                                if (value?.isEmpty ?? true) {
-                                  return 'Please enter garage name';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 40),
 
-                            // Owner Name Field
+                            // Full Name Field
                             AuthInputField(
-                              hint: 'Owner Name',
+                              hint: 'Full Name',
                               icon: Icons.person_outline,
                               controller: _ownerNameController,
                               validator: (value) {
-                                if (value?.isEmpty ?? true) {
+                                if (value == null || value.isEmpty) {
                                   return 'Please enter your name';
                                 }
                                 return null;
@@ -159,7 +148,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                   return 'Please enter a password';
                                 }
                                 if (value!.length < 6) {
-                                  return 'Password must be at least 6 characters';
+                                  return 'Password must be at least '
+                                      '6 characters';
                                 }
                                 return null;
                               },

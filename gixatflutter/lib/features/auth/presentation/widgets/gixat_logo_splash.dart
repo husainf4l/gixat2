@@ -71,7 +71,9 @@ class _GixatLogoSplashState extends State<GixatLogoSplash>
 
     // Trigger callback after animation
     Future.delayed(widget.duration + widget.holdAfter, () {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       widget.onFinished?.call();
     });
   }
@@ -104,7 +106,7 @@ class _GixatLogoSplashState extends State<GixatLogoSplash>
                       boxShadow: [
                         // Base shadow
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.12),
+                          color: Colors.black.withValues(alpha: 0.12),
                           blurRadius: 30,
                           offset: const Offset(0, 15),
                           spreadRadius: 3,
@@ -112,15 +114,15 @@ class _GixatLogoSplashState extends State<GixatLogoSplash>
                         // Primary animated glow - cyan
                         BoxShadow(
                           color: const Color(0xFF5EC8F2)
-                              .withOpacity(0.6 * _glowAnimation.value),
+                              .withValues(alpha: 0.6 * _glowAnimation.value),
                           blurRadius: 50 * _glowAnimation.value,
-                          offset: const Offset(0, 0),
+                          offset: Offset.zero,
                           spreadRadius: 8 * _glowAnimation.value,
                         ),
                         // Secondary glow - blue
                         BoxShadow(
                           color: const Color(0xFF3B9FD9)
-                              .withOpacity(0.4 * _glowAnimation.value),
+                              .withValues(alpha: 0.4 * _glowAnimation.value),
                           blurRadius: 35 * _glowAnimation.value,
                           offset: const Offset(0, 5),
                           spreadRadius: 4 * _glowAnimation.value,

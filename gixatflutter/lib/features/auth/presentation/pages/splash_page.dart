@@ -27,7 +27,9 @@ class _SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) => BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            context.go('/dashboard');
+            context.go('/sessions');
+          } else if (state is AuthNeedsGarage) {
+            context.go('/garage-selection');
           } else if (state is AuthUnauthenticated) {
             context.go('/login');
           }

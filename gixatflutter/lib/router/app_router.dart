@@ -1,49 +1,70 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/appointments/presentation/pages/appointments_page.dart';
 import '../features/auth/presentation/bloc/auth_cubit.dart';
+import '../features/auth/presentation/pages/connect_garage_page.dart';
+import '../features/auth/presentation/pages/create_garage_page.dart';
+import '../features/auth/presentation/pages/garage_selection_page.dart';
 import '../features/auth/presentation/pages/login_page.dart';
 import '../features/auth/presentation/pages/signup_page.dart';
 import '../features/auth/presentation/pages/splash_page.dart';
 import '../features/clients/presentation/pages/clients_page.dart';
-import '../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../features/inventory/presentation/pages/inventory_page.dart';
 import '../features/invoices/presentation/pages/invoices_page.dart';
 import '../features/jobcards/presentation/pages/jobcards_page.dart';
 import '../features/navigation/app_layout.dart';
 import '../features/sessions/presentation/pages/sessions_page.dart';
+import '../features/settings/presentation/pages/settings_page.dart';
 
 GoRouter createAppRouter(AuthCubit authCubit) => GoRouter(
       initialLocation: '/splash',
       refreshListenable: GoRouterRefreshStream(authCubit.stream),
       redirect: (context, state) {
-        final authState = context.read<AuthCubit>().state;
+        final authState = authCubit.state;
         final location = state.matchedLocation;
 
-        // Always allow splash screen to show - never redirect from it
-        if (location == '/splash') {
+        // If still in initial or loading state, stay on splash
+        if (authState is AuthInitial || authState is AuthLoading) {
+          return location == '/splash' ? null : '/splash';
+        }
+
+        // If user is unauthenticated or there is an error on splash
+        if (authState is AuthUnauthenticated || (authState is AuthError && location == '/splash')) {
+          final isAuthPage = location == '/login' || location == '/signup';
+          if (!isAuthPage) {
+            return '/login';
+          }
           return null;
         }
 
-        // If user is authenticated, redirect to dashboard
+        // If user needs a garage
+        if (authState is AuthNeedsGarage) {
+          final isGaragePage = location == '/garage-selection' || 
+                              location == '/create-garage' || 
+                              location == '/connect-garage';
+          if (!isGaragePage) {
+            return '/garage-selection';
+          }
+          return null;
+        }
+
+        // If user is authenticated
         if (authState is AuthAuthenticated) {
-          if (location == '/login' || location == '/signup') {
-            return '/dashboard';
+          final isAuthPage = location == '/login' || 
+                            location == '/signup' || 
+                            location == '/splash' ||
+                            location == '/garage-selection' ||
+                            location == '/create-garage' ||
+                            location == '/connect-garage';
+          if (isAuthPage) {
+            return '/sessions';
           }
+          return null;
         }
 
-        // If user is unauthenticated and not on auth pages, redirect to login
-        if (authState is AuthUnauthenticated) {
-          if (location != '/login' && location != '/signup') {
-            return '/login';
-          }
-        }
-
-        // Allow all other states
         return null;
       },
       routes: [
@@ -63,12 +84,19 @@ GoRouter createAppRouter(AuthCubit authCubit) => GoRouter(
           builder: (context, state) => const SignUpPage(),
         ),
         GoRoute(
-          path: '/dashboard',
-          name: 'dashboard',
-          builder: (context, state) => const AppLayout(
-            currentPath: '/dashboard',
-            child: DashboardPage(),
-          ),
+          path: '/garage-selection',
+          name: 'garage-selection',
+          builder: (context, state) => const GarageSelectionPage(),
+        ),
+        GoRoute(
+          path: '/create-garage',
+          name: 'create-garage',
+          builder: (context, state) => const CreateGaragePage(),
+        ),
+        GoRoute(
+          path: '/connect-garage',
+          name: 'connect-garage',
+          builder: (context, state) => const ConnectGaragePage(),
         ),
         GoRoute(
           path: '/sessions',
@@ -116,6 +144,14 @@ GoRouter createAppRouter(AuthCubit authCubit) => GoRouter(
           builder: (context, state) => const AppLayout(
             currentPath: '/inventory',
             child: InventoryPage(),
+          ),
+        ),
+        GoRoute(
+          path: '/settings',
+          name: 'settings',
+          builder: (context, state) => const AppLayout(
+            currentPath: '/settings',
+            child: SettingsPage(),
           ),
         ),
       ],

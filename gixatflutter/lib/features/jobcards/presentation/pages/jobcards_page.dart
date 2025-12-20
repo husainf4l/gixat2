@@ -19,8 +19,7 @@ class _JobCardsPageState extends State<JobCardsPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       color: const Color(0xFFF5F7FA),
       child: Column(
         children: [
@@ -31,10 +30,8 @@ class _JobCardsPageState extends State<JobCardsPage> {
         ],
       ),
     );
-  }
 
-  Widget _buildHeader() {
-    return Container(
+  Widget _buildHeader() => Container(
       color: Colors.white,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
       child: SafeArea(
@@ -49,10 +46,8 @@ class _JobCardsPageState extends State<JobCardsPage> {
         ),
       ),
     );
-  }
 
-  Widget _buildTitleRow() {
-    return Row(
+  Widget _buildTitleRow() => Row(
       children: [
         Container(
           decoration: BoxDecoration(
@@ -88,10 +83,8 @@ class _JobCardsPageState extends State<JobCardsPage> {
         ),
       ],
     );
-  }
 
-  Widget _buildSearchAndFilter() {
-    return Row(
+  Widget _buildSearchAndFilter() => Row(
       children: [
         Expanded(
           child: Container(
@@ -148,7 +141,13 @@ class _JobCardsPageState extends State<JobCardsPage> {
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
-            items: ['All', 'In Progress', 'Pending', 'Completed', 'High Priority']
+            items: [
+              'All',
+              'In Progress',
+              'Pending',
+              'Completed',
+              'High Priority'
+            ]
                 .map((filter) => DropdownMenuItem(
                       value: filter,
                       child: Text(filter),
@@ -163,17 +162,13 @@ class _JobCardsPageState extends State<JobCardsPage> {
         ),
       ],
     );
-  }
 
-  Widget _buildContent() {
-    return SingleChildScrollView(
+  Widget _buildContent() => SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: _buildEmptyState(),
     );
-  }
 
-  Widget _buildEmptyState() {
-    return Center(
+  Widget _buildEmptyState() => Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 500),
         child: Container(
@@ -183,7 +178,7 @@ class _JobCardsPageState extends State<JobCardsPage> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
+                color: Colors.black.withValues(alpha: 0.08),
                 blurRadius: 20,
                 offset: const Offset(0, 4),
               ),
@@ -195,7 +190,7 @@ class _JobCardsPageState extends State<JobCardsPage> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withOpacity(0.1),
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: const Icon(
@@ -215,7 +210,8 @@ class _JobCardsPageState extends State<JobCardsPage> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Create your first job card to get started.\nJob cards will sync with the backend when available.',
+                'Create your first job card to get started.\n'
+                'Job cards will sync with the backend when available.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -252,7 +248,6 @@ class _JobCardsPageState extends State<JobCardsPage> {
         ),
       ),
     );
-  }
 
   void _showAddJobCardDialog(BuildContext context) {
     final formKey = GlobalKey<FormState>();
@@ -261,9 +256,9 @@ class _JobCardsPageState extends State<JobCardsPage> {
     final clientController = TextEditingController();
     final phoneController = TextEditingController();
     final issueController = TextEditingController();
-    String selectedServiceType = 'Repair';
-    String selectedPriority = 'Medium';
-    final List<String> serviceTypes = [
+    var selectedServiceType = 'Repair';
+    var selectedPriority = 'Medium';
+    final serviceTypes = <String>[
       'Repair',
       'Maintenance',
       'Inspection',
@@ -272,7 +267,7 @@ class _JobCardsPageState extends State<JobCardsPage> {
       'Paint',
       'Other',
     ];
-    final List<String> priorities = ['High', 'Medium', 'Low'];
+    final priorities = <String>['High', 'Medium', 'Low'];
 
     showDialog(
       context: context,
@@ -302,7 +297,8 @@ class _JobCardsPageState extends State<JobCardsPage> {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF6366F1).withOpacity(0.1),
+                              color: const Color(0xFF6366F1)
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -384,7 +380,7 @@ class _JobCardsPageState extends State<JobCardsPage> {
                           ),
                         ),
                         child: DropdownButtonFormField<String>(
-                          value: selectedServiceType,
+                          initialValue: selectedServiceType,
                           decoration: const InputDecoration(
                             labelText: 'Service Type',
                             prefixIcon: Icon(
@@ -471,7 +467,7 @@ class _JobCardsPageState extends State<JobCardsPage> {
                           ),
                         ),
                         child: DropdownButtonFormField<String>(
-                          value: selectedPriority,
+                          initialValue: selectedPriority,
                           decoration: const InputDecoration(
                             labelText: 'Priority',
                             prefixIcon: Icon(
@@ -534,12 +530,16 @@ class _JobCardsPageState extends State<JobCardsPage> {
                                           await Future.delayed(
                                               const Duration(seconds: 1));
 
-                                          if (!context.mounted) return;
+                                          if (!context.mounted) {
+                                            return;
+                                          }
 
                                           setButtonState(
                                               () => _isCreating = false);
                                           setState(() => _isCreating = false);
 
+                                          final vehicleName =
+                                              vehicleController.text;
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             SnackBar(
@@ -550,7 +550,8 @@ class _JobCardsPageState extends State<JobCardsPage> {
                                                         const EdgeInsets.all(6),
                                                     decoration: BoxDecoration(
                                                       color: Colors.white
-                                                          .withOpacity(0.2),
+                                                          .withValues(
+                                                              alpha: 0.2),
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               8),
@@ -565,7 +566,9 @@ class _JobCardsPageState extends State<JobCardsPage> {
                                                   const SizedBox(width: 12),
                                                   Expanded(
                                                     child: Text(
-                                                      'Job card for ${vehicleController.text} created successfully!',
+                                                      'Job card for '
+                                                      '$vehicleName '
+                                                      'created successfully!',
                                                       style: const TextStyle(
                                                           fontSize: 14),
                                                     ),
@@ -592,7 +595,8 @@ class _JobCardsPageState extends State<JobCardsPage> {
                                   backgroundColor: const Color(0xFF6366F1),
                                   foregroundColor: Colors.white,
                                   disabledBackgroundColor:
-                                      const Color(0xFF6366F1).withOpacity(0.5),
+                                      const Color(0xFF6366F1)
+                                          .withValues(alpha: 0.5),
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 32,
                                     vertical: 16,
@@ -637,8 +641,7 @@ class _JobCardsPageState extends State<JobCardsPage> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
+  Widget _buildSectionHeader(String title) => Text(
       title.toUpperCase(),
       style: const TextStyle(
         fontSize: 11,
@@ -647,7 +650,6 @@ class _JobCardsPageState extends State<JobCardsPage> {
         letterSpacing: 1,
       ),
     );
-  }
 
   Widget _buildTextField({
     required TextEditingController controller,
@@ -656,8 +658,7 @@ class _JobCardsPageState extends State<JobCardsPage> {
     required IconData icon,
     bool isRequired = false,
     TextInputType? keyboardType,
-  }) {
-    return TextFormField(
+  }) => TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       decoration: InputDecoration(
@@ -703,5 +704,4 @@ class _JobCardsPageState extends State<JobCardsPage> {
             }
           : null,
     );
-  }
 }

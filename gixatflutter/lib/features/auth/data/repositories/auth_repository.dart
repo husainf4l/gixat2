@@ -71,15 +71,12 @@ class AuthRepository {
 
   /// Register new account using GraphQL
   Future<AuthResponse> register({
-    required String garageName,
     required String ownerName,
     required String email,
     required String password,
   }) async {
     try {
-      print('DEBUG: Starting registration for $email');
       final client = await GraphQLConfig.getClient(withAuth: false);
-      print('DEBUG: GraphQL client obtained');
 
       final result = await client.mutate(
         MutationOptions(
@@ -94,14 +91,10 @@ class AuthRepository {
         ),
       );
 
-      print('DEBUG: Mutation executed');
-
       if (result.hasException) {
-        print('DEBUG: Has exception: ${result.exception}');
         throw _handleGraphQLException(result.exception!);
       }
 
-      print('DEBUG: Result data: ${result.data}');
       final data = result.data?['register'];
       if (data == null) {
         throw Exception('Registration failed: No data returned');
@@ -132,11 +125,8 @@ class AuthRepository {
         role: userData['role'] as String? ?? 'owner',
       );
 
-      print(
-          'DEBUG: Registration successful, token: ${token.substring(0, 20)}...');
       return AuthResponse(token: token, user: user);
     } catch (e) {
-      print('DEBUG: Registration error: $e');
       throw Exception('Registration failed: ${e.toString()}');
     }
   }
@@ -145,7 +135,9 @@ class AuthRepository {
   Future<bool> isTokenValid() async {
     try {
       final token = await _storage.getToken();
-      if (token == null) return false;
+      if (token == null) {
+        return false;
+      }
 
       final client = await GraphQLConfig.getClient(withAuth: true);
 
@@ -157,8 +149,60 @@ class AuthRepository {
       );
 
       return !result.hasException && result.data?['me'] != null;
-    } catch (e) {
+    } on Exception {
       return false;
+    }
+  }
+
+  Future<bool> hasGarage() async {
+    final garageId = await _storage.getGarageId();
+    return garageId != null && garageId.isNotEmpty;
+  }
+
+  Future<void> saveGarageId(String garageId) async {
+    await _storage.saveGarageId(garageId);
+  }
+
+  /// Create a new organization (garage)
+  Future<String> createOrganization({
+    required String name,
+    required String country,
+    required String city,
+    required String street,
+    required String phoneCountryCode,
+  }) async {
+    try {
+      final client = await GraphQLConfig.getClient(withAuth: true);
+
+      final result = await client.mutate(
+        MutationOptions(
+          document: gql(createOrganizationMutation),
+          variables: {
+            'input': {
+              'name': name,
+              'country': country,
+              'city': city,
+              'street': street,
+              'phoneCountryCode': phoneCountryCode,
+            },
+          },
+        ),
+      );
+
+      if (result.hasException) {
+        throw _handleGraphQLException(result.exception!);
+      }
+
+      final data = result.data?['createOrganization'];
+      if (data == null) {
+        throw Exception('Failed to create organization');
+      }
+
+      final garageId = data['id'].toString();
+      await saveGarageId(garageId);
+      return garageId;
+    } catch (e) {
+      throw Exception('Failed to create organization: ${e.toString()}');
     }
   }
 
@@ -172,13 +216,9 @@ class AuthRepository {
 
   /// Handle GraphQL exceptions to user-friendly errors
   Exception _handleGraphQLException(OperationException exception) {
-    print(
-        'DEBUG: Exception details - linkException: ${exception.linkException}, graphqlErrors: ${exception.graphqlErrors}');
-
     final errors = exception.graphqlErrors;
     if (errors.isNotEmpty) {
       final message = errors.first.message;
-      print('DEBUG: GraphQL error message: $message');
 
       if (message.toLowerCase().contains('credentials') ||
           message.toLowerCase().contains('password')) {
@@ -192,7 +232,6 @@ class AuthRepository {
     }
 
     if (exception.linkException != null) {
-      print('DEBUG: Link exception: ${exception.linkException}');
       return Exception('Network error. Please check your connection.');
     }
 

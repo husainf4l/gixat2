@@ -35,14 +35,13 @@ class NetworkClient {
           Duration(seconds: 2),
           Duration(seconds: 4),
         ],
-        retryEvaluator: (error, attempt) {
-          // Retry on network errors and 5xx status codes
-          return error.type == DioExceptionType.connectionTimeout ||
-              error.type == DioExceptionType.receiveTimeout ||
-              error.type == DioExceptionType.sendTimeout ||
-              error.type == DioExceptionType.unknown ||
-              (error.response?.statusCode ?? 0) >= 500;
-        },
+        retryEvaluator: (error, attempt) =>
+            // Retry on network errors and 5xx status codes
+            error.type == DioExceptionType.connectionTimeout ||
+            error.type == DioExceptionType.receiveTimeout ||
+            error.type == DioExceptionType.sendTimeout ||
+            error.type == DioExceptionType.unknown ||
+            (error.response?.statusCode ?? 0) >= 500,
       ),
     );
 

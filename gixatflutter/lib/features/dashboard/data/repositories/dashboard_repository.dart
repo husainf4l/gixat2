@@ -55,8 +55,9 @@ class DashboardRepository {
         }
       }
 
-      // For now, return empty stats since backend doesn't have these endpoints yet
-      // When backend adds sessions, appointments, etc., we'll add those queries here
+      // For now, return empty stats since backend doesn't have these
+      // endpoints yet. When backend adds sessions, appointments, etc.,
+      // we'll add those queries here.
       final stats = DashboardStats.empty();
 
       return DashboardData(

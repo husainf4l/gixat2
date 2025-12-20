@@ -89,7 +89,8 @@ class _DashboardView extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              'Today\'s overview • ${_formatDate(DateTime.now())}',
+                              'Today\'s overview • '
+                              '${_formatDate(DateTime.now())}',
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: Color(0xFF6B7280),
@@ -110,7 +111,6 @@ class _DashboardView extends StatelessWidget {
                             icon: Icons.notifications_rounded,
                             onPressed: () {},
                             tooltip: 'Notifications',
-                            badge: 3,
                           ),
                         ],
                       ),
@@ -206,14 +206,15 @@ class _DashboardView extends StatelessWidget {
                               child: _SectionCard(
                                 title: 'Today\'s Schedule',
                                 subtitle: stats.pendingAppointments > 0
-                                    ? '${stats.pendingAppointments} appointments'
+                                    ? '${stats.pendingAppointments} '
+                                        'appointments'
                                     : 'No appointments',
                                 child: const _EmptyState(
                                   icon: Icons.calendar_today_rounded,
-                                  message:
-                                      'No appointments scheduled for today',
-                                  description:
-                                      'Appointments will appear here when available',
+                                  message: 'No appointments scheduled '
+                                      'for today',
+                                  description: 'Appointments will appear '
+                                      'here when available',
                                 ),
                               ),
                             ),
@@ -227,8 +228,8 @@ class _DashboardView extends StatelessWidget {
                                 child: const _EmptyState(
                                   icon: Icons.build_rounded,
                                   message: 'No active job cards',
-                                  description:
-                                      'Job cards will appear here when created',
+                                  description: 'Job cards will appear '
+                                      'here when created',
                                 ),
                               ),
                             ),
@@ -240,13 +241,15 @@ class _DashboardView extends StatelessWidget {
                             _SectionCard(
                               title: 'Today\'s Schedule',
                               subtitle: stats.pendingAppointments > 0
-                                  ? '${stats.pendingAppointments} appointments'
+                                  ? '${stats.pendingAppointments} '
+                                      'appointments'
                                   : 'No appointments',
                               child: const _EmptyState(
                                 icon: Icons.calendar_today_rounded,
-                                message: 'No appointments scheduled for today',
-                                description:
-                                    'Appointments will appear here when available',
+                                message: 'No appointments scheduled '
+                                    'for today',
+                                description: 'Appointments will appear '
+                                    'here when available',
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -258,8 +261,8 @@ class _DashboardView extends StatelessWidget {
                               child: const _EmptyState(
                                 icon: Icons.build_rounded,
                                 message: 'No active job cards',
-                                description:
-                                    'Job cards will appear here when created',
+                                description: 'Job cards will appear '
+                                    'here when created',
                               ),
                             ),
                           ],
@@ -288,7 +291,7 @@ class _DashboardView extends StatelessWidget {
         },
       );
 
-  static String _formatDate(DateTime date) {
+  String _formatDate(DateTime date) {
     final months = [
       'Jan',
       'Feb',
@@ -312,63 +315,32 @@ class _HeaderButton extends StatelessWidget {
     required this.icon,
     required this.onPressed,
     required this.tooltip,
-    this.badge,
   });
   final IconData icon;
   final VoidCallback onPressed;
   final String tooltip;
-  final int? badge;
 
   @override
-  Widget build(BuildContext context) => Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+  Widget build(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
             ),
-            child: IconButton(
-              icon: Icon(icon, size: 20),
-              onPressed: onPressed,
-              color: const Color(0xFF6B7280),
-              tooltip: tooltip,
-              constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-              padding: EdgeInsets.zero,
-            ),
-          ),
-          if (badge != null && badge! > 0)
-            Positioned(
-              right: 4,
-              top: 4,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFEF4444),
-                  shape: BoxShape.circle,
-                ),
-                constraints: const BoxConstraints(
-                  minWidth: 16,
-                  minHeight: 16,
-                ),
-                child: Text(
-                  badge! > 9 ? '9+' : badge.toString(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 9,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-        ],
+          ],
+        ),
+        child: IconButton(
+          icon: Icon(icon, size: 20),
+          onPressed: onPressed,
+          color: const Color(0xFF6B7280),
+          tooltip: tooltip,
+          constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+          padding: EdgeInsets.zero,
+        ),
       );
 }
 
@@ -397,7 +369,7 @@ class _StatCard extends StatelessWidget {
           border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 1),
             ),
@@ -413,7 +385,7 @@ class _StatCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, color: color, size: 22),
@@ -426,7 +398,7 @@ class _StatCard extends StatelessWidget {
                       color: (trendUp!
                               ? const Color(0xFF10B981)
                               : const Color(0xFFEF4444))
-                          .withOpacity(0.1),
+                          .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -499,7 +471,7 @@ class _SectionCard extends StatelessWidget {
           border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 1),
             ),
@@ -546,292 +518,6 @@ class _SectionCard extends StatelessWidget {
       );
 }
 
-class _ScheduleItem extends StatelessWidget {
-  const _ScheduleItem({
-    required this.time,
-    required this.clientName,
-    required this.vehicle,
-    required this.plate,
-    required this.status,
-    required this.statusColor,
-  });
-  final String time;
-  final String clientName;
-  final String vehicle;
-  final String plate;
-  final String status;
-  final Color statusColor;
-
-  @override
-  Widget build(BuildContext context) => Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {},
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF6366F1).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.schedule_rounded,
-                    size: 20,
-                    color: Color(0xFF6366F1),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        clientName,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A1A2E),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '$vehicle • $plate',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.access_time_rounded,
-                            size: 14,
-                            color: Color(0xFF9CA3AF),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            time,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF9CA3AF),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    status,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: statusColor,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-}
-
-class _JobCardRow extends StatelessWidget {
-  const _JobCardRow({
-    required this.jobNumber,
-    required this.clientName,
-    required this.vehicle,
-    required this.status,
-    required this.mechanic,
-    required this.progress,
-    required this.statusColor,
-  });
-  final String jobNumber;
-  final String clientName;
-  final String vehicle;
-  final String status;
-  final String mechanic;
-  final double progress;
-  final Color statusColor;
-
-  @override
-  Widget build(BuildContext context) => Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {},
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: statusColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            jobNumber,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: statusColor,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: statusColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            status,
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: statusColor,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      '${(progress * 100).toInt()}%',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1A1A2E),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  '$clientName • $vehicle',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1A1A2E),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.person_rounded,
-                        size: 14, color: Color(0xFF9CA3AF)),
-                    const SizedBox(width: 4),
-                    Text(
-                      mechanic,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF6B7280),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: const Color(0xFFE5E7EB),
-                    valueColor: AlwaysStoppedAnimation<Color>(statusColor),
-                    minHeight: 6,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-}
-
-class _AlertItem extends StatelessWidget {
-  const _AlertItem({
-    required this.icon,
-    required this.message,
-    required this.action,
-    required this.color,
-  });
-  final IconData icon;
-  final String message;
-  final String action;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) => Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {},
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(icon, color: color, size: 20),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    message,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF1A1A2E),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    action,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-}
-
 // Empty state widget for sections without data
 class _EmptyState extends StatelessWidget {
   const _EmptyState({
@@ -853,13 +539,13 @@ class _EmptyState extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withOpacity(0.1),
+                color: const Color(0xFF6366F1).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
                 icon,
                 size: 40,
-                color: const Color(0xFF6366F1).withOpacity(0.6),
+                color: const Color(0xFF6366F1).withValues(alpha: 0.6),
               ),
             ),
             const SizedBox(height: 16),

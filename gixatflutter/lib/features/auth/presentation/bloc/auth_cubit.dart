@@ -18,12 +18,17 @@ class AuthCubit extends Cubit<AuthState> {
       if (isValid) {
         final token = await _authRepository.getStoredToken();
         if (token != null) {
-          emit(const AuthAuthenticated());
+          final hasGarage = await _authRepository.hasGarage();
+          if (hasGarage) {
+            emit(const AuthAuthenticated());
+          } else {
+            emit(const AuthNeedsGarage());
+          }
           return;
         }
       }
       emit(const AuthUnauthenticated());
-    } catch (e) {
+    } on Exception catch (e) {
       emit(AuthUnauthenticated(message: e.toString()));
     }
   }
@@ -39,8 +44,13 @@ class AuthCubit extends Cubit<AuthState> {
         email: email,
         password: password,
       );
-      emit(const AuthAuthenticated());
-    } catch (e) {
+      final hasGarage = await _authRepository.hasGarage();
+      if (hasGarage) {
+        emit(const AuthAuthenticated());
+      } else {
+        emit(const AuthNeedsGarage());
+      }
+    } on Exception catch (e) {
       final message = e.toString().replaceFirst('Exception: ', '');
       emit(AuthError(message: message));
     }
@@ -48,7 +58,6 @@ class AuthCubit extends Cubit<AuthState> {
 
   /// Register new account
   Future<void> register({
-    required String garageName,
     required String ownerName,
     required String email,
     required String password,
@@ -56,15 +65,15 @@ class AuthCubit extends Cubit<AuthState> {
     emit(const AuthLoading());
     try {
       await _authRepository.register(
-        garageName: garageName,
         ownerName: ownerName,
         email: email,
         password: password,
       );
-      emit(const AuthAuthenticated());
-    } catch (e) {
+      // Registration currently doesn't link a garage in the mutation
+      // so we emit AuthNeedsGarage to force the user to create/connect one
+      emit(const AuthNeedsGarage());
+    } on Exception catch (e) {
       final message = e.toString().replaceFirst('Exception: ', '');
-      print('AUTH ERROR: $message');
       emit(AuthError(message: message));
     }
   }
@@ -75,8 +84,45 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       await _authRepository.logout();
       emit(const AuthUnauthenticated());
-    } catch (e) {
+    } on Exception catch (e) {
       emit(AuthError(message: e.toString()));
+    }
+  }
+
+  /// Select or create a garage
+  Future<void> selectGarage(String garageId) async {
+    emit(const AuthLoading());
+    try {
+      // In a real app, this would call an API to link the user to the garage
+      // For now, we just save it locally
+      await _authRepository.saveGarageId(garageId);
+      emit(const AuthAuthenticated());
+    } on Exception catch (e) {
+      emit(AuthError(message: e.toString()));
+    }
+  }
+
+  /// Create a new organization (garage)
+  Future<void> createOrganization({
+    required String name,
+    required String country,
+    required String city,
+    required String street,
+    required String phoneCountryCode,
+  }) async {
+    emit(const AuthLoading());
+    try {
+      await _authRepository.createOrganization(
+        name: name,
+        country: country,
+        city: city,
+        street: street,
+        phoneCountryCode: phoneCountryCode,
+      );
+      emit(const AuthAuthenticated());
+    } on Exception catch (e) {
+      final message = e.toString().replaceFirst('Exception: ', '');
+      emit(AuthError(message: message));
     }
   }
 }

@@ -8,6 +8,7 @@ class SecureStorageService {
   static const _userRoleKey = 'user_role';
   static const _userNameKey = 'user_name';
   static const _userEmailKey = 'user_email';
+  static const _garageIdKey = 'garage_id';
 
   final FlutterSecureStorage _storage;
 
@@ -52,6 +53,12 @@ class SecureStorageService {
 
   Future<String?> getUserEmail() async => _storage.read(key: _userEmailKey);
 
+  Future<void> saveGarageId(String garageId) async {
+    await _storage.write(key: _garageIdKey, value: garageId);
+  }
+
+  Future<String?> getGarageId() async => _storage.read(key: _garageIdKey);
+
   // Clear all auth data
   Future<void> clearAll() async {
     await _storage.delete(key: _tokenKey);
@@ -59,5 +66,6 @@ class SecureStorageService {
     await _storage.delete(key: _userRoleKey);
     await _storage.delete(key: _userNameKey);
     await _storage.delete(key: _userEmailKey);
+    await _storage.delete(key: _garageIdKey);
   }
 }

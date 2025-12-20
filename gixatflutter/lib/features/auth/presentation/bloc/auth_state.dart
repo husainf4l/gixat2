@@ -22,6 +22,11 @@ class AuthAuthenticated extends AuthState {
   const AuthAuthenticated();
 }
 
+/// Authenticated but needs to select or create a garage
+class AuthNeedsGarage extends AuthState {
+  const AuthNeedsGarage();
+}
+
 /// Unauthenticated state - no token or invalid token
 class AuthUnauthenticated extends AuthState {
   const AuthUnauthenticated({this.message});
