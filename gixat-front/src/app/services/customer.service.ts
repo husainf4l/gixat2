@@ -28,6 +28,19 @@ export interface Customer {
   phoneNumber: string;
   address?: Address | null;
   cars: Car[];
+  // Activity metrics
+  lastSessionDate?: string | null;
+  totalVisits?: number;
+  totalSpent?: number;
+  activeJobCards?: number;
+  totalCars?: number;
+}
+
+export interface CustomerStatistics {
+  totalCustomers: number;
+  customersThisMonth: number;
+  activeCustomers: number;
+  totalRevenue: number;
 }
 
 export interface CustomerDetail {
@@ -49,6 +62,7 @@ export interface SessionSummary {
   id: string;
   status: string;
   createdAt: string;
+  carId: string;
   car: Pick<Car, 'make' | 'model' | 'licensePlate'> | null;
 }
 
@@ -121,9 +135,31 @@ const CUSTOMERS_QUERY = gql`
           cars {
             id
           }
+          lastSessionDate
+          totalVisits
+          totalSpent
+          activeJobCards
+          totalCars
         }
       }
     }
+  }
+`;
+
+const CUSTOMER_STATISTICS_QUERY = gql`
+  query CustomerStatistics {
+    customerStatistics {
+      totalCustomers
+      customersThisMonth
+      activeCustomers
+      totalRevenue
+    }
+  }
+`;
+
+const EXPORT_CUSTOMERS_CSV_MUTATION = gql`
+  mutation ExportCustomers {
+    exportCustomersToCsv
   }
 `;
 
@@ -166,6 +202,7 @@ const CUSTOMER_DETAIL_QUERY = gql`
       id
       status
       createdAt
+      carId
       car {
         make
         model
@@ -197,6 +234,16 @@ const CREATE_CAR_MUTATION = gql`
       licensePlate
       color
       vin
+    }
+  }
+`;
+
+const CREATE_SESSION_MUTATION = gql`
+  mutation CreateSession($carId: UUID!, $customerId: UUID!) {
+    createSession(carId: $carId, customerId: $customerId) {
+      id
+      status
+      createdAt
     }
   }
 `;
@@ -279,6 +326,47 @@ export class CustomerService {
           throw new Error('Failed to create car');
         }
         return result.data.createCar;
+      }),
+    );
+  }
+
+  getCustomerStatistics(): Observable<CustomerStatistics> {
+    return this.apollo.query<{ customerStatistics: CustomerStatistics }>({
+      query: CUSTOMER_STATISTICS_QUERY,
+      fetchPolicy: 'network-only',
+    }).pipe(
+      map(({ data }) => {
+        if (!data?.customerStatistics) {
+          throw new Error('Failed to load customer statistics');
+        }
+        return data.customerStatistics;
+      }),
+    );
+  }
+
+  exportCustomersToCsv(): Observable<string> {
+    return this.apollo.mutate<{ exportCustomersToCsv: string }>({
+      mutation: EXPORT_CUSTOMERS_CSV_MUTATION,
+    }).pipe(
+      map(result => {
+        if (!result.data?.exportCustomersToCsv) {
+          throw new Error('Failed to export customers');
+        }
+        return result.data.exportCustomersToCsv;
+      }),
+    );
+  }
+
+  createSession(carId: string, customerId: string): Observable<{ id: string; status: string; createdAt: string }> {
+    return this.apollo.mutate<{ createSession: { id: string; status: string; createdAt: string } }>({
+      mutation: CREATE_SESSION_MUTATION,
+      variables: { carId, customerId },
+    }).pipe(
+      map(result => {
+        if (!result.data?.createSession) {
+          throw new Error('Failed to create session');
+        }
+        return result.data.createSession;
       }),
     );
   }

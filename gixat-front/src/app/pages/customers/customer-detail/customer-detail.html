@@ -1,0 +1,275 @@
+<div class="min-h-screen bg-white">
+  <div class="max-w-7xl mx-auto px-8 py-8">
+    <!-- Back Button -->
+    <button
+      (click)="goBack()"
+      class="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 transition-colors mb-6"
+    >
+      <i class="ri-arrow-left-line"></i>
+      <span>Back to Customers</span>
+    </button>
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="py-16">
+        <div class="flex flex-col items-center justify-center">
+          <div class="relative w-8 h-8 mb-4">
+            <div class="absolute inset-0 rounded-full border-2 border-slate-100"></div>
+            <div class="absolute inset-0 rounded-full border-2 border-t-[#1b75bc] animate-spin"></div>
+          </div>
+          <p class="text-sm text-slate-500">Loading customer details...</p>
+        </div>
+      </div>
+    }
+
+    <!-- Error Message -->
+    @if (errorMessage(); as err) {
+      <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        {{ err }}
+      </div>
+    }
+
+    <!-- Customer Detail Content -->
+    @if (!isLoading() && customerDetail(); as detail) {
+      <!-- Header Section -->
+      <div class="mb-8">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-4">
+            <!-- Avatar -->
+            <div class="w-16 h-16 bg-[#1b75bc] rounded-full flex items-center justify-center text-white font-medium text-2xl">
+              {{ getInitial() }}
+            </div>
+
+            <!-- Customer Info -->
+            <div>
+              <h1 class="text-3xl font-semibold text-slate-900 mb-2">
+                {{ detail.customer?.firstName }} {{ detail.customer?.lastName }}
+              </h1>
+              <div class="space-y-1">
+                @if (detail.customer?.email) {
+                  <p class="flex items-center gap-2 text-sm text-slate-600">
+                    <i class="ri-mail-line text-slate-400"></i>
+                    <span>{{ detail.customer?.email }}</span>
+                  </p>
+                }
+                @if (detail.customer?.phoneNumber) {
+                  <p class="flex items-center gap-2 text-sm text-slate-600">
+                    <i class="ri-phone-line text-slate-400"></i>
+                    <span>{{ detail.customer?.phoneNumber }}</span>
+                  </p>
+                }
+                @if (detail.customer?.address) {
+                  <p class="flex items-center gap-2 text-sm text-slate-600">
+                    <i class="ri-map-pin-line text-slate-400"></i>
+                    <span>{{ detail.customer?.address?.street }}, {{ detail.customer?.address?.city }}, {{ detail.customer?.address?.country }}</span>
+                  </p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center gap-2">
+            <button class="px-4 py-2 text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors text-sm font-medium">
+              <i class="ri-pencil-line mr-1.5"></i>
+              Edit
+            </button>
+            <button class="px-4 py-2 bg-[#1b75bc] text-white rounded-lg hover:bg-[#155a92] transition-colors text-sm font-medium">
+              <i class="ri-add-line mr-1.5"></i>
+              New Job
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column - Cars -->
+        <div class="lg:col-span-1">
+          <!-- Cars Section -->
+          <div class="bg-white border border-slate-200 rounded-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-base font-semibold text-slate-900">Vehicles</h2>
+              <button 
+                (click)="openAddCarModal()"
+                class="text-[#1b75bc] hover:text-[#155a92] text-sm font-medium transition-colors"
+              >
+                <i class="ri-add-line mr-1"></i>
+                Add
+              </button>
+            </div>
+
+            @if (hasCars()) {
+              <div class="space-y-3">
+                @for (car of getCars(); track car.id) {
+                  <div class="p-4 bg-slate-50 rounded-lg border border-slate-100 hover:border-slate-200 transition-colors">
+                    <div class="flex items-start gap-3">
+                      <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center text-slate-600 shrink-0">
+                        <i class="ri-car-line text-lg"></i>
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <h3 class="font-semibold text-slate-900 truncate text-sm">
+                          {{ car.make }} {{ car.model }}
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">{{ car.year }}</p>
+                        <div class="mt-2 space-y-0.5">
+                          <p class="text-xs text-slate-600">
+                            <span class="font-semibold">Plate:</span> {{ car.licensePlate }}
+                          </p>
+                          @if (car.color) {
+                            <p class="text-xs text-slate-600">
+                              <span class="font-semibold">Color:</span> {{ car.color }}
+                            </p>
+                          }
+                          @if (car.vin) {
+                            <p class="text-xs text-slate-600 font-mono">
+                              <span class="font-semibold font-sans">VIN:</span> {{ car.vin }}
+                            </p>
+                          }
+                        </div>
+                        <!-- Create Session or View Session Button -->
+                        @if (hasActiveSession(car.id)) {
+                          <button 
+                            (click)="navigateToSession(car.id)"
+                            class="mt-3 w-full px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-xs font-medium flex items-center justify-center gap-1.5"
+                          >
+                            <i class="ri-eye-line"></i>
+                            <span>View Active Session</span>
+                          </button>
+                        } @else {
+                          <button 
+                            (click)="createSessionForCar(car.id)"
+                            class="mt-3 w-full px-3 py-1.5 bg-[#1b75bc] text-white rounded-md hover:bg-[#155a92] transition-colors text-xs font-medium flex items-center justify-center gap-1.5"
+                          >
+                            <i class="ri-calendar-check-line"></i>
+                            <span>Create Session</span>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="text-center py-8">
+                <div class="w-12 h-12 mx-auto mb-3 bg-slate-100 rounded-full flex items-center justify-center">
+                  <i class="ri-car-line text-xl text-slate-400"></i>
+                </div>
+                <p class="text-sm text-slate-500">No vehicles</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Right Column - Jobs and Sessions -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Job Cards Section -->
+          <div class="bg-white border border-slate-200 rounded-lg p-6">
+            <h2 class="text-base font-semibold text-slate-900 mb-4">Job Cards</h2>
+
+            @if (detail.jobCards && detail.jobCards.length > 0) {
+              <div class="space-y-3">
+                @for (job of detail.jobCards; track job.id) {
+                  <div class="p-4 bg-slate-50 rounded-lg border border-slate-100 hover:border-slate-200 transition-colors cursor-pointer">
+                    <div class="flex items-start justify-between mb-3">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center text-slate-600">
+                          <i class="ri-file-list-3-line text-lg"></i>
+                        </div>
+                        <div>
+                          <h3 class="font-semibold text-slate-900 text-sm">Job #{{ job.id.slice(0, 8) }}</h3>
+                          <p class="text-xs text-slate-500 mt-0.5">{{ formatDate(job.createdAt) }}</p>
+                        </div>
+                      </div>
+                      <span [class]="'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' + getStatusColor(job.status)">
+                        {{ job.status }}
+                      </span>
+                    </div>
+
+                    @if (job.car) {
+                      <div class="flex items-center gap-1.5 text-xs text-slate-600 mb-3">
+                        <i class="ri-car-line text-slate-400"></i>
+                        <span>{{ job.car.make }} {{ job.car.model }} - {{ job.car.licensePlate }}</span>
+                      </div>
+                    }
+
+                    <div class="grid grid-cols-2 gap-4 pt-3 border-t border-slate-200">
+                      <div>
+                        <p class="text-xs text-slate-500 mb-0.5">Estimated Cost</p>
+                        <p class="text-sm font-semibold text-slate-900">{{ formatCurrency(job.totalEstimatedCost) }}</p>
+                      </div>
+                      <div>
+                        <p class="text-xs text-slate-500 mb-0.5">Actual Cost</p>
+                        <p class="text-sm font-semibold text-slate-900">{{ formatCurrency(job.totalActualCost) }}</p>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="text-center py-12">
+                <div class="w-12 h-12 mx-auto mb-3 bg-slate-100 rounded-full flex items-center justify-center">
+                  <i class="ri-file-list-3-line text-xl text-slate-400"></i>
+                </div>
+                <p class="text-sm font-semibold text-slate-900 mb-1">No job cards</p>
+                <p class="text-xs text-slate-500">Create your first job card</p>
+              </div>
+            }
+          </div>
+
+          <!-- Sessions Section -->
+          <div class="bg-white border border-slate-200 rounded-lg p-6">
+            <h2 class="text-base font-semibold text-slate-900 mb-4">Sessions</h2>
+
+            @if (detail.sessions && detail.sessions.length > 0) {
+              <div class="space-y-3">
+                @for (session of detail.sessions; track session.id) {
+                  <div class="p-4 bg-slate-50 rounded-lg border border-slate-100 hover:border-slate-200 transition-colors cursor-pointer">
+                    <div class="flex items-start justify-between">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center text-slate-600">
+                          <i class="ri-time-line text-lg"></i>
+                        </div>
+                        <div>
+                          <h3 class="font-semibold text-slate-900 text-sm">Session #{{ session.id.slice(0, 8) }}</h3>
+                          <p class="text-xs text-slate-500 mt-0.5">{{ formatDate(session.createdAt) }}</p>
+                          @if (session.car) {
+                            <div class="flex items-center gap-1.5 text-xs text-slate-600 mt-1.5">
+                              <i class="ri-car-line text-slate-400"></i>
+                              <span>{{ session.car.make }} {{ session.car.model }} - {{ session.car.licensePlate }}</span>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                      <span [class]="'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' + getStatusColor(session.status)">
+                        {{ session.status }}
+                      </span>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="text-center py-12">
+                <div class="w-12 h-12 mx-auto mb-3 bg-slate-100 rounded-full flex items-center justify-center">
+                  <i class="ri-time-line text-xl text-slate-400"></i>
+                </div>
+                <p class="text-sm font-semibold text-slate-900 mb-1">No sessions</p>
+                <p class="text-xs text-slate-500">Sessions will appear here</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Add Car Modal -->
+@if (showAddCarModal()) {
+  <app-add-car-modal
+    [customerId]="getCustomerId()"
+    [customerName]="getCustomerName()"
+    (closeModal)="closeAddCarModal()"
+    (carCreated)="onCarCreated()"
+    (createSession)="onCreateSession($event)"
+  />
+}

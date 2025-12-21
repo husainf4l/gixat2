@@ -1,22 +1,20 @@
-<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in" (click)="close()">
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in" (click)="close()">
   <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-slide-up" (click)="$event.stopPropagation()">
     <!-- Header -->
-    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
+    <div class="px-6 py-4 border-b border-slate-200">
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="text-xl font-semibold text-gray-900">Add Vehicle</h2>
-          <p class="text-sm text-gray-600 mt-0.5">
-            @if (customerName()) {
-              Add a vehicle for {{ customerName() }}
-            } @else {
-              Add a new vehicle to this customer
-            }
-          </p>
+          <h2 class="text-xl font-semibold text-slate-900">Add Vehicle</h2>
+          @if (customerName()) {
+            <p class="text-sm text-slate-900 mt-0.5">for {{ customerName() }}</p>
+          } @else {
+            <p class="text-sm text-slate-500 mt-0.5">Add a new vehicle to this customer</p>
+          }
         </div>
         <button 
           type="button" 
           (click)="close()"
-          class="text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg p-2 transition-all">
+          class="text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg p-2 transition-all">
           <i class="ri-close-line text-xl"></i>
         </button>
       </div>
@@ -37,7 +35,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Make -->
           <div class="relative">
-            <label for="make" class="block text-sm font-medium text-gray-700 mb-1.5">
+            <label for="make" class="block text-sm font-medium text-slate-700 mb-1.5">
               Make <span class="text-red-500">*</span>
             </label>
             <input
@@ -47,7 +45,7 @@
               (focus)="showMakeSuggestions.set(true)"
               (blur)="hideMakeSuggestions()"
               autocomplete="off"
-              class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
+              class="w-full px-3.5 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] transition-all text-sm placeholder:text-slate-400"
               placeholder="Type to search or enter new..."
             />
             @if (getFieldError('make')) {
@@ -56,16 +54,16 @@
             
             <!-- Suggestions dropdown -->
             @if (showMakeSuggestions() && filteredMakes().length > 0) {
-              <div class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+              <div class="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                 @for (make of filteredMakes(); track make.id) {
                   <button
                     type="button"
                     (mousedown)="selectMake(make.make)"
-                    class="w-full px-3.5 py-2 text-left text-sm hover:bg-green-50 transition-colors border-b border-gray-100 last:border-b-0"
+                    class="w-full px-3.5 py-2 text-left text-sm hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0"
                   >
                     {{ make.make }}
                     @if (make.children?.length > 0) {
-                      <span class="text-xs text-gray-500 ml-1">({{ make.children.length }} models)</span>
+                      <span class="text-xs text-slate-500 ml-1">({{ make.children.length }} models)</span>
                     }
                   </button>
                 }
@@ -75,7 +73,7 @@
 
           <!-- Model -->
           <div class="relative">
-            <label for="model" class="block text-sm font-medium text-gray-700 mb-1.5">
+            <label for="model" class="block text-sm font-medium text-slate-700 mb-1.5">
               Model <span class="text-red-500">*</span>
             </label>
             <input
@@ -85,7 +83,7 @@
               (focus)="showModelSuggestions.set(true)"
               (blur)="hideModelSuggestions()"
               autocomplete="off"
-              class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
+              class="w-full px-3.5 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] transition-all text-sm placeholder:text-slate-400"
               placeholder="Type to search or enter new..."
             />
             @if (getFieldError('model')) {
@@ -94,12 +92,12 @@
             
             <!-- Suggestions dropdown -->
             @if (showModelSuggestions() && filteredModels().length > 0) {
-              <div class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+              <div class="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                 @for (model of filteredModels(); track model.id) {
                   <button
                     type="button"
                     (mousedown)="selectModel(model.model)"
-                    class="w-full px-3.5 py-2 text-left text-sm hover:bg-green-50 transition-colors border-b border-gray-100 last:border-b-0"
+                    class="w-full px-3.5 py-2 text-left text-sm hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0"
                   >
                     {{ model.model }}
                   </button>
@@ -113,14 +111,14 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Year -->
           <div>
-            <label for="year" class="block text-sm font-medium text-gray-700 mb-1.5">
+            <label for="year" class="block text-sm font-medium text-slate-700 mb-1.5">
               Year <span class="text-red-500">*</span>
             </label>
             <input
               type="number"
               id="year"
               formControlName="year"
-              class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
+              class="w-full px-3.5 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] transition-all text-sm placeholder:text-slate-400"
               placeholder="2024"
             />
             @if (getFieldError('year')) {
@@ -130,14 +128,14 @@
 
           <!-- License Plate -->
           <div>
-            <label for="licensePlate" class="block text-sm font-medium text-gray-700 mb-1.5">
+            <label for="licensePlate" class="block text-sm font-medium text-slate-700 mb-1.5">
               License Plate <span class="text-red-500">*</span>
             </label>
             <input
               type="text"
               id="licensePlate"
               formControlName="licensePlate"
-              class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm uppercase"
+              class="w-full px-3.5 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] transition-all text-sm uppercase placeholder:text-slate-400"
               placeholder="ABC-1234"
             />
             @if (getFieldError('licensePlate')) {
@@ -149,22 +147,22 @@
         <!-- Optional Details -->
         <div>
           <div class="flex items-center gap-2 mb-3">
-            <i class="ri-information-line text-gray-400"></i>
-            <h3 class="text-sm font-medium text-gray-700">Additional Details (Optional)</h3>
+            <i class="ri-information-line text-slate-300 text-base"></i>
+            <h3 class="text-sm font-medium text-slate-400">Additional Details (Optional)</h3>
           </div>
           <div class="space-y-4 pl-6">
             <!-- VIN -->
             <div>
-              <label for="vin" class="block text-sm font-medium text-gray-700 mb-1.5">
+              <label for="vin" class="block text-sm font-medium text-slate-700 mb-1.5">
                 VIN (Vehicle Identification Number)
-                <span class="text-xs text-gray-500 font-normal ml-1">(17 characters)</span>
+                <span class="text-xs text-slate-300 font-normal ml-1">(17 characters)</span>
               </label>
               <input
                 type="text"
                 id="vin"
                 formControlName="vin"
                 maxlength="17"
-                class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm uppercase font-mono"
+                class="w-full px-3.5 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] transition-all text-sm uppercase font-mono placeholder:text-slate-400"
                 placeholder="1HGBH41JXMN109186"
               />
               @if (getFieldError('vin')) {
@@ -174,14 +172,14 @@
 
             <!-- Color -->
             <div>
-              <label for="color" class="block text-sm font-medium text-gray-700 mb-1.5">
+              <label for="color" class="block text-sm font-medium text-slate-700 mb-1.5">
                 Color
               </label>
               <input
                 type="text"
                 id="color"
                 formControlName="color"
-                class="w-full px-3.5 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
+                class="w-full px-3.5 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] transition-all text-sm placeholder:text-slate-400"
                 placeholder="Silver"
               />
             </div>
@@ -190,7 +188,7 @@
       </div>
 
       <!-- Footer -->
-      <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-200">
         @if (!createdCarId()) {
           <!-- Initial state: Submit form -->
           <div class="flex justify-end gap-3">
@@ -198,14 +196,14 @@
               type="button"
               (click)="close()"
               [disabled]="isSubmitting()"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               type="submit"
               [disabled]="isSubmitting()"
-              class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
+              class="px-4 py-2 text-sm font-medium text-white bg-[#1b75bc] rounded-lg hover:bg-[#155a92] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
             >
               @if (isSubmitting()) {
                 <i class="ri-loader-4-line animate-spin"></i>
@@ -227,7 +225,7 @@
               <button
                 type="button"
                 (click)="onSaveOnly()"
-                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2"
               >
                 <i class="ri-save-line"></i>
                 <span>Save & Close</span>
@@ -235,7 +233,7 @@
               <button
                 type="button"
                 (click)="onCreateSession()"
-                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm"
+                class="px-4 py-2 text-sm font-medium text-white bg-[#1b75bc] rounded-lg hover:bg-[#155a92] transition-colors flex items-center gap-2 shadow-sm"
               >
                 <i class="ri-calendar-check-line"></i>
                 <span>Create Session</span>

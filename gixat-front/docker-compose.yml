@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  gixat-front:
+    image: ghcr.io/husainf4l/gixat-front:1.1
+    ports:
+      - "80:80"
+    environment:
+      - API_URL=https://api.gixat.com
+    restart: unless-stopped

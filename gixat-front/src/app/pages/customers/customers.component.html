@@ -1,96 +1,227 @@
-<div class="min-h-screen bg-gray-50">
-  <div class="max-w-5xl mx-auto px-4 py-8">
+<div class="min-h-screen bg-slate-50">
+  <div class="max-w-7xl mx-auto px-8 py-6">
     <!-- Header -->
-    <div class="mb-8">
-      <div class="flex items-center justify-between mb-6">
+    <div class="mb-6">
+      <div class="flex items-start justify-between mb-5">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Customers</h1>
-          <p class="mt-1 text-sm text-gray-600">Manage your customer database</p>
+          <h1 class="text-2xl font-semibold text-slate-900">Customers</h1>
+          <p class="mt-0.5 text-sm text-slate-500">Manage and view all customers</p>
         </div>
-        <button 
-          (click)="addCustomer()"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <i class="ri-user-add-line"></i>
-          Add Customer
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            (click)="exportToCsv()"
+            class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-md hover:bg-slate-50 transition-colors shadow-sm"
+          >
+            <i class="ri-download-line text-base"></i>
+            Export CSV
+          </button>
+          <button
+            (click)="addCustomer()"
+            class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1b75bc] text-white text-sm font-medium rounded-md hover:bg-[#155a92] transition-colors shadow-sm"
+          >
+            <i class="ri-add-line text-base"></i>
+            New Customer
+          </button>
+        </div>
       </div>
+
+      <!-- Statistics Cards -->
+      @if (statistics(); as stats) {
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5">
+          <div class="bg-white p-5 rounded-md shadow-sm border border-slate-300">
+            <h3 class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Total Customers</h3>
+            <p class="text-2xl font-bold text-[#1b75bc]">{{ stats.totalCustomers }}</p>
+          </div>
+          <div class="bg-white p-5 rounded-md shadow-sm border border-slate-300">
+            <h3 class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">New This Month</h3>
+            <p class="text-2xl font-bold text-green-600">{{ stats.customersThisMonth }}</p>
+          </div>
+          <div class="bg-white p-5 rounded-md shadow-sm border border-slate-300">
+            <h3 class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Active Customers</h3>
+            <p class="text-2xl font-bold text-orange-500">{{ stats.activeCustomers }}</p>
+            <p class="text-xs text-slate-500 mt-1">Last 3 months</p>
+          </div>
+          <div class="bg-white p-5 rounded-md shadow-sm border border-slate-300">
+            <h3 class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Total Revenue</h3>
+            <p class="text-2xl font-bold text-[#1b75bc]">{{ stats.totalRevenue | number:'1.2-2' }} JOD</p>
+          </div>
+        </div>
+      }
 
       <!-- Search Bar -->
       <div class="relative">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <i class="ri-search-line text-gray-400"></i>
+          <i class="ri-search-line text-slate-400 text-sm"></i>
         </div>
         <input
           type="text"
           [value]="searchQuery()"
           (input)="onSearchChange($any($event.target).value)"
-          placeholder="Search by name, phone, or car..."
-          class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Search customers..."
+          class="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-md focus:outline-none focus:border-[#1b75bc] focus:ring-1 focus:ring-[#1b75bc] text-sm text-slate-900 placeholder:text-slate-400 shadow-sm"
         />
       </div>
     </div>
 
     <!-- Error Message -->
     @if (errorMessage(); as err) {
-      <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-        <p class="text-sm text-red-800">{{ err }}</p>
+      <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+        <div class="flex items-start gap-2">
+          <i class="ri-error-warning-line text-base mt-0.5"></i>
+          <span>{{ err }}</span>
+        </div>
       </div>
     }
 
-    <!-- Results Count -->
-    <div class="mb-4">
-      <p class="text-sm text-gray-600">
-        {{ customers().length }} {{ customers().length === 1 ? 'customer' : 'customers' }} found
-      </p>
-    </div>
+    <!-- Results Header -->
+    @if (!isLoading()) {
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-xs font-medium text-slate-500">
+          {{ customers().length }} {{ customers().length === 1 ? 'customer' : 'customers' }}
+        </p>
+      </div>
+    }
 
-    <!-- Customer List -->
-    <div class="bg-white border border-gray-200 rounded-lg divide-y divide-gray-200">
+    <!-- Loading Indicator -->
+    @if (isLoading()) {
+      <div class="bg-white border border-slate-300 rounded-md shadow-sm">
+        <div class="py-20 flex flex-col items-center justify-center">
+          <div class="relative w-8 h-8 mb-3">
+            <div class="absolute inset-0 rounded-full border-2 border-slate-200"></div>
+            <div class="absolute inset-0 rounded-full border-2 border-t-[#1b75bc] animate-spin"></div>
+          </div>
+          <p class="text-sm text-slate-500">Loading customers...</p>
+        </div>
+      </div>
+    }
+
+    <!-- Customer Table -->
+    @if (!isLoading()) {
+      <div class="bg-white border border-slate-300 rounded-md shadow-sm overflow-hidden">
+        <!-- Table Header -->
+        <div class="border-b border-slate-200 bg-slate-50 px-6 py-3">
+          <div class="flex items-center gap-4">
+            <div class="w-10"></div>
+            <div class="flex-1 grid grid-cols-7 gap-4">
+              <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Name</div>
+              <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Email</div>
+              <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Phone</div>
+              <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">City</div>
+              <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Vehicles</div>
+              <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Last Visit</div>
+              <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Status</div>
+            </div>
+            <div class="w-5"></div>
+          </div>
+        </div>
+
+        <!-- Table Body -->
+        <div class="divide-y divide-slate-200">
       @for (customer of customers(); track customer.id) {
         <button
           (click)="openCustomer(customer.id)"
-          class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left group"
+          class="w-full px-6 py-3.5 flex items-center gap-4 hover:bg-slate-50 transition-colors text-left group"
         >
-          <div class="flex items-center gap-4 flex-1 min-w-0">
-            <!-- Avatar -->
-            <div class="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
-              {{ customer.name ? customer.name[0].toUpperCase() : '?' }}
+          <!-- Avatar -->
+          <div class="flex-shrink-0 w-10 h-10 bg-[#1b75bc] rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm">
+            {{ customer.name ? customer.name[0].toUpperCase() : '?' }}
+          </div>
+
+          <!-- Info Grid -->
+          <div class="flex-1 grid grid-cols-7 gap-4 min-w-0">
+            <!-- Name -->
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-slate-900 truncate">{{ customer.name }}</p>
             </div>
-            
-            <!-- Info -->
-            <div class="flex-1 min-w-0">
-              <h3 class="text-base font-semibold text-gray-900 truncate">{{ customer.name }}</h3>
-              <div class="mt-1 flex items-center gap-4 text-sm text-gray-600">
-                <span class="flex items-center gap-1">
-                  <i class="ri-phone-line"></i>
-                  {{ customer.phone }}
-                </span>
-                <span class="flex items-center gap-1">
-                  <i class="ri-car-line"></i>
-                  {{ customer.carsLabel }}
-                </span>
-              </div>
+
+            <!-- Email -->
+            <div class="min-w-0">
+              <p class="text-sm text-slate-600 truncate">{{ customer.email }}</p>
+            </div>
+
+            <!-- Phone -->
+            <div class="min-w-0">
+              <p class="text-sm text-slate-600 truncate flex items-center gap-1.5">
+                <i class="ri-phone-line text-slate-400"></i>
+                {{ customer.phone }}
+              </p>
+            </div>
+
+            <!-- City -->
+            <div class="min-w-0">
+              <p class="text-sm text-slate-600 truncate">{{ customer.city }}</p>
+            </div>
+
+            <!-- Vehicles -->
+            <div class="min-w-0">
+              <p class="text-sm text-slate-600 truncate flex items-center gap-1.5">
+                <i class="ri-car-line text-slate-400"></i>
+                {{ customer.carsLabel }} car{{ customer.carsLabel === '1' ? '' : 's' }}
+              </p>
+            </div>
+
+            <!-- Last Visit -->
+            <div class="min-w-0">
+              <p class="text-sm text-slate-600 truncate">
+                {{ customer.lastVisit !== 'Never' ? (customer.lastVisit | date:'MMM d, y') : 'Never' }}
+              </p>
+              @if (customer.totalVisits > 0) {
+                <p class="text-xs text-slate-400">{{ customer.totalVisits }} visit{{ customer.totalVisits === 1 ? '' : 's' }}</p>
+              }
+            </div>
+
+            <!-- Status -->
+            <div class="min-w-0">
+              <span
+                class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium"
+                [ngClass]="{
+                  'bg-green-50 text-green-700 border border-green-200': customer.status === 'Active Job' || customer.status === 'Recent',
+                  'bg-blue-50 text-blue-700 border border-blue-200': customer.status === 'Active',
+                  'bg-slate-50 text-slate-700 border border-slate-200': customer.status === 'New',
+                  'bg-orange-50 text-orange-700 border border-orange-200': customer.status === 'Inactive'
+                }"
+              >
+                {{ customer.status }}
+              </span>
+              @if (customer.activeJobCards > 0) {
+                <p class="text-xs text-orange-600 mt-1">{{ customer.activeJobCards }} active job{{ customer.activeJobCards === 1 ? '' : 's' }}</p>
+              }
+              @if (customer.totalSpent > 0) {
+                <p class="text-xs text-slate-500 mt-1">{{ customer.totalSpent | number:'1.2-2' }} JOD</p>
+              }
             </div>
           </div>
 
           <!-- Arrow -->
-          <div class="flex-shrink-0 ml-4">
-            <i class="ri-arrow-right-s-line text-gray-400 text-xl group-hover:text-gray-600 transition-colors"></i>
+          <div class="flex-shrink-0">
+            <i class="ri-arrow-right-s-line text-slate-400 text-base group-hover:text-slate-600 group-hover:translate-x-0.5 transition-all"></i>
           </div>
         </button>
       }
-      
+
       @empty {
-        <div class="px-6 py-12 text-center">
-          <i class="ri-user-search-line text-5xl text-gray-300 mb-4"></i>
-          <p class="text-gray-600">No customers found</p>
+        <div class="px-6 py-16 text-center">
+          <div class="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
+            <i class="ri-user-search-line text-2xl text-slate-400"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-slate-900 mb-1">No customers found</h3>
           @if (searchQuery()) {
-            <p class="text-sm text-gray-500 mt-1">Try a different search term</p>
+            <p class="text-xs text-slate-500">Try adjusting your search criteria</p>
+          } @else {
+            <p class="text-xs text-slate-500 mb-4">Get started by adding your first customer</p>
+            <button
+              (click)="addCustomer()"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1b75bc] text-white text-xs font-medium rounded-md hover:bg-[#155a92] transition-colors"
+            >
+              <i class="ri-add-line"></i>
+              Add Customer
+            </button>
           }
         </div>
       }
-    </div>
+        </div>
+      </div>
+    }
   </div>
 </div>
 

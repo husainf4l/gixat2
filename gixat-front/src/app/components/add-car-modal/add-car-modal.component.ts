@@ -6,12 +6,13 @@ import { Apollo, gql } from 'apollo-angular';
 
 const GET_CAR_MAKES_WITH_MODELS = gql`
   query GetCarMakesWithModels {
-    lookupItems(where: { category: { eq: "CarMake" } }) {
+    lookupItems(category: "CarMake") {
       id
-      make: value
+      value
+      category
       children {
         id
-        model: value
+        value
       }
     }
   }
@@ -107,7 +108,16 @@ export class AddCarModalComponent implements OnInit {
       fetchPolicy: 'network-only'
     }).subscribe({
       next: (result) => {
-        this.carMakes.set(result.data.lookupItems || []);
+        // Transform the data to use 'make' and 'model' properties
+        const transformedData = (result.data.lookupItems || []).map((item: any) => ({
+          id: item.id,
+          make: item.value,
+          children: (item.children || []).map((child: any) => ({
+            id: child.id,
+            model: child.value
+          }))
+        }));
+        this.carMakes.set(transformedData);
       },
       error: (err) => {
         console.error('Error loading car makes:', err);
@@ -172,7 +182,8 @@ export class AddCarModalComponent implements OnInit {
 
   onSaveOnly() {
     this.carCreated.emit();
-    this.close();
+    // Small delay to ensure parent processes the event before closing
+    setTimeout(() => this.close(), 50);
   }
 
   onCreateSession() {
@@ -181,7 +192,8 @@ export class AddCarModalComponent implements OnInit {
         carId: this.createdCarId()!,
         customerId: this.customerId()
       });
-      this.close();
+      // Small delay to ensure parent processes the event before closing
+      setTimeout(() => this.close(), 50);
     }
   }
 

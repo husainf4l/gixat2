@@ -85,6 +85,20 @@ const ASSIGN_USER_TO_ORGANIZATION_MUTATION = gql`
   }
 `;
 
+const LOGIN_WITH_GOOGLE_MUTATION = gql`
+  mutation LoginWithGoogle($idToken: String!) {
+    loginWithGoogle(idToken: $idToken) {
+      success
+      token
+      message
+      user {
+        id
+        email
+      }
+    }
+  }
+`;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -152,6 +166,20 @@ export class AuthService {
       tap(() => {
         // Refresh user data after joining organization
         this.me().subscribe();
+      })
+    );
+  }
+
+  loginWithGoogle(idToken: string): Observable<any> {
+    return this.apollo.mutate<{ loginWithGoogle: any }>({
+      mutation: LOGIN_WITH_GOOGLE_MUTATION,
+      variables: { idToken }
+    }).pipe(
+      map(result => result.data),
+      tap(data => {
+        if (data?.loginWithGoogle?.success && data?.loginWithGoogle?.user) {
+          this.currentUser.set(data.loginWithGoogle.user);
+        }
       })
     );
   }

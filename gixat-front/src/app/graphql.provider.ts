@@ -4,10 +4,11 @@ import { Apollo, APOLLO_OPTIONS } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
 import { environment } from '../environments/environment';
 
-const uri = `${environment.apiUrl}/graphql/`;
-
 export function apolloOptionsFactory(): ApolloClientOptions {
   const httpLink = inject(HttpLink);
+  // Get the API URL dynamically at runtime
+  const uri = `${environment.apiUrl}/graphql/`;
+  
   return {
     link: httpLink.create({ 
       uri,
