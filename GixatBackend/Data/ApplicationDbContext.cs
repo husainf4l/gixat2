@@ -37,6 +37,7 @@ internal sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<JobCard> JobCards { get; set; }
     public DbSet<JobItem> JobItems { get; set; }
     public DbSet<UserInvite> UserInvites { get; set; }
+    public DbSet<Account> Accounts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -81,6 +82,16 @@ internal sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithOne(i => i.JobCard)
             .HasForeignKey(i => i.JobCardId);
 
+        builder.Entity<Account>()
+            .HasOne(a => a.User)
+            .WithMany()
+            .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Account>()
+            .HasIndex(a => new { a.Provider, a.ProviderAccountId })
+            .IsUnique();
+
         // Global Query Filters for Multi-Tenancy
         if (organizationId.HasValue)
         {
@@ -114,7 +125,7 @@ internal sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .Where(e => e.State == EntityState.Added)
                 .ToList();
             
-            if (entitiesRequiringOrg.Any())
+            if (entitiesRequiringOrg.Count > 0)
             {
                 throw new InvalidOperationException(
                     $"Cannot create entities that require an organization when user is not associated with an organization. " +

@@ -19,6 +19,7 @@ using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using System.Security.Cryptography;
+using StackExchange.Redis;
 
 using System.Runtime.CompilerServices;
 
@@ -48,6 +49,11 @@ awsOptions.Region = RegionEndpoint.GetBySystemName(Environment.GetEnvironmentVar
 builder.Services.AddDefaultAWSOptions(awsOptions);
 builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddScoped<IS3Service, S3Service>();
+
+// Redis Configuration
+var redisConnectionString = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ?? "localhost:6379";
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
+builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -101,6 +107,20 @@ builder.Services.AddAuthentication(options =>
             return Task.CompletedTask;
         }
     };
+})
+.AddGoogle(options =>
+{
+    options.ClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID") 
+        ?? throw new InvalidOperationException("GOOGLE_CLIENT_ID is not configured.");
+    options.ClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET") 
+        ?? throw new InvalidOperationException("GOOGLE_CLIENT_SECRET is not configured.");
+    
+    // Request profile and email scopes
+    options.Scope.Add("profile");
+    options.Scope.Add("email");
+    
+    // Save tokens for future use
+    options.SaveTokens = true;
 });
 
 builder.Services.AddAuthorization();

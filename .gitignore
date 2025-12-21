@@ -104,7 +104,6 @@ Backup*/
 UpgradeLog*.XML
 UpgradeLog*.htm
 ServiceFabricBackup/
-*.Designer.cs
 
 # SQL Server files
 *.mdf
@@ -171,7 +170,6 @@ artifacts/
 StyleCop.Cache
 
 # Entity Framework Core
-Migrations/
 
 # Windows
 Thumbs.db

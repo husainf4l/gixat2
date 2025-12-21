@@ -52,7 +52,9 @@ internal static class OrganizationMutations
             throw new InvalidOperationException("Not authorized");
         }
 
+#pragma warning disable CA2007
         await using var transaction = await context.Database.BeginTransactionAsync().ConfigureAwait(false);
+#pragma warning restore CA2007
 
         var address = new Address
         {

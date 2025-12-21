@@ -1,8 +1,8 @@
+using System.Globalization;
 using GixatBackend.Data;
 using GixatBackend.Modules.Customers.Models;
 using Microsoft.EntityFrameworkCore;
 using HotChocolate.Authorization;
-using System.Globalization;
 
 namespace GixatBackend.Modules.Customers.GraphQL;
 
@@ -28,21 +28,19 @@ internal static class CustomerQueries
     {
         ArgumentNullException.ThrowIfNull(context);
         
-        var searchQuery = query.Trim().ToUpperInvariant();
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return context.Customers.AsNoTracking();
+        }
+        
+        var searchQuery = $"%{query.Trim()}%";
         
         return context.Customers
-            .Include(c => c.Cars)
+            .AsNoTracking()
             .Where(c => 
-                c.FirstName.ToUpperInvariant().Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                c.LastName.ToUpperInvariant().Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                (c.Email != null && c.Email.ToUpperInvariant().Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) ||
-                c.PhoneNumber.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                c.Cars.Any(car => 
-                    car.Make.ToUpperInvariant().Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                    car.Model.ToUpperInvariant().Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                    car.LicensePlate.ToUpperInvariant().Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                    (car.VIN != null && car.VIN.ToUpperInvariant().Contains(searchQuery, StringComparison.OrdinalIgnoreCase))
-                )
+                EF.Functions.ILike(c.FirstName, searchQuery) ||
+                EF.Functions.ILike(c.LastName, searchQuery) ||
+                EF.Functions.ILike(c.PhoneNumber, searchQuery)
             );
     }
 
