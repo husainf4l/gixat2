@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:gql_http_link/gql_http_link.dart';
 
 class GraphQLConfig {
-  // Use production endpoint by default
-  // For local development, set this to your local IP
-  static const String _endpoint = kDebugMode 
-    ? 'http://192.168.1.77:8002/graphql'  // Local development
-    : 'https://gixat.com/graphql';        // Production
+  // Use environment variables for endpoints
+  static String get _endpoint => kDebugMode 
+    ? dotenv.env['GRAPHQL_ENDPOINT'] ?? 'http://localhost:8002/graphql'
+    : dotenv.env['GRAPHQL_ENDPOINT_PROD'] ?? 'https://gixat.com/graphql';
   
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
   static const Duration _timeout = Duration(seconds: 30);
