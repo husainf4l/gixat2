@@ -44,20 +44,21 @@ export interface SessionMedia {
   createdAt?: string;
   isPending?: boolean;
   status?: 'pending' | 'uploading' | 'uploaded' | 'error';
+  progress?: number; // Upload progress percentage (0-100)
 }
 
 export interface Session {
   id: string;
   status: string;
   createdAt: string;
+  updatedAt: string;
   carId: string;
   customerId: string;
   customer: SessionCustomer | null;
   car: SessionCar | null;
-  // Workflow steps
-  intakeNotes?: string | null;
-  intakeRequests?: string | null;
+  // Workflow steps (simplified workflow)
   customerRequests?: string | null;
+  mileage?: number | null;
   inspectionNotes?: string | null;
   inspectionRequests?: string | null;
   testDriveNotes?: string | null;
@@ -81,23 +82,88 @@ export interface SessionsConnection {
   totalCount: number;
 }
 
+// GraphQL Fragments for optimized queries
+const SESSION_BASIC_FRAGMENT = gql`
+  fragment SessionBasic on GarageSession {
+    id
+    status
+    createdAt
+    car {
+      id
+      make
+      model
+      licensePlate
+    }
+    customer {
+      id
+      firstName
+      lastName
+    }
+  }
+`;
+
+const SESSION_WORKFLOW_FRAGMENT = gql`
+  fragment SessionWorkflow on GarageSession {
+    customerRequests
+    mileage
+    inspectionNotes
+    inspectionRequests
+    testDriveNotes
+    testDriveRequests
+    initialReport
+  }
+`;
+
+const SESSION_FULL_FRAGMENT = gql`
+  fragment SessionFull on GarageSession {
+    ...SessionBasic
+    ...SessionWorkflow
+    car {
+      id
+      make
+      model
+      year
+      licensePlate
+      color
+      vin
+    }
+    customer {
+      id
+      firstName
+      lastName
+      email
+      phoneNumber
+    }
+    logs {
+      id
+      fromStatus
+      toStatus
+      notes
+      createdAt
+    }
+    media {
+      id
+      stage
+      media {
+        id
+        url
+        alt
+        type
+        createdAt
+      }
+      createdAt
+    }
+  }
+  ${SESSION_BASIC_FRAGMENT}
+  ${SESSION_WORKFLOW_FRAGMENT}
+`;
+
 const GET_SESSIONS_QUERY = gql`
   query GetSessions($first: Int, $after: String, $where: GarageSessionFilterInput, $order: [GarageSessionSortInput!]) {
     sessions(first: $first, after: $after, where: $where, order: $order) {
       edges {
         node {
-          id
-          status
-          createdAt
-          car {
-            make
-            model
-            licensePlate
-          }
-          customer {
-            firstName
-            lastName
-          }
+          ...SessionBasic
         }
         cursor
       }
@@ -110,71 +176,18 @@ const GET_SESSIONS_QUERY = gql`
       totalCount
     }
   }
+  ${SESSION_BASIC_FRAGMENT}
 `;
 
 const GET_SESSION_BY_ID_QUERY = gql`
   query GetSessionById($id: UUID!) {
     sessionById(id: $id) {
-      id
-      status
-      createdAt
-      intakeNotes
-      intakeRequests
-      customerRequests
-      inspectionNotes
-      inspectionRequests
-      testDriveNotes
-      testDriveRequests
-      initialReport
-      car {
-        id
-        make
-        model
-        year
-        licensePlate
-        color
-        vin
-      }
-      customer {
-        id
-        firstName
-        lastName
-        email
-        phoneNumber
-      }
-      logs {
-        id
-        fromStatus
-        toStatus
-        notes
-        createdAt
-      }
-      media {
-        id
-        stage
-        media {
-          id
-          url
-          alt
-          type
-          createdAt
-        }
-        createdAt
-      }
+      ...SessionFull
     }
   }
+  ${SESSION_FULL_FRAGMENT}
 `;
 
-const UPDATE_INTAKE_MUTATION = gql`
-  mutation UpdateIntake($sessionId: UUID!, $intakeNotes: String, $intakeRequests: String) {
-    updateIntake(sessionId: $sessionId, intakeNotes: $intakeNotes, intakeRequests: $intakeRequests) {
-      id
-      status
-      intakeNotes
-      intakeRequests
-    }
-  }
-`;
 
 const UPDATE_CUSTOMER_REQUESTS_MUTATION = gql`
   mutation UpdateCustomerRequests($sessionId: UUID!, $customerRequests: String) {
@@ -187,10 +200,11 @@ const UPDATE_CUSTOMER_REQUESTS_MUTATION = gql`
 `;
 
 const UPDATE_INSPECTION_MUTATION = gql`
-  mutation UpdateInspection($sessionId: UUID!, $inspectionNotes: String, $inspectionRequests: String) {
-    updateInspection(sessionId: $sessionId, inspectionNotes: $inspectionNotes, inspectionRequests: $inspectionRequests) {
+  mutation UpdateInspection($sessionId: UUID!, $mileage: Int!, $inspectionNotes: String, $inspectionRequests: String) {
+    updateInspection(sessionId: $sessionId, mileage: $mileage, inspectionNotes: $inspectionNotes, inspectionRequests: $inspectionRequests) {
       id
       status
+      mileage
       inspectionNotes
       inspectionRequests
     }
@@ -209,8 +223,8 @@ const UPDATE_TEST_DRIVE_MUTATION = gql`
 `;
 
 const GENERATE_INITIAL_REPORT_MUTATION = gql`
-  mutation GenerateInitialReport($sessionId: UUID!, $report: String!) {
-    generateInitialReport(sessionId: $sessionId, report: $report) {
+  mutation GenerateInitialReport($sessionId: UUID!) {
+    generateInitialReport(sessionId: $sessionId) {
       id
       status
       initialReport
@@ -329,17 +343,12 @@ export class SessionService {
     );
   }
 
-  updateSessionStep(sessionId: string, stepId: string, notes: string, requests?: string): Observable<Session> {
+  updateSessionStep(sessionId: string, stepId: string, notes: string, requests?: string, mileage?: number): Observable<Session> {
     let mutation;
     let variables: any = { sessionId };
-    
-    // Map step id to the correct mutation and variables
+
+    // Map step id to the correct mutation and variables (simplified workflow)
     switch (stepId) {
-      case 'intake':
-        mutation = UPDATE_INTAKE_MUTATION;
-        variables.intakeNotes = notes;
-        variables.intakeRequests = requests;
-        break;
       case 'customerRequests':
         mutation = UPDATE_CUSTOMER_REQUESTS_MUTATION;
         // For customer requests, we use the requests parameter if provided, otherwise notes
@@ -347,6 +356,10 @@ export class SessionService {
         break;
       case 'inspection':
         mutation = UPDATE_INSPECTION_MUTATION;
+        if (mileage === undefined || mileage === null) {
+          throw new Error('Mileage is required for inspection step');
+        }
+        variables.mileage = mileage;
         variables.inspectionNotes = notes;
         variables.inspectionRequests = requests;
         break;
@@ -357,7 +370,7 @@ export class SessionService {
         break;
       case 'initialReport':
         mutation = GENERATE_INITIAL_REPORT_MUTATION;
-        variables.report = notes;
+        // No additional variables needed for initialReport as per backend
         break;
       default:
         throw new Error(`Unknown step: ${stepId}`);
@@ -427,18 +440,44 @@ export class SessionService {
     );
   }
 
-  async uploadToS3(uploadUrl: string, file: File): Promise<void> {
-    const response = await fetch(uploadUrl, {
-      method: 'PUT',
-      body: file,
-      headers: {
-        'Content-Type': file.type,
-      }
-    });
+  async uploadToS3(
+    uploadUrl: string, 
+    file: File, 
+    onProgress?: (progress: number) => void
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
 
-    if (!response.ok) {
-      throw new Error(`S3 upload failed: ${response.statusText}`);
-    }
+      // Track upload progress
+      if (onProgress) {
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            const percentComplete = (e.loaded / e.total) * 100;
+            onProgress(Math.round(percentComplete));
+          }
+        });
+      }
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve();
+        } else {
+          reject(new Error(`S3 upload failed: ${xhr.statusText}`));
+        }
+      });
+
+      xhr.addEventListener('error', () => {
+        reject(new Error('Network error during upload'));
+      });
+
+      xhr.addEventListener('abort', () => {
+        reject(new Error('Upload was cancelled'));
+      });
+
+      xhr.open('PUT', uploadUrl);
+      xhr.setRequestHeader('Content-Type', file.type);
+      xhr.send(file);
+    });
   }
 
   processUploadedFile(fileKey: string, alt?: string): Observable<{ id: string; url: string; alt?: string }> {

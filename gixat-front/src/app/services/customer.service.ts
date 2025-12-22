@@ -12,6 +12,7 @@ export interface Address {
 
 export interface Car {
   id: string;
+  customerId?: string;
   make: string;
   model: string;
   year: number;
@@ -166,15 +167,19 @@ const CUSTOMER_DETAIL_QUERY = gql`
       }
     }
     jobCards(where: { customerId: { eq: $id } }, order: [{ createdAt: DESC }]) {
-      id
-      status
-      totalEstimatedCost
-      totalActualCost
-      createdAt
-      car {
-        make
-        model
-        licensePlate
+      edges {
+        node {
+          id
+          status
+          totalEstimatedCost
+          totalActualCost
+          createdAt
+          car {
+            make
+            model
+            licensePlate
+          }
+        }
       }
     }
     sessions(where: { customerId: { eq: $id } }, order: [{ createdAt: DESC }]) {
@@ -211,6 +216,7 @@ const CREATE_CAR_MUTATION = gql`
   mutation CreateCar($input: CreateCarInput!) {
     createCar(input: $input) {
       id
+      customerId
       make
       model
       year
@@ -268,7 +274,7 @@ export class CustomerService {
   getCustomerDetail(id: string): Observable<CustomerDetail> {
     return this.apollo.query<{ 
       customerById: CustomerDetail['customer']; 
-      jobCards: JobCardSummary[]; 
+      jobCards: { edges: { node: JobCardSummary }[] }; 
       sessions: { edges: { node: SessionSummary }[] } 
     }>({
       query: CUSTOMER_DETAIL_QUERY,
@@ -281,7 +287,7 @@ export class CustomerService {
         }
         return {
           customer: data.customerById,
-          jobCards: data.jobCards,
+          jobCards: data.jobCards.edges.map(edge => edge.node),
           sessions: data.sessions.edges.map(edge => edge.node),
         };
       }),

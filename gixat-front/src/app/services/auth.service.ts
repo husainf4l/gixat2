@@ -95,12 +95,34 @@ const LOGIN_WITH_GOOGLE_MUTATION = gql`
   }
 `;
 
+const GET_ORGANIZATION_USERS_QUERY = gql`
+  query GetOrganizationUsers {
+    myOrganization {
+      id
+      users {
+        id
+        fullName
+        email
+      }
+    }
+  }
+`;
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private apollo = inject(Apollo);
   currentUser = signal<any>(null);
+
+  getOrganizationUsers(): Observable<any[]> {
+    return this.apollo.query<any>({
+      query: GET_ORGANIZATION_USERS_QUERY,
+      fetchPolicy: 'network-only'
+    }).pipe(
+      map(result => result.data?.myOrganization?.users || [])
+    );
+  }
 
   me(): Observable<any> {
     return this.apollo.query<any>({
