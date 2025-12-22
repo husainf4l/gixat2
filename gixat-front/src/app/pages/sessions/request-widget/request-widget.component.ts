@@ -63,10 +63,11 @@ export class RequestWidgetComponent implements OnInit {
       intake: { title: 'Intake Requests', icon: 'ri-login-box-line' },
       customerRequests: { title: 'Customer Requests', icon: 'ri-user-voice-line' },
       inspection: { title: 'Inspection Requests', icon: 'ri-search-eye-line' },
-      testDrive: { title: 'Test Drive Requests', icon: 'ri-steering-2-line' }
+      testDrive: { title: 'Test Drive Requests', icon: 'ri-steering-2-line' },
+      initialReport: { title: 'Initial Report', icon: 'ri-file-list-3-line' }
     };
 
-    const meta = stepMeta[stepId] || { title: 'Requests', icon: 'ri-file-list-line' };
+    const meta = stepMeta[stepId] || { title: 'Session Step', icon: 'ri-file-list-line' };
     this.stepTitle.set(meta.title);
     this.stepIcon.set(meta.icon);
   }
@@ -90,10 +91,13 @@ export class RequestWidgetComponent implements OnInit {
         } else if (stepId === 'testDrive' && session.testDriveRequests) {
           this.requests.set(session.testDriveRequests.split('\n').filter(r => r.trim()));
           this.notes.set(session.testDriveNotes || '');
+        } else if (stepId === 'initialReport' && session.initialReport) {
+          this.notes.set(session.initialReport || '');
+          this.requests.set([]); // No requests for initial report
         }
 
-        // Ensure at least one empty request if none exist
-        if (this.requests().length === 0) {
+        // Ensure at least one empty request if none exist (except for initialReport)
+        if (this.requests().length === 0 && stepId !== 'initialReport') {
           this.requests.set(['']);
         }
 
