@@ -30,4 +30,11 @@ class ClientsError extends ClientsState {
 // State for create customer flow
 class CreateCustomerLoading extends ClientsState {}
 
-class CreateCustomerSuccess extends ClientsState {}
+class CreateCustomerSuccess extends ClientsState {
+  final String customerId;
+  
+  const CreateCustomerSuccess({required this.customerId});
+  
+  @override
+  List<Object?> get props => [customerId];
+}

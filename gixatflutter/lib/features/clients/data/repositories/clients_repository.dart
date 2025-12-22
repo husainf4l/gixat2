@@ -10,7 +10,7 @@ class ClientsRepository {
 
   final ClientsRemoteDataSource _remoteDataSource;
 
-  Future<void> createCustomer({
+  Future<String> createCustomer({
     required String firstName,
     required String lastName,
     required String phoneNumber,
@@ -24,7 +24,7 @@ class ClientsRepository {
         print('Repository: Creating customer...');
       }
       
-      await _remoteDataSource.createCustomer(
+      final customerData = await _remoteDataSource.createCustomer(
         firstName: firstName,
         lastName: lastName,
         phoneNumber: phoneNumber,
@@ -37,6 +37,8 @@ class ClientsRepository {
       if (kDebugMode) {
         print('Repository: Customer created successfully');
       }
+      
+      return customerData['id'] as String;
     } catch (e, stackTrace) {
       if (kDebugMode) {
         print('Repository ERROR: $e');

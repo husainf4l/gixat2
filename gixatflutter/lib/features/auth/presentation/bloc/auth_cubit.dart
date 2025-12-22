@@ -64,6 +64,7 @@ class AuthCubit extends Cubit<AuthState> {
     required String ownerName,
     required String email,
     required String password,
+    String? organizationId,
   }) async {
     emit(const AuthLoading());
     try {
@@ -71,6 +72,7 @@ class AuthCubit extends Cubit<AuthState> {
         ownerName: ownerName,
         email: email,
         password: password,
+        organizationId: organizationId,
       );
       // Registration currently doesn't link a garage in the mutation
       // so we emit AuthNeedsGarage to force the user to create/connect one
@@ -112,17 +114,29 @@ class AuthCubit extends Cubit<AuthState> {
     required String city,
     required String street,
     required String phoneCountryCode,
+    String? email,
+    String? password,
+    String? fullName,
   }) async {
     emit(const AuthLoading());
     try {
-      await _authRepository.createOrganization(
+      final authResponse = await _authRepository.createOrganization(
         name: name,
         country: country,
         city: city,
         street: street,
         phoneCountryCode: phoneCountryCode,
+        email: email,
+        password: password,
+        fullName: fullName,
       );
-      emit(const AuthAuthenticated());
+      // If authResponse is not null, it means this was a signup flow
+      if (authResponse != null) {
+        emit(const AuthAuthenticated());
+      } else {
+        // This was called post-auth, just update state
+        emit(const AuthAuthenticated());
+      }
     } on Exception catch (e) {
       final message = e.toString().replaceFirst('Exception: ', '');
       emit(AuthError(message: message));

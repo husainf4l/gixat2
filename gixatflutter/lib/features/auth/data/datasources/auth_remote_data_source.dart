@@ -41,35 +41,51 @@ class AuthRemoteDataSource {
     required String ownerName,
     required String email,
     required String password,
+    String? organizationId,
   }) async {
     final client = await GraphQLConfig.getClient(withAuth: false);
 
+    print('🔧 Registering with: email=$email, fullName=$ownerName, orgId=$organizationId');
+
+    // Build variables, excluding organizationId if null
+    final variables = <String, dynamic>{
+      'email': email,
+      'password': password,
+      'fullName': ownerName,
+      'role': 'OWNER',
+      'userType': 'ORGANIZATIONAL',
+    };
+    
+    if (organizationId != null) {
+      variables['organizationId'] = organizationId;
+    }
+
     final result = await client.mutate(
       MutationOptions(
-        document: gql(registerMutation),
-        variables: {
-          'email': email,
-          'password': password,
-          'fullName': ownerName,
-          'role': 'OWNER',
-          'userType': 'ORGANIZATIONAL',
-        },
+        document: gql(organizationId != null ? registerWithOrgMutation : registerMutation),
+        variables: variables,
       ),
     );
 
+    print('🔍 Registration result: hasException=${result.hasException}');
     if (result.hasException) {
+      print('❌ Exception details: ${result.exception}');
       throw result.exception!;
     }
 
+    print('📋 Raw result data: ${result.data}');
     final data = result.data?['register'];
     if (data == null) {
+      print('❌ No register data in response');
       throw Exception('Registration failed: No data returned');
     }
 
     if (data['error'] != null) {
+      print('❌ Server returned error: ${data['error']}');
       throw Exception(data['error']);
     }
 
+    print('✅ Registration data received: token=${data['token'] != null}, user=${data['user'] != null}');
     return data;
   }
 
@@ -178,33 +194,77 @@ class AuthRemoteDataSource {
     required String city,
     required String street,
     required String phoneCountryCode,
+    String? email,
+    String? password,
+    String? fullName,
   }) async {
-    final client = await GraphQLConfig.getClient(withAuth: true);
+    // If email/password provided, this is signup flow (no auth)
+    final isSignup = email != null && password != null && fullName != null;
+    final client = await GraphQLConfig.getClient(withAuth: !isSignup);
 
-    final result = await client.mutate(
-      MutationOptions(
-        document: gql(createOrganizationMutation),
-        variables: {
-          'input': {
-            'name': name,
-            'country': country,
-            'city': city,
-            'street': street,
-            'phoneCountryCode': phoneCountryCode,
-          },
-        },
-      ),
-    );
+    print('🏢 Creating organization: $name (signup: $isSignup)');
 
-    if (result.hasException) {
-      throw result.exception!;
+    final variables = <String, dynamic>{};
+    
+    if (isSignup) {
+      // Signup flow with user details
+      variables.addAll({
+        'email': email,
+        'password': password,
+        'fullName': fullName,
+        'name': name,
+        'country': country,
+        'city': city,
+        'street': street,
+        'phoneCountryCode': phoneCountryCode,
+      });
+      
+      final result = await client.mutate(
+        MutationOptions(
+          document: gql(signupWithOrganizationMutation),
+          variables: variables,
+        ),
+      );
+
+      if (result.hasException) {
+        print('❌ Signup exception: ${result.exception}');
+        throw result.exception!;
+      }
+
+      final data = result.data?['createOrganization'];
+      if (data == null) {
+        throw Exception('Failed to create organization and signup');
+      }
+
+      print('✅ Organization created and user signed up');
+      return data;
+    } else {
+      // Post-auth organization creation
+      variables['input'] = {
+        'name': name,
+        'country': country,
+        'city': city,
+        'street': street,
+        'phoneCountryCode': phoneCountryCode,
+      };
+
+      final result = await client.mutate(
+        MutationOptions(
+          document: gql(createOrganizationMutation),
+          variables: variables,
+        ),
+      );
+
+      if (result.hasException) {
+        throw result.exception!;
+      }
+
+      final data = result.data?['createOrganization'];
+      if (data == null) {
+        throw Exception('Failed to create organization');
+      }
+
+      return data;
     }
-
-    final data = result.data?['createOrganization'];
-    if (data == null) {
-      throw Exception('Failed to create organization');
-    }
-
-    return data;
   }
 }
