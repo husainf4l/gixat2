@@ -25,7 +25,7 @@ internal static class AuthQueries
             return null;
         }
 
-        // Query is fast with indexed userId, no need for caching
+        // Single query with JOIN is faster than 2 separate queries
         var user = await context.Users
             .AsNoTracking()
             .Include(u => u.Organization)

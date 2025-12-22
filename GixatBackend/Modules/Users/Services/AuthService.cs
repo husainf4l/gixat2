@@ -58,7 +58,7 @@ internal sealed class AuthService : IAuthService
             Email = input.Email,
             FullName = input.FullName,
             UserType = invite != null ? UserType.Organizational : input.UserType,
-            OrganizationId = invite != null ? invite.OrganizationId : input.OrganizationId,
+            OrganizationId = invite?.OrganizationId, // Only set if invited to an organization
             IsActive = true
         };
 
@@ -133,14 +133,11 @@ internal sealed class AuthService : IAuthService
             claims.Add(new Claim(ClaimTypes.Role, role));
         }
 
-        var privateKeyPem = _configuration["Jwt:PrivateKey"] 
-            ?? throw new InvalidOperationException("Jwt:PrivateKey is not configured.");
+        var jwtKey = _configuration["Jwt:Key"] 
+            ?? throw new InvalidOperationException("Jwt:Key is not configured.");
         
-        var rsa = RSA.Create();
-        rsa.ImportFromPem(privateKeyPem);
-        
-        var key = new RsaSecurityKey(rsa);
-        var creds = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["Jwt:ExpireDays"] ?? "7", CultureInfo.InvariantCulture));
 
         var token = new JwtSecurityToken(
@@ -151,8 +148,6 @@ internal sealed class AuthService : IAuthService
             signingCredentials: creds
         );
 
-        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-        rsa.Dispose();
-        return tokenString;
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

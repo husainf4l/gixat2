@@ -16,7 +16,11 @@ internal static class CustomerQueries
     public static IQueryable<Customer> GetCustomers(ApplicationDbContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
-        return context.Customers.Include(c => c.Cars).Include(c => c.Address);
+        // Only include Address - Cars are loaded on-demand via GraphQL field resolver
+        // AsNoTracking improves performance for read-only queries
+        return context.Customers
+            .AsNoTracking()
+            .Include(c => c.Address);
     }
 
     [UsePaging]
@@ -47,6 +51,7 @@ internal static class CustomerQueries
     {
         ArgumentNullException.ThrowIfNull(context);
         return await context.Customers
+            .AsNoTracking()
             .Include(c => c.Cars)
             .Include(c => c.Address)
             .FirstOrDefaultAsync(c => c.Id == id).ConfigureAwait(false);
@@ -66,6 +71,7 @@ internal static class CustomerQueries
     {
         ArgumentNullException.ThrowIfNull(context);
         return await context.Cars
+            .AsNoTracking()
             .Include(c => c.Customer)
             .FirstOrDefaultAsync(c => c.Id == id).ConfigureAwait(false);
     }

@@ -1,5 +1,6 @@
 using GixatBackend.Data;
 using GixatBackend.Modules.JobCards.Models;
+using GixatBackend.Modules.Customers.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GixatBackend.Modules.Customers.Services;
@@ -19,6 +20,7 @@ internal sealed class CustomerActivityDataLoader
         CancellationToken cancellationToken)
     {
         var results = await _context.GarageSessions
+            .AsNoTracking()
             .Where(s => customerIds.Contains(s.CustomerId))
             .GroupBy(s => s.CustomerId)
             .Select(g => new
@@ -38,6 +40,7 @@ internal sealed class CustomerActivityDataLoader
         CancellationToken cancellationToken)
     {
         var results = await _context.GarageSessions
+            .AsNoTracking()
             .Where(s => customerIds.Contains(s.CustomerId))
             .GroupBy(s => s.CustomerId)
             .Select(g => new { CustomerId = g.Key, Count = g.Count() })
@@ -53,6 +56,7 @@ internal sealed class CustomerActivityDataLoader
         CancellationToken cancellationToken)
     {
         var results = await _context.JobCards
+            .AsNoTracking()
             .Where(j => customerIds.Contains(j.CustomerId) && j.Status == JobCardStatus.Completed)
             .GroupBy(j => j.CustomerId)
             .Select(g => new { CustomerId = g.Key, Total = g.Sum(j => j.TotalActualCost) })
@@ -68,6 +72,7 @@ internal sealed class CustomerActivityDataLoader
         CancellationToken cancellationToken)
     {
         var results = await _context.JobCards
+            .AsNoTracking()
             .Where(j => customerIds.Contains(j.CustomerId) && 
                        (j.Status == JobCardStatus.Pending || j.Status == JobCardStatus.InProgress))
             .GroupBy(j => j.CustomerId)
@@ -84,6 +89,7 @@ internal sealed class CustomerActivityDataLoader
         CancellationToken cancellationToken)
     {
         var results = await _context.Cars
+            .AsNoTracking()
             .Where(c => customerIds.Contains(c.CustomerId))
             .GroupBy(c => c.CustomerId)
             .Select(g => new { CustomerId = g.Key, Count = g.Count() })
@@ -91,5 +97,21 @@ internal sealed class CustomerActivityDataLoader
             .ConfigureAwait(false);
 
         return results;
+    }
+
+    // Batch load cars for multiple customers
+    public async Task<IReadOnlyDictionary<Guid, ICollection<Car>>> GetCarsAsync(
+        IReadOnlyList<Guid> customerIds,
+        CancellationToken cancellationToken)
+    {
+        var cars = await _context.Cars
+            .AsNoTracking()
+            .Where(c => customerIds.Contains(c.CustomerId))
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return cars
+            .GroupBy(c => c.CustomerId)
+            .ToDictionary(g => g.Key, g => (ICollection<Car>)g.ToList());
     }
 }

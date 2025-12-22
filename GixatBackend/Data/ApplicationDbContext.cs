@@ -75,6 +75,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<LookupItem>()
             .HasIndex(l => new { l.ParentId, l.IsActive });
 
+        // Performance indexes for customer queries (DataLoaders)
+        // Index for GarageSessions by CustomerId and CreatedAt (for lastSessionDate and totalVisits)
+        builder.Entity<GarageSession>()
+            .HasIndex(s => new { s.CustomerId, s.CreatedAt });
+
+        // Index for JobCards by CustomerId and Status (for totalSpent and activeJobCards)
+        builder.Entity<JobCard>()
+            .HasIndex(j => new { j.CustomerId, j.Status });
+
         builder.Entity<GarageSession>()
             .HasMany(s => s.Media)
             .WithOne(sm => sm.Session)
@@ -122,6 +131,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             {
                 if (entry.State == EntityState.Added)
                 {
+                    // Do NOT auto-assign organization to ApplicationUser - they set it explicitly during registration
+                    if (entry.Entity is ApplicationUser)
+                        continue;
+                    
                     entry.Entity.OrganizationId = organizationId.Value;
                 }
             }
@@ -129,8 +142,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         else
         {
             // Check if there are any entities that require an organization
+            // Exclude ApplicationUser as they can exist without an organization initially
             var entitiesRequiringOrg = ChangeTracker.Entries<IMustHaveOrganization>()
-                .Where(e => e.State == EntityState.Added)
+                .Where(e => e.State == EntityState.Added && e.Entity is not ApplicationUser)
                 .ToList();
             
             if (entitiesRequiringOrg.Count > 0)
@@ -138,6 +152,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 throw new InvalidOperationException(
                     $"Cannot create entities that require an organization when user is not associated with an organization. " +
                     $"Entities: {string.Join(", ", entitiesRequiringOrg.Select(e => e.Entity.GetType().Name))}");
+            }
+        }
+
+        // Detach Customer entities that are unchanged to avoid concurrency conflicts with triggers
+        // Triggers update denormalized fields (TotalCars, TotalVisits, etc.) which can cause concurrency issues
+        foreach (var entry in ChangeTracker.Entries<Customer>())
+        {
+            if (entry.State == EntityState.Unchanged)
+            {
+                entry.State = EntityState.Detached;
             }
         }
 

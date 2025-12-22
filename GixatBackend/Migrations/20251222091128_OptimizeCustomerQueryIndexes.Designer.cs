@@ -3,6 +3,7 @@ using System;
 using GixatBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GixatBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251222091128_OptimizeCustomerQueryIndexes")]
+    partial class OptimizeCustomerQueryIndexes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -161,9 +164,6 @@ namespace GixatBackend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("ActiveJobCards")
-                        .HasColumnType("integer");
-
                     b.Property<Guid?>("AddressId")
                         .HasColumnType("uuid");
 
@@ -181,24 +181,12 @@ namespace GixatBackend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("LastSessionDate")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("TotalCars")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("TotalSpent")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("TotalVisits")
-                        .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");

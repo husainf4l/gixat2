@@ -226,31 +226,10 @@ export class SessionDetailComponent implements OnInit {
     const session = this.sessionDetail();
     if (!session) return;
 
-    // For request-enabled steps, navigate to full-page widget
-    if (['intake', 'customerRequests', 'inspection', 'testDrive'].includes(step.id)) {
-      this.router.navigate(['/dashboard/sessions', session.id, 'request-widget'], {
-        queryParams: { stepId: step.id }
-      });
-      return;
-    }
-
-    // For other steps, use the modal
-    this.selectedStep.set(step);
-    this.stepNotes.set(step.notes || '');
-
-    const requestsStr = step.requests || '';
-    const requestsArray = requestsStr ? requestsStr.split('\n').filter(r => r.trim()) : [];
-    this.stepRequests.set(requestsArray.length > 0 ? requestsArray : ['']);
-
-    this.showStepModal.set(true);
-
-    setTimeout(() => {
-      const textareas = document.querySelectorAll('.request-input');
-      textareas.forEach((textarea: any) => {
-        textarea.style.height = 'auto';
-        textarea.style.height = textarea.scrollHeight + 'px';
-      });
-    }, 100);
+    // Navigate all steps to full-page widget for consistent experience
+    this.router.navigate(['/dashboard/sessions', session.id, 'request-widget'], {
+      queryParams: { stepId: step.id }
+    });
   }
 
   closeStepModal() {

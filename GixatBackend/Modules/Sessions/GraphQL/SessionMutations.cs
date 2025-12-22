@@ -57,15 +57,7 @@ internal static class SessionMutations
             Status = SessionStatus.Intake
         };
 
-        var log = new SessionLog
-        {
-            Session = session,
-            FromStatus = SessionStatus.Intake,
-            ToStatus = SessionStatus.Intake,
-            Notes = "Session started"
-        };
-        
-        session.Logs.Add(log);
+        // No initial log needed - session starts at Intake status
 
         try
         {
@@ -120,16 +112,33 @@ internal static class SessionMutations
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var session = await context.GarageSessions.FindAsync(sessionId).ConfigureAwait(false);
+        var session = await context.GarageSessions
+            .Include(s => s.Logs)
+            .FirstOrDefaultAsync(s => s.Id == sessionId)
+            .ConfigureAwait(false);
+            
         if (session == null)
         {
             throw new InvalidOperationException("Session not found");
         }
 
+        var oldStatus = session.Status;
         session.IntakeNotes = intakeNotes;
         session.CustomerRequests = customerRequests;
         session.IntakeRequests = intakeRequests;
         session.UpdatedAt = DateTime.UtcNow;
+
+        // Auto-transition to Inspection status after intake
+        if (session.Status == SessionStatus.Intake)
+        {
+            session.Status = SessionStatus.Inspection;
+            session.Logs.Add(new SessionLog
+            {
+                FromStatus = oldStatus,
+                ToStatus = SessionStatus.Inspection,
+                Notes = "Intake completed, moved to Inspection"
+            });
+        }
 
         await context.SaveChangesAsync().ConfigureAwait(false);
         return session;
@@ -163,15 +172,32 @@ internal static class SessionMutations
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var session = await context.GarageSessions.FindAsync(sessionId).ConfigureAwait(false);
+        var session = await context.GarageSessions
+            .Include(s => s.Logs)
+            .FirstOrDefaultAsync(s => s.Id == sessionId)
+            .ConfigureAwait(false);
+            
         if (session == null)
         {
             throw new InvalidOperationException("Session not found");
         }
 
+        var oldStatus = session.Status;
         session.InspectionNotes = inspectionNotes;
         session.InspectionRequests = inspectionRequests;
         session.UpdatedAt = DateTime.UtcNow;
+
+        // Auto-transition to TestDrive status after inspection
+        if (session.Status == SessionStatus.Inspection)
+        {
+            session.Status = SessionStatus.TestDrive;
+            session.Logs.Add(new SessionLog
+            {
+                FromStatus = oldStatus,
+                ToStatus = SessionStatus.TestDrive,
+                Notes = "Inspection completed, moved to Test Drive"
+            });
+        }
 
         await context.SaveChangesAsync().ConfigureAwait(false);
         return session;
@@ -194,6 +220,7 @@ internal static class SessionMutations
         session.TestDriveNotes = testDriveNotes;
         session.TestDriveRequests = testDriveRequests;
         session.UpdatedAt = DateTime.UtcNow;
+        // Status stays as TestDrive - report generation will move to next status
 
         await context.SaveChangesAsync().ConfigureAwait(false);
         return session;
@@ -206,24 +233,40 @@ internal static class SessionMutations
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var session = await context.GarageSessions.FindAsync(sessionId).ConfigureAwait(false);
-        if (session == null)
-        {
-            throw new InvalidOperationException("Session not found");
-        }
+        // Get current status before updating
+        var currentStatus = await context.GarageSessions
+            .Where(s => s.Id == sessionId)
+            .Select(s => s.Status)
+            .FirstOrDefaultAsync()
+            .ConfigureAwait(false);
 
-        session.InitialReport = report;
-        session.Status = SessionStatus.ReportGenerated;
-        session.UpdatedAt = DateTime.UtcNow;
+        // Use ExecuteUpdateAsync to avoid concurrency issues with triggers
+        await context.GarageSessions
+            .Where(s => s.Id == sessionId)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(s => s.InitialReport, report)
+                .SetProperty(s => s.Status, SessionStatus.ReportGenerated)
+                .SetProperty(s => s.UpdatedAt, DateTime.UtcNow))
+            .ConfigureAwait(false);
 
-        session.Logs.Add(new SessionLog
+        // Add log entry separately with actual previous status
+        var log = new SessionLog
         {
-            FromStatus = SessionStatus.TestDrive, // Assuming coming from test drive
+            SessionId = sessionId,
+            FromStatus = currentStatus,
             ToStatus = SessionStatus.ReportGenerated,
             Notes = "Initial report generated"
-        });
-
+        };
+        
+        context.SessionLogs.Add(log);
         await context.SaveChangesAsync().ConfigureAwait(false);
+
+        // Load and return the updated session
+        var session = await context.GarageSessions
+            .Include(s => s.Logs)
+            .FirstAsync(s => s.Id == sessionId)
+            .ConfigureAwait(false);
+            
         return session;
     }
 
@@ -312,5 +355,51 @@ internal static class SessionMutations
                 tempStorage.DeleteTempFile(tempFilePath);
             }
         }
+    }
+
+    /// <summary>
+    /// Deletes a session media entry and its associated file from S3.
+    /// </summary>
+    /// <param name="mediaId">The AppMedia ID (the media file ID)</param>
+    public static async Task<bool> DeleteSessionMediaAsync(
+        Guid mediaId,
+        ApplicationDbContext context,
+        [Service] IS3Service s3Service)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(s3Service);
+
+        // Query through GarageSessions to apply multi-tenancy filter, looking by MediaId
+        var sessionMedia = await context.GarageSessions
+            .SelectMany(s => s.Media)
+            .Include(sm => sm.Media)
+            .FirstOrDefaultAsync(sm => sm.MediaId == mediaId)
+            .ConfigureAwait(false);
+
+        if (sessionMedia == null)
+        {
+            throw new InvalidOperationException("Session media not found or access denied");
+        }
+
+        // Delete from S3 if URL exists - extract file key from URL
+        if (sessionMedia.Media?.Url != null)
+        {
+            // Extract the file key from the S3 URL (everything after the last /)
+            var fileKey = sessionMedia.Media.Url.AbsolutePath.TrimStart('/');
+            if (!string.IsNullOrEmpty(fileKey))
+            {
+                await s3Service.DeleteFileAsync(fileKey).ConfigureAwait(false);
+            }
+        }
+
+        // Delete from database
+        context.SessionMedias.Remove(sessionMedia);
+        if (sessionMedia.Media != null)
+        {
+            context.Medias.Remove(sessionMedia.Media);
+        }
+
+        await context.SaveChangesAsync().ConfigureAwait(false);
+        return true;
     }
 }

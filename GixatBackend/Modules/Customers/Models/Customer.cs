@@ -25,6 +25,13 @@ public sealed class Customer : IMustHaveOrganization
     public ICollection<GarageSession> Sessions { get; } = new List<GarageSession>();
     public ICollection<JobCard> JobCards { get; } = new List<JobCard>();
     
+    // Denormalized computed fields - updated via triggers
+    public DateTime? LastSessionDate { get; set; }
+    public int TotalVisits { get; set; }
+    public decimal TotalSpent { get; set; }
+    public int ActiveJobCards { get; set; }
+    public int TotalCars { get; set; }
+    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

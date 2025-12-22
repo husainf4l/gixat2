@@ -102,11 +102,10 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    var publicKeyPem = builder.Configuration["Jwt:PublicKey"] 
-        ?? throw new InvalidOperationException("Jwt:PublicKey is not configured.");
+    var jwtKey = builder.Configuration["Jwt:Key"] 
+        ?? throw new InvalidOperationException("Jwt:Key is not configured.");
     
-    var rsa = RSA.Create();
-    rsa.ImportFromPem(publicKeyPem);
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
 
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -116,7 +115,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new RsaSecurityKey(rsa)
+        IssuerSigningKey = key
     };
 
     options.Events = new JwtBearerEvents
