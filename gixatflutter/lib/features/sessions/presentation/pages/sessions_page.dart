@@ -1,194 +1,230 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
-import '../../../auth/data/repositories/auth_repository.dart';
-import '../../../../core/storage/secure_storage_service.dart';
+import '../../data/repositories/sessions_repository.dart';
+import '../bloc/sessions_cubit.dart';
 
-class SessionsPage extends StatefulWidget {
+class SessionsPage extends StatelessWidget {
   const SessionsPage({Key? key}) : super(key: key);
 
   @override
-  State<SessionsPage> createState() => _SessionsPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => SessionsCubit(
+        repository: SessionsRepository(),
+      )..loadSessions(),
+      child: const _SessionsView(),
+    );
+  }
 }
 
-class _SessionsPageState extends State<SessionsPage> {
-  bool _isLoading = true;
-  String? _error;
-  String? _organizationId;
-  String? _organizationName;
+class _SessionsView extends StatelessWidget {
+  const _SessionsView();
 
   @override
-  void initState() {
-    super.initState();
-    _checkAuthentication();
-  }
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Sessions'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => context.read<SessionsCubit>().loadSessions(refresh: true),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await context.push('/sessions/create');
+          // Refresh sessions list after returning
+          if (context.mounted) {
+            context.read<SessionsCubit>().loadSessions(refresh: true);
+          }
+        },
+        child: const Icon(Icons.add),
+      ),
+      body: BlocBuilder<SessionsCubit, SessionsState>(
+        builder: (context, state) {
+          if (state is SessionsLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-  Future<void> _checkAuthentication() async {
-    try {
-      final storage = SecureStorageService();
-      final authRepository = AuthRepository(storage: storage);
-      
-      final userInfo = await authRepository.getCurrentUser();
-      
-      if (!mounted) return;
-      
-      if (userInfo == null) {
-        // Not authenticated, navigate to login
-        context.go('/login');
-        return;
-      }
-      
-      if (userInfo.organizationId == null || userInfo.organizationId!.isEmpty) {
-        // No organization, navigate to organization setup
-        context.go('/garage-selection');
-        return;
-      }
-      
-      // User is authenticated and has organization
-      setState(() {
-        _organizationId = userInfo.organizationId;
-        _organizationName = userInfo.organizationName ?? 'Organization (ID: ${userInfo.organizationId})';
-        _isLoading = false;
-      });
-      
-    } catch (e) {
-      if (!mounted) return;
-      
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
+          if (state is SessionsError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(state.message),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => context.read<SessionsCubit>().loadSessions(refresh: true),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (state is SessionsLoaded) {
+            if (state.sessions.isEmpty) {
+              return const Center(
+                child: Text('No sessions found'),
+              );
+            }
+
+            return RefreshIndicator(
+              onRefresh: () => context.read<SessionsCubit>().loadSessions(refresh: true),
+              child: ListView.builder(
+                itemCount: state.sessions.length + (state.hasNextPage ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == state.sessions.length) {
+                    if (!state.isLoadingMore) {
+                      context.read<SessionsCubit>().loadMore();
+                    }
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+
+                  final session = state.sessions[index];
+                  return _SessionCard(session: session);
+                },
+              ),
+            );
+          }
+
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+}
+
+class _SessionCard extends StatelessWidget {
+  const _SessionCard({required this.session});
+
+  final session;
+
+  Color _getStatusColor(String status) {
+    switch (status.toUpperCase()) {
+      case 'INTAKE':
+        return Colors.blue;
+      case 'INSPECTION':
+        return Colors.orange;
+      case 'REPAIR':
+        return Colors.purple;
+      case 'COMPLETED':
+        return Colors.green;
+      default:
+        return Colors.grey;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-    
-    if (_error != null) {
-      return Scaffold(
-        body: Center(
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: InkWell(
+        onTap: () {
+          // Navigate to session details
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      session.customer.fullName,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(session.status).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _getStatusColor(session.status),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      session.status,
+                      style: TextStyle(
+                        color: _getStatusColor(session.status),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              Text(
-                'Authentication Error',
-                style: Theme.of(context).textTheme.titleLarge,
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(Icons.directions_car, size: 18, color: Colors.grey),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${session.car.make} ${session.car.model}',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  _error!,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+              Row(
+                children: [
+                  const Icon(Icons.credit_card, size: 18, color: Colors.grey),
+                  const SizedBox(width: 8),
+                  Text(
+                    session.car.licensePlate,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => context.go('/login'),
-                child: const Text('Go to Login'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Sessions Page',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 32),
-              Card(
-                elevation: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
                     children: [
-                      const Text(
-                        'Company Information',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Text(
+                        DateFormat('MMM dd, yyyy').format(session.createdAt),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.business,
-                            size: 20,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Name: ',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              _organizationName ?? 'N/A',
-                              style: const TextStyle(
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.tag,
-                            size: 20,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'ID: ',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              _organizationId ?? 'N/A',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontFamily: 'monospace',
-                              ),
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
-                ),
+                  Text(
+                    '#${session.id.substring(0, 8)}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

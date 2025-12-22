@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/clients_cubit.dart';
 
 class CreateCustomerForm extends StatefulWidget {
@@ -259,8 +260,17 @@ class _CreateCustomerFormState extends State<CreateCustomerForm> {
       BlocListener<ClientsCubit, ClientsState>(
         listener: (context, state) {
           if (state is CreateCustomerSuccess) {
+            // Navigate to add car page with customer details
+            final customerId = state.customerId;
+            final customerName = _nameController.text.trim();
+            
+            // Pop the current page first
             Navigator.pop(context, true);
-            _showSuccessSnackbar('Customer created successfully!');
+            
+            // Navigate to add car page
+            context.push('/clients/add-car?customerId=$customerId&customerName=${Uri.encodeComponent(customerName)}');
+            
+            _showSuccessSnackbar('Customer created! Now add their car');
           } else if (state is ClientsError) {
             _showErrorSnackbar(state.message);
           }

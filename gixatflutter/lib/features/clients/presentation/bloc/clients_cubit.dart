@@ -32,7 +32,7 @@ class ClientsCubit extends Cubit<ClientsState> {
         print('ClientsCubit: Creating customer...');
       }
       
-      await _clientsRepository.createCustomer(
+      final customerId = await _clientsRepository.createCustomer(
         firstName: firstName,
         lastName: lastName,
         phoneNumber: phoneNumber,
@@ -43,10 +43,10 @@ class ClientsCubit extends Cubit<ClientsState> {
       );
       
       if (kDebugMode) {
-        print('ClientsCubit: Customer created successfully');
+        print('ClientsCubit: Customer created successfully with ID: $customerId');
       }
       
-      emit(CreateCustomerSuccess());
+      emit(CreateCustomerSuccess(customerId: customerId));
     } on Exception catch (e, stackTrace) {
       if (kDebugMode) {
         print('ClientsCubit ERROR: $e');

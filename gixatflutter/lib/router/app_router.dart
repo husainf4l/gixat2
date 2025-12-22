@@ -12,15 +12,25 @@ import '../features/auth/presentation/bloc/auth_cubit.dart';
 import '../features/auth/presentation/pages/connect_garage_page.dart';
 import '../features/auth/presentation/pages/create_garage_page.dart';
 import '../features/auth/presentation/pages/garage_selection_page.dart';
+import '../features/auth/presentation/pages/garage_setup_page.dart';
 import '../features/auth/presentation/pages/login_page.dart';
 import '../features/auth/presentation/pages/signup_page.dart';
 import '../features/auth/presentation/pages/splash_page.dart';
 import '../features/clients/presentation/pages/clients_page.dart';
+import '../features/clients/presentation/widgets/create_customer_form.dart';
+import '../features/clients/presentation/pages/create_car_page.dart';
+import '../features/clients/data/repositories/clients_repository.dart';
+import '../features/clients/presentation/bloc/clients_cubit.dart';
+import '../features/clients/presentation/bloc/create_car_cubit.dart';
 import '../features/inventory/presentation/pages/inventory_page.dart';
 import '../features/invoices/presentation/pages/invoices_page.dart';
 import '../features/jobcards/presentation/pages/jobcards_page.dart';
+import '../features/jobcards/presentation/pages/create_jobcard_page.dart';
+import '../features/jobcards/presentation/bloc/create_jobcard_cubit.dart';
 import '../features/navigation/app_layout.dart';
 import '../features/sessions/presentation/pages/sessions_page.dart';
+import '../features/sessions/presentation/pages/create_session_page.dart';
+import '../features/sessions/presentation/bloc/create_session_cubit.dart';
 import '../features/settings/presentation/pages/settings_page.dart';
 
 GoRouter createAppRouter(AuthCubit authCubit) => GoRouter(
@@ -88,6 +98,18 @@ GoRouter createAppRouter(AuthCubit authCubit) => GoRouter(
           builder: (context, state) => const SignUpPage(),
         ),
         GoRoute(
+          path: '/garage-setup',
+          name: 'garage-setup',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            return GarageSetupPage(
+              email: extra?['email'] ?? '',
+              password: extra?['password'] ?? '',
+              fullName: extra?['fullName'] ?? '',
+            );
+          },
+        ),
+        GoRoute(
           path: '/garage-selection',
           name: 'garage-selection',
           builder: (context, state) => const GarageSelectionPage(),
@@ -139,6 +161,19 @@ GoRouter createAppRouter(AuthCubit authCubit) => GoRouter(
               pageBuilder: (context, state) => const NoTransitionPage(
                 child: SessionsPage(),
               ),
+              routes: [
+                GoRoute(
+                  path: 'create',
+                  name: 'create-session',
+                  builder: (context, state) {
+                    final client = GraphQLProvider.of(context).value;
+                    return BlocProvider(
+                      create: (context) => CreateSessionCubit(client: client),
+                      child: const CreateSessionPage(),
+                    );
+                  },
+                ),
+              ],
             ),
             GoRoute(
               path: '/clients',
@@ -146,6 +181,36 @@ GoRouter createAppRouter(AuthCubit authCubit) => GoRouter(
               pageBuilder: (context, state) => const NoTransitionPage(
                 child: ClientsPage(),
               ),
+              routes: [
+                GoRoute(
+                  path: 'create',
+                  name: 'create-client',
+                  builder: (context, state) {
+                    return BlocProvider(
+                      create: (context) => ClientsCubit(
+                        clientsRepository: ClientsRepository(),
+                      ),
+                      child: const CreateCustomerForm(),
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: 'add-car',
+                  name: 'add-car',
+                  builder: (context, state) {
+                    final customerId = state.uri.queryParameters['customerId'] ?? '';
+                    final customerName = state.uri.queryParameters['customerName'] ?? '';
+                    final client = GraphQLProvider.of(context).value;
+                    return BlocProvider(
+                      create: (context) => CreateCarCubit(client: client),
+                      child: CreateCarPage(
+                        customerId: customerId,
+                        customerName: customerName,
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
             GoRoute(
               path: '/appointments',
@@ -160,6 +225,19 @@ GoRouter createAppRouter(AuthCubit authCubit) => GoRouter(
               pageBuilder: (context, state) => const NoTransitionPage(
                 child: JobCardsPage(),
               ),
+              routes: [
+                GoRoute(
+                  path: 'create',
+                  name: 'create-job-card',
+                  builder: (context, state) {
+                    final client = GraphQLProvider.of(context).value;
+                    return BlocProvider(
+                      create: (context) => CreateJobCardCubit(client: client),
+                      child: const CreateJobCardPage(),
+                    );
+                  },
+                ),
+              ],
             ),
             GoRoute(
               path: '/invoices',

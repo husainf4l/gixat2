@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import '../clients/data/repositories/clients_repository.dart';
-import '../clients/presentation/bloc/clients_cubit.dart';
-import '../clients/presentation/widgets/create_customer_form.dart';
 
 class AppLayout extends StatelessWidget {
   const AppLayout({
@@ -86,13 +82,19 @@ class AppLayout extends StatelessWidget {
               modalContext,
               icon: FontAwesomeIcons.calendarPlus,
               label: 'New Session',
-              onTap: () => Navigator.pop(modalContext),
+              onTap: () {
+                Navigator.pop(modalContext);
+                context.push('/sessions/create');
+              },
             ),
             _buildAddOption(
               modalContext,
               icon: FontAwesomeIcons.fileSignature,
               label: 'New Job Card',
-              onTap: () => Navigator.pop(modalContext),
+              onTap: () {
+                Navigator.pop(modalContext);
+                context.push('/job-cards/create');
+              },
             ),
             _buildAddOption(
               modalContext,
@@ -100,19 +102,7 @@ class AppLayout extends StatelessWidget {
               label: 'New Client',
               onTap: () {
                 Navigator.pop(modalContext);
-                // Provide ClientsCubit for the form
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BlocProvider(
-                      create: (context) => ClientsCubit(
-                        clientsRepository: ClientsRepository(),
-                      ),
-                      child: const CreateCustomerForm(),
-                    ),
-                    fullscreenDialog: true,
-                  ),
-                );
+                context.push('/clients/create');
               },
             ),
             const SizedBox(height: 20),

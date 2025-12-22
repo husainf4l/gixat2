@@ -40,6 +40,36 @@ const String registerMutation = r'''
   }
 ''';
 
+const String registerWithOrgMutation = r'''
+  mutation RegisterWithOrg(
+    $email: String!
+    $password: String!
+    $fullName: String!
+    $role: String!
+    $userType: UserType!
+    $organizationId: UUID!
+  ) {
+    register(
+      input: {
+        email: $email
+        password: $password
+        fullName: $fullName
+        role: $role
+        userType: $userType
+        organizationId: $organizationId
+      }
+    ) {
+      token
+      error
+      user {
+        id
+        email
+        fullName
+      }
+    }
+  }
+''';
+
 const String verifyTokenQuery = r'''
   query VerifyToken($token: String!) {
     verifyToken(token: $token) {
@@ -75,14 +105,50 @@ const String myOrganizationQuery = r'''
 const String createOrganizationMutation = r'''
   mutation CreateOrganization($input: CreateOrganizationInput!) {
     createOrganization(input: $input) {
-      id
-      name
-      address {
+      token
+      error
+      user {
         id
-        country
-        city
-        street
-        phoneCountryCode
+        email
+        fullName
+      }
+    }
+  }
+''';
+
+const String signupWithOrganizationMutation = r'''
+  mutation SignupWithOrg(
+    $email: String!
+    $password: String!
+    $fullName: String!
+    $name: String!
+    $country: String!
+    $city: String!
+    $street: String!
+    $phoneCountryCode: String!
+  ) {
+    createOrganization(
+      input: {
+        name: $name
+        address: {
+          country: $country
+          city: $city
+          street: $street
+          phoneCountryCode: $phoneCountryCode
+        }
+        email: $email
+        password: $password
+        fullName: $fullName
+        role: "OWNER"
+        userType: ORGANIZATIONAL
+      }
+    ) {
+      token
+      error
+      user {
+        id
+        email
+        fullName
       }
     }
   }

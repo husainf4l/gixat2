@@ -8,37 +8,52 @@ import '../widgets/auth_card.dart';
 import '../widgets/auth_input.dart';
 import '../widgets/gradient_primary_button.dart';
 
-class SignUpPage extends StatefulWidget {
-  const SignUpPage({Key? key}) : super(key: key);
+class GarageSetupPage extends StatefulWidget {
+  const GarageSetupPage({
+    super.key,
+    required this.email,
+    required this.password,
+    required this.fullName,
+  });
+
+  final String email;
+  final String password;
+  final String fullName;
 
   @override
-  State<SignUpPage> createState() => _SignUpPageState();
+  State<GarageSetupPage> createState() => _GarageSetupPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _GarageSetupPageState extends State<GarageSetupPage> {
   final _formKey = GlobalKey<FormState>();
-  final _ownerNameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+  final _garageNameController = TextEditingController();
+  final _countryController = TextEditingController(text: 'UAE');
+  final _cityController = TextEditingController();
+  final _streetController = TextEditingController();
+  final _phoneCodeController = TextEditingController(text: '+971');
 
   @override
   void dispose() {
-    _ownerNameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
+    _garageNameController.dispose();
+    _countryController.dispose();
+    _cityController.dispose();
+    _streetController.dispose();
+    _phoneCodeController.dispose();
     super.dispose();
   }
 
-  void _handleSignUp() {
+  void _handleSetup() {
     if (_formKey.currentState?.validate() ?? false) {
-      // Navigate to garage setup page with user details
-      context.go('/garage-setup', extra: {
-        'email': _emailController.text,
-        'password': _passwordController.text,
-        'fullName': _ownerNameController.text,
-      });
+      context.read<AuthCubit>().createOrganization(
+            name: _garageNameController.text,
+            country: _countryController.text,
+            city: _cityController.text,
+            street: _streetController.text,
+            phoneCountryCode: _phoneCodeController.text,
+            email: widget.email,
+            password: widget.password,
+            fullName: widget.fullName,
+          );
     }
   }
 
@@ -50,8 +65,6 @@ class _SignUpPageState extends State<SignUpPage> {
             listener: (context, state) {
               if (state is AuthAuthenticated) {
                 context.go('/sessions');
-              } else if (state is AuthNeedsGarage) {
-                context.go('/garage-selection');
               } else if (state is AuthError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -92,7 +105,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                             const SizedBox(height: 24),
                             const Text(
-                              'Create your Gixat account',
+                              'Set up your Garage',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 15,
@@ -102,99 +115,94 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                             const SizedBox(height: 40),
 
-                            // Full Name Field
+                            // Garage Name Field
                             AuthInputField(
-                              hint: 'Full Name',
-                              icon: Icons.person_outline,
-                              controller: _ownerNameController,
+                              hint: 'Garage Name',
+                              icon: Icons.garage_outlined,
+                              controller: _garageNameController,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your name';
+                                  return 'Please enter garage name';
                                 }
                                 return null;
                               },
                             ),
                             const SizedBox(height: 16),
 
-                            // Email Field
+                            // Country Field
                             AuthInputField(
-                              hint: 'Email Address',
-                              icon: Icons.email_outlined,
-                              controller: _emailController,
-                              keyboardType: TextInputType.emailAddress,
+                              hint: 'Country',
+                              icon: Icons.flag_outlined,
+                              controller: _countryController,
                               validator: (value) {
-                                if (value?.isEmpty ?? true) {
-                                  return 'Please enter your email';
-                                }
-                                if (!value!.contains('@')) {
-                                  return 'Please enter a valid email';
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter country';
                                 }
                                 return null;
                               },
                             ),
                             const SizedBox(height: 16),
 
-                            // Password Field
+                            // City Field
                             AuthInputField(
-                              hint: 'Password',
-                              icon: Icons.lock_outline,
-                              isPassword: true,
-                              controller: _passwordController,
+                              hint: 'City',
+                              icon: Icons.location_city_outlined,
+                              controller: _cityController,
                               validator: (value) {
-                                if (value?.isEmpty ?? true) {
-                                  return 'Please enter a password';
-                                }
-                                if (value!.length < 6) {
-                                  return 'Password must be at least '
-                                      '6 characters';
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter city';
                                 }
                                 return null;
                               },
                             ),
                             const SizedBox(height: 16),
 
-                            // Confirm Password Field
+                            // Street Address Field
                             AuthInputField(
-                              hint: 'Confirm Password',
-                              icon: Icons.lock_outline,
-                              isPassword: true,
-                              controller: _confirmPasswordController,
+                              hint: 'Street Address',
+                              icon: Icons.location_on_outlined,
+                              controller: _streetController,
                               validator: (value) {
-                                if (value?.isEmpty ?? true) {
-                                  return 'Please confirm your password';
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter street address';
                                 }
-                                if (value != _passwordController.text) {
-                                  return 'Passwords do not match';
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Phone Country Code Field
+                            AuthInputField(
+                              hint: 'Phone Country Code',
+                              icon: Icons.phone_outlined,
+                              controller: _phoneCodeController,
+                              keyboardType: TextInputType.phone,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter phone country code';
                                 }
                                 return null;
                               },
                             ),
                             const SizedBox(height: 32),
 
-                            // Create Account Button
+                            // Complete Setup Button
                             GradientPrimaryButton(
-                              label: 'Create Account',
-                              onPressed: _handleSignUp,
+                              label: 'Complete Setup',
+                              onPressed: _handleSetup,
                               isLoading: isLoading,
                               height: 56,
                             ),
                             const SizedBox(height: 24),
 
-                            // Login Link
+                            // Back Link
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Text(
-                                  'Already have an account? ',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Color(0xFF7F8C8D),
-                                  ),
-                                ),
                                 GestureDetector(
-                                  onTap: () => context.go('/login'),
+                                  onTap: () => context.go('/signup'),
                                   child: const Text(
-                                    'Login here',
+                                    'Back to Sign Up',
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,

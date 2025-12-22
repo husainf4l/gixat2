@@ -6,9 +6,16 @@ import 'package:gql_http_link/gql_http_link.dart';
 
 class GraphQLConfig {
   // Use environment variables for endpoints
-  static String get _endpoint => kDebugMode 
-    ? dotenv.env['GRAPHQL_ENDPOINT'] ?? 'http://localhost:8002/graphql'
-    : dotenv.env['GRAPHQL_ENDPOINT_PROD'] ?? 'https://gixat.com/graphql';
+  static String get _endpoint {
+    final endpoint = kDebugMode 
+      ? dotenv.env['GRAPHQL_ENDPOINT'] ?? 'http://localhost:8002/graphql'
+      : dotenv.env['GRAPHQL_ENDPOINT_PROD'] ?? 'https://gixat.com/graphql';
+    
+    if (kDebugMode) {
+      print('🌐 GraphQL Endpoint: $endpoint');
+    }
+    return endpoint;
+  }
   
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
   static const Duration _timeout = Duration(seconds: 30);
