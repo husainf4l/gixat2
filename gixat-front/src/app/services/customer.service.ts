@@ -199,14 +199,18 @@ const CUSTOMER_DETAIL_QUERY = gql`
       }
     }
     sessions(where: { customerId: { eq: $id } }, order: [{ createdAt: DESC }]) {
-      id
-      status
-      createdAt
-      carId
-      car {
-        make
-        model
-        licensePlate
+      edges {
+        node {
+          id
+          status
+          createdAt
+          carId
+          car {
+            make
+            model
+            licensePlate
+          }
+        }
       }
     }
   }
@@ -283,7 +287,11 @@ export class CustomerService {
   }
 
   getCustomerDetail(id: string): Observable<CustomerDetail> {
-    return this.apollo.query<{ customerById: CustomerDetail['customer']; jobCards: JobCardSummary[]; sessions: SessionSummary[] }>({
+    return this.apollo.query<{ 
+      customerById: CustomerDetail['customer']; 
+      jobCards: JobCardSummary[]; 
+      sessions: { edges: { node: SessionSummary }[] } 
+    }>({
       query: CUSTOMER_DETAIL_QUERY,
       variables: { id },
       fetchPolicy: 'network-only',
@@ -295,7 +303,7 @@ export class CustomerService {
         return {
           customer: data.customerById,
           jobCards: data.jobCards,
-          sessions: data.sessions,
+          sessions: data.sessions.edges.map(edge => edge.node),
         };
       }),
       shareReplay(1),

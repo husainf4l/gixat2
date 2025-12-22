@@ -1,0 +1,124 @@
+<div class="min-h-screen bg-slate-50">
+  <div class="max-w-7xl mx-auto px-8 py-6">
+    <!-- Header -->
+    <div class="mb-6">
+      <div class="flex items-start justify-between mb-5">
+        <div>
+          <h1 class="text-2xl font-semibold text-slate-900">Sessions</h1>
+          <p class="mt-0.5 text-sm text-slate-500">Manage all garage sessions</p>
+        </div>
+        <button
+          (click)="createNewSession()"
+          class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1b75bc] text-white text-sm font-medium rounded-md hover:bg-[#155a92] transition-colors shadow-sm"
+        >
+          <i class="ri-add-line text-base"></i>
+          New Session
+        </button>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    @if (errorMessage(); as err) {
+      <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+        <div class="flex items-start gap-2">
+          <i class="ri-error-warning-line text-base mt-0.5"></i>
+          <span>{{ err }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="bg-white rounded-md shadow-sm border border-slate-200 p-12">
+        <div class="flex flex-col items-center justify-center">
+          <div class="relative w-8 h-8 mb-4">
+            <div class="absolute inset-0 rounded-full border-2 border-slate-100"></div>
+            <div class="absolute inset-0 rounded-full border-2 border-t-[#1b75bc] animate-spin"></div>
+          </div>
+          <p class="text-sm text-slate-500">Loading sessions...</p>
+        </div>
+      </div>
+    }
+
+    <!-- Sessions Table -->
+    @if (!isLoading()) {
+      @if (sessions().length > 0) {
+        <div class="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden">
+          <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  Session
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  Customer
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  Vehicle
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  License Plate
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  Status
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  Date
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-slate-200">
+              @for (session of sessions(); track session.id) {
+                <tr 
+                  (click)="viewSession(session.id)"
+                  class="hover:bg-slate-50 cursor-pointer transition-colors"
+                >
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-slate-900">{{ session.sessionNumber }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-slate-900">{{ session.customerName }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-2">
+                      <i class="ri-car-line text-slate-400"></i>
+                      <span class="text-sm text-slate-900">{{ session.carInfo }}</span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-slate-600 font-mono">{{ session.licensePlate }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span [class]="'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' + getStatusColor(session.status)">
+                      {{ formatStatus(session.status) }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                    {{ session.formattedDate }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="bg-white rounded-md shadow-sm border border-slate-200 p-12">
+          <div class="text-center">
+            <div class="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
+              <i class="ri-calendar-check-line text-2xl text-slate-400"></i>
+            </div>
+            <h3 class="text-base font-semibold text-slate-900 mb-2">No sessions</h3>
+            <p class="text-sm text-slate-500 mb-4">Create your first session to get started</p>
+            <button
+              (click)="createNewSession()"
+              class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1b75bc] text-white text-sm font-medium rounded-md hover:bg-[#155a92] transition-colors"
+            >
+              <i class="ri-add-line"></i>
+              New Session
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

@@ -9,6 +9,8 @@ import { OrganizationSetupComponent } from './pages/organization-setup/organizat
 import { authGuard } from './auth.guard';
 import { CustomersComponent } from './pages/customers/customers.component';
 import { CustomerDetail } from './pages/customers/customer-detail/customer-detail';
+import { SessionsComponent } from './pages/sessions/sessions.component';
+import { SessionDetailComponent } from './pages/sessions/session-detail/session-detail.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -23,7 +25,9 @@ export const routes: Routes = [
     children: [
       { path: '', component: DashboardComponent },
       { path: 'customers', component: CustomersComponent },
-      { path: 'customers/:id', component: CustomerDetail }
+      { path: 'customers/:id', component: CustomerDetail },
+      { path: 'sessions', component: SessionsComponent },
+      { path: 'sessions/:id', component: SessionDetailComponent }
     ]
   }
 ];

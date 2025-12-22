@@ -183,9 +183,7 @@ export class CustomerDetail implements OnInit {
   navigateToSession(carId: string) {
     const activeSession = this.getActiveSessionForCar(carId);
     if (activeSession) {
-      // TODO: Navigate to session detail page once implemented
-      alert(`Navigate to Session: ${activeSession.id}\nStatus: ${activeSession.status}`);
-      // this.router.navigate(['/dashboard/sessions', activeSession.id]);
+      this.router.navigate(['/dashboard/sessions', activeSession.id]);
     }
   }
 }

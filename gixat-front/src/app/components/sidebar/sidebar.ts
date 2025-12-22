@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { LogoComponent } from '../logo/logo.component';
+import { LayoutService } from '../../services/layout.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -12,6 +13,7 @@ import { LogoComponent } from '../logo/logo.component';
 })
 export class SidebarComponent {
   private router = inject(Router);
+  layoutService = inject(LayoutService);
 
   menuItems = [
     { path: '/dashboard', label: 'Dashboard', icon: 'ri-dashboard-line' },
@@ -22,6 +24,13 @@ export class SidebarComponent {
     { path: '/dashboard/team', label: 'Team', icon: 'ri-group-line' },
     { path: '/dashboard/settings', label: 'Settings', icon: 'ri-settings-3-line' }
   ];
+
+  onNavigate() {
+    // Close sidebar on mobile when navigating
+    if (window.innerWidth < 1024) {
+      this.layoutService.closeSidebar();
+    }
+  }
 
   logout() {
     // Since we use HTTP-only cookies, we should ideally call a logout mutation on the backend
