@@ -1,9 +1,11 @@
 using GixatBackend.Data;
 using GixatBackend.Modules.Sessions.Enums;
 using GixatBackend.Modules.Sessions.Models;
+using GixatBackend.Modules.Sessions.Services;
 using GixatBackend.Modules.Common.Models;
 using GixatBackend.Modules.Common.Services;
 using GixatBackend.Modules.Common.Services.AWS;
+using GixatBackend.Modules.Common.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using HotChocolate.Authorization;
 using HotChocolate.Types;
@@ -17,12 +19,11 @@ internal static class SessionMutations
     public static async Task<GarageSession> CreateSessionAsync(
         Guid carId,
         Guid customerId,
-        string? intakeNotes,
-        string? customerRequests,
-        string? intakeRequests,
-        ApplicationDbContext context)
+        ApplicationDbContext context,
+        [Service] ISessionService sessionService)
     {
         ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(sessionService);
 
         // Check if there's an active session for this car
         var activeSession = await context.GarageSessions
@@ -32,32 +33,33 @@ internal static class SessionMutations
             .FirstOrDefaultAsync()
             .ConfigureAwait(false);
 
-        if (activeSession != null)
-        {
-            throw new InvalidOperationException(
-                $"Cannot create a new session. There is already an active session (ID: {activeSession.Id}) for this car with status: {activeSession.Status}");
-        }
+        sessionService.ValidateNoActiveSession(activeSession);
 
         // The global query filter will ensure we only find cars/customers in our organization
-        var car = await context.Cars.FindAsync(carId).ConfigureAwait(false);
-        var customer = await context.Customers.FindAsync(customerId).ConfigureAwait(false);
+        // Note: FindAsync bypasses query filters, so we must use FirstOrDefaultAsync
+        var car = await context.Cars
+            .FirstOrDefaultAsync(c => c.Id == carId)
+            .ConfigureAwait(false);
+        var customer = await context.Customers
+            .FirstOrDefaultAsync(c => c.Id == customerId)
+            .ConfigureAwait(false);
 
-        if (car == null || customer == null)
+        if (car == null)
         {
-            throw new InvalidOperationException("Car or Customer not found in your organization");
+            throw new EntityNotFoundException("Car", carId);
+        }
+
+        if (customer == null)
+        {
+            throw new EntityNotFoundException("Customer", customerId);
         }
 
         var session = new GarageSession
         {
             CarId = carId,
             CustomerId = customerId,
-            IntakeNotes = intakeNotes,
-            CustomerRequests = customerRequests,
-            IntakeRequests = intakeRequests,
-            Status = SessionStatus.Intake
+            Status = SessionStatus.CustomerRequest
         };
-
-        // No initial log needed - session starts at Intake status
 
         try
         {
@@ -75,9 +77,11 @@ internal static class SessionMutations
         Guid sessionId,
         SessionStatus newStatus,
         string? notes,
-        ApplicationDbContext context)
+        ApplicationDbContext context,
+        [Service] ISessionService sessionService)
     {
         ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(sessionService);
 
         var session = await context.GarageSessions
             .Include(s => s.Logs)
@@ -92,22 +96,15 @@ internal static class SessionMutations
         session.Status = newStatus;
         session.UpdatedAt = DateTime.UtcNow;
 
-        session.Logs.Add(new SessionLog
-        {
-            FromStatus = oldStatus,
-            ToStatus = newStatus,
-            Notes = notes
-        });
+        session.Logs.Add(sessionService.CreateStatusLog(oldStatus, newStatus, notes));
 
         await context.SaveChangesAsync().ConfigureAwait(false);
         return session;
     }
 
-    public static async Task<GarageSession> UpdateIntakeAsync(
+    public static async Task<GarageSession> UpdateCustomerRequestsAsync(
         Guid sessionId,
-        string? intakeNotes,
         string? customerRequests,
-        string? intakeRequests,
         ApplicationDbContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -122,43 +119,23 @@ internal static class SessionMutations
             throw new InvalidOperationException("Session not found");
         }
 
+        if (session.Status != SessionStatus.CustomerRequest)
+        {
+            throw new InvalidOperationException("Can only update customer requests for sessions in CustomerRequest status");
+        }
+
         var oldStatus = session.Status;
-        session.IntakeNotes = intakeNotes;
-        session.CustomerRequests = customerRequests;
-        session.IntakeRequests = intakeRequests;
-        session.UpdatedAt = DateTime.UtcNow;
-
-        // Auto-transition to Inspection status after intake
-        if (session.Status == SessionStatus.Intake)
-        {
-            session.Status = SessionStatus.Inspection;
-            session.Logs.Add(new SessionLog
-            {
-                FromStatus = oldStatus,
-                ToStatus = SessionStatus.Inspection,
-                Notes = "Intake completed, moved to Inspection"
-            });
-        }
-
-        await context.SaveChangesAsync().ConfigureAwait(false);
-        return session;
-    }
-
-    public static async Task<GarageSession> UpdateCustomerRequestsAsync(
-        Guid sessionId,
-        string? customerRequests,
-        ApplicationDbContext context)
-    {
-        ArgumentNullException.ThrowIfNull(context);
-
-        var session = await context.GarageSessions.FindAsync(sessionId).ConfigureAwait(false);
-        if (session == null)
-        {
-            throw new InvalidOperationException("Session not found");
-        }
-
         session.CustomerRequests = customerRequests;
         session.UpdatedAt = DateTime.UtcNow;
+
+        // Auto-transition to Inspection status after customer requests
+        session.Status = SessionStatus.Inspection;
+        session.Logs.Add(new SessionLog
+        {
+            FromStatus = oldStatus,
+            ToStatus = SessionStatus.Inspection,
+            Notes = "Customer requests recorded, moved to Inspection"
+        });
 
         await context.SaveChangesAsync().ConfigureAwait(false);
         return session;
@@ -166,6 +143,7 @@ internal static class SessionMutations
 
     public static async Task<GarageSession> UpdateInspectionAsync(
         Guid sessionId,
+        int mileage,
         string? inspectionNotes,
         string? inspectionRequests,
         ApplicationDbContext context)
@@ -182,22 +160,25 @@ internal static class SessionMutations
             throw new InvalidOperationException("Session not found");
         }
 
+        if (session.Status != SessionStatus.Inspection)
+        {
+            throw new InvalidOperationException("Can only update inspection for sessions in Inspection status");
+        }
+
         var oldStatus = session.Status;
+        session.Mileage = mileage;
         session.InspectionNotes = inspectionNotes;
         session.InspectionRequests = inspectionRequests;
         session.UpdatedAt = DateTime.UtcNow;
 
         // Auto-transition to TestDrive status after inspection
-        if (session.Status == SessionStatus.Inspection)
+        session.Status = SessionStatus.TestDrive;
+        session.Logs.Add(new SessionLog
         {
-            session.Status = SessionStatus.TestDrive;
-            session.Logs.Add(new SessionLog
-            {
-                FromStatus = oldStatus,
-                ToStatus = SessionStatus.TestDrive,
-                Notes = "Inspection completed, moved to Test Drive"
-            });
-        }
+            FromStatus = oldStatus,
+            ToStatus = SessionStatus.TestDrive,
+            Notes = $"Inspection completed with mileage {mileage}, moved to Test Drive"
+        });
 
         await context.SaveChangesAsync().ConfigureAwait(false);
         return session;
@@ -228,45 +209,136 @@ internal static class SessionMutations
 
     public static async Task<GarageSession> GenerateInitialReportAsync(
         Guid sessionId,
-        string report,
         ApplicationDbContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        // Get current status before updating
-        var currentStatus = await context.GarageSessions
-            .Where(s => s.Id == sessionId)
-            .Select(s => s.Status)
-            .FirstOrDefaultAsync()
-            .ConfigureAwait(false);
-
-        // Use ExecuteUpdateAsync to avoid concurrency issues with triggers
-        await context.GarageSessions
-            .Where(s => s.Id == sessionId)
-            .ExecuteUpdateAsync(setters => setters
-                .SetProperty(s => s.InitialReport, report)
-                .SetProperty(s => s.Status, SessionStatus.ReportGenerated)
-                .SetProperty(s => s.UpdatedAt, DateTime.UtcNow))
-            .ConfigureAwait(false);
-
-        // Add log entry separately with actual previous status
-        var log = new SessionLog
-        {
-            SessionId = sessionId,
-            FromStatus = currentStatus,
-            ToStatus = SessionStatus.ReportGenerated,
-            Notes = "Initial report generated"
-        };
-        
-        context.SessionLogs.Add(log);
-        await context.SaveChangesAsync().ConfigureAwait(false);
-
-        // Load and return the updated session
+        // Load session with all related data
         var session = await context.GarageSessions
+            .Include(s => s.Car)
+            .Include(s => s.Customer)
+            .Include(s => s.Media)
+                .ThenInclude(sm => sm.Media)
             .Include(s => s.Logs)
-            .FirstAsync(s => s.Id == sessionId)
+            .FirstOrDefaultAsync(s => s.Id == sessionId)
             .ConfigureAwait(false);
-            
+
+        if (session == null)
+        {
+            throw new InvalidOperationException("Session not found");
+        }
+
+        if (session.Status != SessionStatus.TestDrive)
+        {
+            throw new InvalidOperationException("Can only generate report for sessions in TestDrive status");
+        }
+
+        // Build comprehensive report
+        var reportBuilder = new System.Text.StringBuilder();
+        
+        reportBuilder.AppendLine("=== VEHICLE INSPECTION REPORT ===\n");
+        
+        // Vehicle Information
+        reportBuilder.AppendLine("VEHICLE INFORMATION:");
+        reportBuilder.AppendLine($"Make: {session.Car?.Make}");
+        reportBuilder.AppendLine($"Model: {session.Car?.Model}");
+        reportBuilder.AppendLine($"Year: {session.Car?.Year}");
+        reportBuilder.AppendLine($"License Plate: {session.Car?.LicensePlate}");
+        if (session.Mileage.HasValue)
+        {
+            reportBuilder.AppendLine($"Mileage: {session.Mileage.Value:N0} km");
+        }
+        reportBuilder.AppendLine();
+
+        // Customer Information
+        reportBuilder.AppendLine("CUSTOMER INFORMATION:");
+        reportBuilder.AppendLine($"Name: {session.Customer?.FirstName} {session.Customer?.LastName}");
+        reportBuilder.AppendLine($"Phone: {session.Customer?.PhoneNumber}");
+        reportBuilder.AppendLine();
+
+        // Customer Requests
+        if (!string.IsNullOrEmpty(session.CustomerRequests))
+        {
+            reportBuilder.AppendLine("CUSTOMER REQUESTS:");
+            reportBuilder.AppendLine(session.CustomerRequests);
+            reportBuilder.AppendLine();
+        }
+
+        // Inspection Findings
+        if (!string.IsNullOrEmpty(session.InspectionNotes) || !string.IsNullOrEmpty(session.InspectionRequests))
+        {
+            reportBuilder.AppendLine("INSPECTION FINDINGS:");
+            if (!string.IsNullOrEmpty(session.InspectionNotes))
+            {
+                reportBuilder.AppendLine("Notes:");
+                reportBuilder.AppendLine(session.InspectionNotes);
+            }
+            if (!string.IsNullOrEmpty(session.InspectionRequests))
+            {
+                reportBuilder.AppendLine("Recommendations:");
+                reportBuilder.AppendLine(session.InspectionRequests);
+            }
+            reportBuilder.AppendLine();
+        }
+
+        // Test Drive Results
+        if (!string.IsNullOrEmpty(session.TestDriveNotes) || !string.IsNullOrEmpty(session.TestDriveRequests))
+        {
+            reportBuilder.AppendLine("TEST DRIVE RESULTS:");
+            if (!string.IsNullOrEmpty(session.TestDriveNotes))
+            {
+                reportBuilder.AppendLine("Notes:");
+                reportBuilder.AppendLine(session.TestDriveNotes);
+            }
+            if (!string.IsNullOrEmpty(session.TestDriveRequests))
+            {
+                reportBuilder.AppendLine("Recommendations:");
+                reportBuilder.AppendLine(session.TestDriveRequests);
+            }
+            reportBuilder.AppendLine();
+        }
+
+        // Media/Images
+        var mediaByStage = session.Media
+            .GroupBy(m => m.Stage)
+            .OrderBy(g => g.Key);
+
+        if (session.Media.Any())
+        {
+            reportBuilder.AppendLine("DOCUMENTATION (Images/Videos):");
+            foreach (var stageGroup in mediaByStage)
+            {
+                reportBuilder.AppendLine($"\n{stageGroup.Key} Phase:");
+                foreach (var media in stageGroup)
+                {
+                    if (media.Media != null)
+                    {
+                        reportBuilder.AppendLine($"  - {media.Media.Type}: {media.Media.Url}");
+                        if (!string.IsNullOrEmpty(media.Media.Alt))
+                        {
+                            reportBuilder.AppendLine($"    Description: {media.Media.Alt}");
+                        }
+                    }
+                }
+            }
+            reportBuilder.AppendLine();
+        }
+
+        reportBuilder.AppendLine($"\nReport Generated: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
+
+        var oldStatus = session.Status;
+        session.InitialReport = reportBuilder.ToString();
+        session.Status = SessionStatus.ReportGenerated;
+        session.UpdatedAt = DateTime.UtcNow;
+
+        session.Logs.Add(new SessionLog
+        {
+            FromStatus = oldStatus,
+            ToStatus = SessionStatus.ReportGenerated,
+            Notes = "Initial report generated with all session data"
+        });
+
+        await context.SaveChangesAsync().ConfigureAwait(false);
         return session;
     }
 

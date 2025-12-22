@@ -65,19 +65,23 @@ namespace GixatBackend.Migrations
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Country")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("PhoneCountryCode")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Street")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
 
@@ -114,7 +118,8 @@ namespace GixatBackend.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Color")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -124,15 +129,18 @@ namespace GixatBackend.Migrations
 
                     b.Property<string>("LicensePlate")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Make")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Model")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
@@ -141,7 +149,8 @@ namespace GixatBackend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("VIN")
-                        .HasColumnType("text");
+                        .HasMaxLength(17)
+                        .HasColumnType("character varying(17)");
 
                     b.Property<int>("Year")
                         .HasColumnType("integer");
@@ -151,6 +160,15 @@ namespace GixatBackend.Migrations
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("OrganizationId");
+
+                    b.HasIndex("LicensePlate", "OrganizationId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Cars_LicensePlate_OrgId");
+
+                    b.HasIndex("VIN", "OrganizationId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Cars_VIN_OrgId")
+                        .HasFilter("\"VIN\" IS NOT NULL");
 
                     b.ToTable("Cars");
                 });
@@ -171,15 +189,18 @@ namespace GixatBackend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime?>("LastSessionDate")
                         .HasColumnType("timestamp with time zone");
@@ -189,7 +210,8 @@ namespace GixatBackend.Migrations
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<int>("TotalCars")
                         .HasColumnType("integer");
@@ -208,6 +230,15 @@ namespace GixatBackend.Migrations
                     b.HasIndex("AddressId");
 
                     b.HasIndex("OrganizationId");
+
+                    b.HasIndex("Email", "OrganizationId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Customers_Email_OrgId")
+                        .HasFilter("\"Email\" IS NOT NULL");
+
+                    b.HasIndex("PhoneNumber", "OrganizationId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Customers_Phone_OrgId");
 
                     b.ToTable("Customers");
                 });
@@ -260,6 +291,13 @@ namespace GixatBackend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AssignedTechnicianId")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
                     b.Property<Guid>("CarId")
                         .HasColumnType("uuid");
 
@@ -270,7 +308,11 @@ namespace GixatBackend.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("InternalNotes")
-                        .HasColumnType("text");
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<bool>("IsApprovedByCustomer")
+                        .HasColumnType("boolean");
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
@@ -284,13 +326,27 @@ namespace GixatBackend.Migrations
                     b.Property<decimal>("TotalActualCost")
                         .HasColumnType("numeric");
 
+                    b.Property<decimal>("TotalActualLabor")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TotalActualParts")
+                        .HasColumnType("numeric");
+
                     b.Property<decimal>("TotalEstimatedCost")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TotalEstimatedLabor")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TotalEstimatedParts")
                         .HasColumnType("numeric");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AssignedTechnicianId");
 
                     b.HasIndex("CarId");
 
@@ -303,24 +359,62 @@ namespace GixatBackend.Migrations
                     b.ToTable("JobCards");
                 });
 
+            modelBuilder.Entity("GixatBackend.Modules.JobCards.Models.JobCardMedia", b =>
+                {
+                    b.Property<Guid>("JobCardId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MediaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("JobCardId", "MediaId");
+
+                    b.HasIndex("MediaId");
+
+                    b.ToTable("JobCardMedias");
+                });
+
             modelBuilder.Entity("GixatBackend.Modules.JobCards.Models.JobItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<decimal>("ActualCost")
+                    b.Property<decimal>("ActualLaborCost")
                         .HasColumnType("numeric");
+
+                    b.Property<decimal>("ActualPartsCost")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AssignedTechnicianId")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
-                    b.Property<decimal>("EstimatedCost")
+                    b.Property<decimal>("EstimatedLaborCost")
                         .HasColumnType("numeric");
+
+                    b.Property<decimal>("EstimatedPartsCost")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("IsApprovedByCustomer")
+                        .HasColumnType("boolean");
 
                     b.Property<Guid>("JobCardId")
                         .HasColumnType("uuid");
@@ -329,16 +423,40 @@ namespace GixatBackend.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("TechnicianNotes")
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssignedTechnicianId");
+
                     b.HasIndex("JobCardId");
 
                     b.ToTable("JobItems");
+                });
+
+            modelBuilder.Entity("GixatBackend.Modules.JobCards.Models.JobItemMedia", b =>
+                {
+                    b.Property<Guid>("JobItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MediaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("JobItemId", "MediaId");
+
+                    b.HasIndex("MediaId");
+
+                    b.ToTable("JobItemMedias");
                 });
 
             modelBuilder.Entity("GixatBackend.Modules.Organizations.Models.Organization", b =>
@@ -361,7 +479,8 @@ namespace GixatBackend.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
 
@@ -388,22 +507,23 @@ namespace GixatBackend.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("CustomerRequests")
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<string>("InitialReport")
-                        .HasColumnType("text");
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
 
                     b.Property<string>("InspectionNotes")
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<string>("InspectionRequests")
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
-                    b.Property<string>("IntakeNotes")
-                        .HasColumnType("text");
-
-                    b.Property<string>("IntakeRequests")
-                        .HasColumnType("text");
+                    b.Property<int?>("Mileage")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
@@ -412,10 +532,12 @@ namespace GixatBackend.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("TestDriveNotes")
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<string>("TestDriveRequests")
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -552,6 +674,14 @@ namespace GixatBackend.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Bio")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text");
@@ -567,7 +697,8 @@ namespace GixatBackend.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("FullName")
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -822,6 +953,11 @@ namespace GixatBackend.Migrations
 
             modelBuilder.Entity("GixatBackend.Modules.JobCards.Models.JobCard", b =>
                 {
+                    b.HasOne("GixatBackend.Modules.Users.Models.ApplicationUser", "AssignedTechnician")
+                        .WithMany()
+                        .HasForeignKey("AssignedTechnicianId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("GixatBackend.Modules.Customers.Models.Car", "Car")
                         .WithMany()
                         .HasForeignKey("CarId")
@@ -844,6 +980,8 @@ namespace GixatBackend.Migrations
                         .WithMany()
                         .HasForeignKey("SessionId");
 
+                    b.Navigation("AssignedTechnician");
+
                     b.Navigation("Car");
 
                     b.Navigation("Customer");
@@ -853,15 +991,60 @@ namespace GixatBackend.Migrations
                     b.Navigation("Session");
                 });
 
+            modelBuilder.Entity("GixatBackend.Modules.JobCards.Models.JobCardMedia", b =>
+                {
+                    b.HasOne("GixatBackend.Modules.JobCards.Models.JobCard", "JobCard")
+                        .WithMany("Media")
+                        .HasForeignKey("JobCardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GixatBackend.Modules.Common.Models.AppMedia", "Media")
+                        .WithMany()
+                        .HasForeignKey("MediaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("JobCard");
+
+                    b.Navigation("Media");
+                });
+
             modelBuilder.Entity("GixatBackend.Modules.JobCards.Models.JobItem", b =>
                 {
+                    b.HasOne("GixatBackend.Modules.Users.Models.ApplicationUser", "AssignedTechnician")
+                        .WithMany()
+                        .HasForeignKey("AssignedTechnicianId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("GixatBackend.Modules.JobCards.Models.JobCard", "JobCard")
                         .WithMany("Items")
                         .HasForeignKey("JobCardId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("AssignedTechnician");
+
                     b.Navigation("JobCard");
+                });
+
+            modelBuilder.Entity("GixatBackend.Modules.JobCards.Models.JobItemMedia", b =>
+                {
+                    b.HasOne("GixatBackend.Modules.JobCards.Models.JobItem", "JobItem")
+                        .WithMany("Media")
+                        .HasForeignKey("JobItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GixatBackend.Modules.Common.Models.AppMedia", "Media")
+                        .WithMany()
+                        .HasForeignKey("MediaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("JobItem");
+
+                    b.Navigation("Media");
                 });
 
             modelBuilder.Entity("GixatBackend.Modules.Organizations.Models.Organization", b =>
@@ -1024,6 +1207,13 @@ namespace GixatBackend.Migrations
             modelBuilder.Entity("GixatBackend.Modules.JobCards.Models.JobCard", b =>
                 {
                     b.Navigation("Items");
+
+                    b.Navigation("Media");
+                });
+
+            modelBuilder.Entity("GixatBackend.Modules.JobCards.Models.JobItem", b =>
+                {
+                    b.Navigation("Media");
                 });
 
             modelBuilder.Entity("GixatBackend.Modules.Organizations.Models.Organization", b =>

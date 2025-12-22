@@ -3,6 +3,8 @@ using GixatBackend.Modules.Users.Models;
 using GixatBackend.Modules.Users.Services;
 using GixatBackend.Data;
 using GixatBackend.Modules.Users.GraphQL;
+using GixatBackend.Modules.Common.Constants;
+using GixatBackend.Modules.Common.Middleware;
 using GixatBackend.Modules.Organizations.GraphQL;
 using GixatBackend.Modules.Common.GraphQL;
 using GixatBackend.Modules.Common.Lookup.GraphQL;
@@ -47,8 +49,17 @@ if (File.Exists(envPath))
 // Add services to the container.
 var connectionString = $"Host={Environment.GetEnvironmentVariable("DB_SERVER")};Port=5432;Database={Environment.GetEnvironmentVariable("DB_DATABASE")};Username={Environment.GetEnvironmentVariable("DB_USER")};Password={Environment.GetEnvironmentVariable("DB_PASSWORD")};";
 
+// Add DbContext for all operations (mutations and DataLoaders)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+    {
+        npgsqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+        npgsqlOptions.CommandTimeout(DatabaseConstants.CommandTimeoutSeconds);
+        npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: DatabaseConstants.MaxRetryCount,
+            maxRetryDelay: TimeSpan.FromSeconds(DatabaseConstants.MaxRetryDelaySeconds),
+            errorCodesToAdd: null);
+    }));
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITenantService, TenantService>();
@@ -57,6 +68,11 @@ builder.Services.AddScoped<GixatBackend.Modules.Customers.Services.CustomerExpor
 builder.Services.AddScoped<GixatBackend.Modules.Customers.Services.CustomerActivityDataLoader>();
 builder.Services.AddScoped<IVirusScanService, ClamAvScanService>();
 builder.Services.AddScoped<IImageCompressionService, ImageCompressionService>();
+builder.Services.AddScoped<GixatBackend.Modules.Users.Services.UserProfileService>();
+
+// Phase 3: Business logic services
+builder.Services.AddScoped<GixatBackend.Modules.JobCards.Services.IJobCardService, GixatBackend.Modules.JobCards.Services.JobCardService>();
+builder.Services.AddScoped<GixatBackend.Modules.Sessions.Services.ISessionService, GixatBackend.Modules.Sessions.Services.SessionService>();
 
 // AWS Configuration
 var awsOptions = builder.Configuration.GetAWSOptions();
@@ -183,6 +199,7 @@ builder.Services
 #pragma warning disable CA2263 // Prefer generic overload - Static types cannot be used as type arguments
         .AddType(typeof(AuthQueries))
         .AddType(typeof(UserExtensions))
+        .AddTypeExtension(typeof(UserProfileQueries))
         .AddType(typeof(OrganizationQueries))
         .AddType(typeof(LookupQueries))
         .AddTypeExtension(typeof(SessionQueries))
@@ -192,6 +209,7 @@ builder.Services
         .AddType(typeof(InviteQueries))
     .AddMutationType()
         .AddType(typeof(AuthMutations))
+        .AddTypeExtension(typeof(UserProfileMutations))
         .AddType(typeof(OrganizationMutations))
         .AddType(typeof(MediaMutations))
         .AddTypeExtension(typeof(PresignedUploadMutations))
@@ -200,20 +218,34 @@ builder.Services
         .AddType(typeof(JobCardMutations))
         .AddType(typeof(CustomerMutations))
         .AddType(typeof(InviteMutations))
+    // DataLoader-based extensions
+    .AddType(typeof(GixatBackend.Modules.JobCards.GraphQL.JobCardExtensions))
+    .AddType(typeof(GixatBackend.Modules.JobCards.GraphQL.JobItemExtensions))
 #pragma warning restore CA2263
     .AddUploadType()
+    // DataLoaders for N+1 prevention
+    .AddDataLoader<GixatBackend.Modules.Customers.Services.CarsByCustomerDataLoader>()
+    .AddDataLoader<GixatBackend.Modules.Sessions.Services.SessionsByCustomerDataLoader>()
+    .AddDataLoader<GixatBackend.Modules.JobCards.Services.JobCardsByCustomerDataLoader>()
+    .AddDataLoader<GixatBackend.Modules.JobCards.Services.JobItemsByJobCardDataLoader>()
+    .AddDataLoader<GixatBackend.Modules.Users.Services.UserByIdDataLoader>()
     .AddProjections()
     .AddFiltering()
     .AddSorting()
     .ModifyPagingOptions(options =>
     {
-        options.DefaultPageSize = 50;
-        options.MaxPageSize = 100;
+        options.DefaultPageSize = PaginationConstants.DefaultPageSize;
+        options.MaxPageSize = PaginationConstants.MaxPageSize;
         options.IncludeTotalCount = true;
     })
     .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
-    .AddMaxExecutionDepthRule(10)
-    .ModifyCostOptions(options => options.MaxFieldCost = 10000)
+    .AddErrorFilter<GixatBackend.Modules.Common.GraphQL.GraphQLErrorFilter>()
+    .AddMaxExecutionDepthRule(QueryLimits.MaxExecutionDepth)
+    .ModifyCostOptions(options =>
+    {
+        options.MaxFieldCost = QueryLimits.MaxFieldCost;
+        options.EnforceCostLimits = true;
+    })
     .AddAuthorization();
 
 builder.Services.AddOpenApi();
@@ -242,6 +274,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// Phase 4: Global exception handler
+app.UseGlobalExceptionHandler();
 
 app.UseHttpsRedirection();
 

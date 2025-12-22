@@ -1,6 +1,7 @@
 using GixatBackend.Modules.Common.Models;
 using GixatBackend.Modules.Users.Models;
 using GixatBackend.Modules.Customers.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
 namespace GixatBackend.Modules.Organizations.Models;
@@ -9,6 +10,9 @@ namespace GixatBackend.Modules.Organizations.Models;
 public sealed class Organization
 {
     public Guid Id { get; set; } = Guid.NewGuid();
+    
+    [Required]
+    [MaxLength(200)]
     public string Name { get; set; } = string.Empty;
     
     public Guid? AddressId { get; set; }

@@ -37,6 +37,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<SessionLog> SessionLogs { get; set; }
     public DbSet<JobCard> JobCards { get; set; }
     public DbSet<JobItem> JobItems { get; set; }
+    public DbSet<JobCardMedia> JobCardMedias { get; set; }
+    public DbSet<JobItemMedia> JobItemMedias { get; set; }
     public DbSet<UserInvite> UserInvites { get; set; }
     public DbSet<Account> Accounts { get; set; }
 
@@ -61,6 +63,29 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasMany(c => c.Cars)
             .WithOne(car => car.Customer)
             .HasForeignKey(car => car.CustomerId);
+
+        // Unique constraints for business keys per organization
+        builder.Entity<Car>()
+            .HasIndex(c => new { c.LicensePlate, c.OrganizationId })
+            .IsUnique()
+            .HasDatabaseName("IX_Cars_LicensePlate_OrgId");
+
+        builder.Entity<Car>()
+            .HasIndex(c => new { c.VIN, c.OrganizationId })
+            .IsUnique()
+            .HasFilter("\"VIN\" IS NOT NULL")
+            .HasDatabaseName("IX_Cars_VIN_OrgId");
+
+        builder.Entity<Customer>()
+            .HasIndex(c => new { c.Email, c.OrganizationId })
+            .IsUnique()
+            .HasFilter("\"Email\" IS NOT NULL")
+            .HasDatabaseName("IX_Customers_Email_OrgId");
+
+        builder.Entity<Customer>()
+            .HasIndex(c => new { c.PhoneNumber, c.OrganizationId })
+            .IsUnique()
+            .HasDatabaseName("IX_Customers_Phone_OrgId");
 
         builder.Entity<LookupItem>()
             .HasOne(l => l.Parent)
@@ -109,16 +134,57 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasIndex(a => new { a.Provider, a.ProviderAccountId })
             .IsUnique();
 
+        // JobCardMedia composite key
+        builder.Entity<JobCardMedia>()
+            .HasKey(jm => new { jm.JobCardId, jm.MediaId });
+
+        builder.Entity<JobCardMedia>()
+            .HasOne(jm => jm.JobCard)
+            .WithMany(j => j.Media)
+            .HasForeignKey(jm => jm.JobCardId);
+
+        builder.Entity<JobCardMedia>()
+            .HasOne(jm => jm.Media)
+            .WithMany()
+            .HasForeignKey(jm => jm.MediaId);
+
+        // JobItemMedia composite key
+        builder.Entity<JobItemMedia>()
+            .HasKey(jim => new { jim.JobItemId, jim.MediaId });
+
+        builder.Entity<JobItemMedia>()
+            .HasOne(jim => jim.JobItem)
+            .WithMany(ji => ji.Media)
+            .HasForeignKey(jim => jim.JobItemId);
+
+        builder.Entity<JobItemMedia>()
+            .HasOne(jim => jim.Media)
+            .WithMany()
+            .HasForeignKey(jim => jim.MediaId);
+
+        // JobCard -> AssignedTechnician relationship
+        builder.Entity<JobCard>()
+            .HasOne(j => j.AssignedTechnician)
+            .WithMany()
+            .HasForeignKey(j => j.AssignedTechnicianId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // JobItem -> AssignedTechnician relationship
+        builder.Entity<JobItem>()
+            .HasOne(ji => ji.AssignedTechnician)
+            .WithMany()
+            .HasForeignKey(ji => ji.AssignedTechnicianId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         // Global Query Filters for Multi-Tenancy
-        if (organizationId.HasValue)
-        {
-            builder.Entity<Customer>().HasQueryFilter(c => c.OrganizationId == organizationId.Value);
-            builder.Entity<Car>().HasQueryFilter(c => c.OrganizationId == organizationId.Value);
-            builder.Entity<GarageSession>().HasQueryFilter(s => s.OrganizationId == organizationId.Value);
-            builder.Entity<JobCard>().HasQueryFilter(j => j.OrganizationId == organizationId.Value);
-            builder.Entity<ApplicationUser>().HasQueryFilter(u => u.OrganizationId == organizationId.Value);
-            builder.Entity<UserInvite>().HasQueryFilter(i => i.OrganizationId == organizationId.Value);
-        }
+        // IMPORTANT: Use _tenantService.OrganizationId directly in the lambda expression
+        // so it's evaluated at query time, not at model creation time
+        builder.Entity<Customer>().HasQueryFilter(c => c.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<Car>().HasQueryFilter(c => c.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<GarageSession>().HasQueryFilter(s => s.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<JobCard>().HasQueryFilter(j => j.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<ApplicationUser>().HasQueryFilter(u => u.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<UserInvite>().HasQueryFilter(i => i.OrganizationId == _tenantService.OrganizationId);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -155,15 +221,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             }
         }
 
-        // Detach Customer entities that are unchanged to avoid concurrency conflicts with triggers
-        // Triggers update denormalized fields (TotalCars, TotalVisits, etc.) which can cause concurrency issues
-        foreach (var entry in ChangeTracker.Entries<Customer>())
-        {
-            if (entry.State == EntityState.Unchanged)
-            {
-                entry.State = EntityState.Detached;
-            }
-        }
+        // NOTE: Removed customer detachment as it was causing related entities (like Cars) to also be detached
+        // Database triggers handle the denormalized fields update without EF tracking conflicts
+        // foreach (var entry in ChangeTracker.Entries<Customer>())
+        // {
+        //     if (entry.State == EntityState.Unchanged)
+        //     {
+        //         entry.State = EntityState.Detached;
+        //     }
+        // }
 
         return base.SaveChangesAsync(cancellationToken);
     }

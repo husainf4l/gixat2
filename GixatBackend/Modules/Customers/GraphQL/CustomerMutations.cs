@@ -2,6 +2,7 @@ using GixatBackend.Data;
 using GixatBackend.Modules.Customers.Models;
 using GixatBackend.Modules.Common.Models;
 using GixatBackend.Modules.Common.Services;
+using GixatBackend.Modules.Common.Exceptions;
 using GixatBackend.Modules.Customers.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
@@ -75,10 +76,15 @@ internal static class CustomerMutations
         ArgumentNullException.ThrowIfNull(context);
 
         // Verify customer belongs to the same organization (Global Filter handles this)
-        var customer = await context.Customers.FindAsync(input.CustomerId).ConfigureAwait(false);
+        // Use AsNoTracking to avoid customer being detached during SaveChanges
+        var customer = await context.Customers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == input.CustomerId)
+            .ConfigureAwait(false);
+            
         if (customer == null)
         {
-            throw new InvalidOperationException("Customer not found in your organization");
+            throw new EntityNotFoundException("Customer", input.CustomerId);
         }
 
         var car = new Car
@@ -94,6 +100,7 @@ internal static class CustomerMutations
 
         context.Cars.Add(car);
         await context.SaveChangesAsync().ConfigureAwait(false);
+        
         return car;
     }
 

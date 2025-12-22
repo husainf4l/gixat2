@@ -2,6 +2,7 @@ using GixatBackend.Modules.Common.Models;
 using GixatBackend.Modules.Organizations.Models;
 using GixatBackend.Modules.Sessions.Models;
 using GixatBackend.Modules.JobCards.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
 namespace GixatBackend.Modules.Customers.Models;
@@ -10,9 +11,22 @@ namespace GixatBackend.Modules.Customers.Models;
 public sealed class Customer : IMustHaveOrganization
 {
     public Guid Id { get; set; } = Guid.NewGuid();
+    
+    [Required]
+    [MaxLength(100)]
     public string FirstName { get; set; } = string.Empty;
+    
+    [Required]
+    [MaxLength(100)]
     public string LastName { get; set; } = string.Empty;
+    
+    [EmailAddress]
+    [MaxLength(256)]
     public string? Email { get; set; }
+    
+    [Required]
+    [Phone]
+    [MaxLength(20)]
     public string PhoneNumber { get; set; } = string.Empty;
     
     public Guid? AddressId { get; set; }

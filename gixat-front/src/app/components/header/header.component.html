@@ -1,0 +1,123 @@
+<header class="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/60">
+  <div class="max-w-[1920px] mx-auto px-6 py-4">
+    <div class="flex items-center justify-between gap-6">
+      
+      <!-- Page Title -->
+      <div class="flex-shrink-0">
+        <h1 class="text-2xl font-semibold text-slate-900 tracking-tight">{{ pageTitle() }}</h1>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="flex-1 max-w-xl">
+        <div class="relative group">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+            <i class="ri-search-line text-slate-400 text-base group-focus-within:text-[#1b75bc] transition-colors"></i>
+          </div>
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="searchQuery.set($event)"
+            (keyup.enter)="onSearch()"
+            placeholder="Search anything..."
+            class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200/60 rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc]/40 text-sm text-slate-900 placeholder:text-slate-400 transition-all"
+          />
+          @if (searchQuery()) {
+            <button
+              (click)="searchQuery.set('')"
+              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <i class="ri-close-line text-base"></i>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Right Section: Notifications & User Menu -->
+      <div class="flex items-center gap-3">
+        
+        <!-- Notifications Button -->
+        <button class="relative p-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all">
+          <i class="ri-notification-line text-xl"></i>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+        </button>
+
+        <!-- User Menu -->
+        <div class="relative">
+          <button
+            (click)="toggleUserMenu()"
+            class="flex items-center gap-3 pl-3 pr-2 py-2 hover:bg-slate-50 rounded-xl transition-all group"
+          >
+            <div class="hidden sm:block text-right">
+              <p class="text-sm font-medium text-slate-900 group-hover:text-[#1b75bc] transition-colors">{{ userName() }}</p>
+              <p class="text-xs text-slate-500">{{ userEmail() }}</p>
+            </div>
+            <div class="relative">
+              <div class="w-10 h-10 bg-gradient-to-br from-[#1b75bc] to-[#155a92] rounded-full flex items-center justify-center text-white font-medium text-sm ring-2 ring-white shadow-sm">
+                {{ userInitials() }}
+              </div>
+              <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full ring-2 ring-white"></span>
+            </div>
+          </button>
+
+          <!-- Dropdown Menu -->
+          @if (showUserMenu()) {
+            <div class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-slate-200/60 overflow-hidden animate-fadeIn">
+              <!-- User Info -->
+              <div class="p-4 border-b border-slate-100 bg-slate-50/50">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 bg-gradient-to-br from-[#1b75bc] to-[#155a92] rounded-full flex items-center justify-center text-white font-medium">
+                    {{ userInitials() }}
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-slate-900 truncate">{{ userName() }}</p>
+                    <p class="text-xs text-slate-500 truncate">{{ userEmail() }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Menu Items -->
+              <div class="p-2">
+                <button
+                  (click)="navigateToProfile()"
+                  class="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-all group"
+                >
+                  <i class="ri-user-line text-base text-slate-400 group-hover:text-[#1b75bc] transition-colors"></i>
+                  <span class="group-hover:text-slate-900">Profile Settings</span>
+                </button>
+                
+                <button class="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-all group">
+                  <i class="ri-settings-3-line text-base text-slate-400 group-hover:text-[#1b75bc] transition-colors"></i>
+                  <span class="group-hover:text-slate-900">Preferences</span>
+                </button>
+                
+                <button class="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-all group">
+                  <i class="ri-question-line text-base text-slate-400 group-hover:text-[#1b75bc] transition-colors"></i>
+                  <span class="group-hover:text-slate-900">Help & Support</span>
+                </button>
+              </div>
+
+              <!-- Logout -->
+              <div class="p-2 border-t border-slate-100">
+                <button
+                  (click)="logout()"
+                  class="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-all group"
+                >
+                  <i class="ri-logout-box-line text-base"></i>
+                  <span class="font-medium">Sign Out</span>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Backdrop for closing dropdown -->
+@if (showUserMenu()) {
+  <div 
+    class="fixed inset-0 z-20" 
+    (click)="closeUserMenu()"
+  ></div>
+}
