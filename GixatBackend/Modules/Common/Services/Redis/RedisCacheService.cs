@@ -1,7 +1,7 @@
 using StackExchange.Redis;
 using System.Text.Json;
 
-namespace GixatBackend.Modules.Common.Services;
+namespace GixatBackend.Modules.Common.Services.Redis;
 
 internal sealed class RedisCacheService : IRedisCacheService
 {

@@ -5,12 +5,15 @@ using GixatBackend.Data;
 using GixatBackend.Modules.Users.GraphQL;
 using GixatBackend.Modules.Organizations.GraphQL;
 using GixatBackend.Modules.Common.GraphQL;
-using GixatBackend.Modules.Lookup.GraphQL;
+using GixatBackend.Modules.Common.Lookup.GraphQL;
 using GixatBackend.Modules.Sessions.GraphQL;
 using GixatBackend.Modules.JobCards.GraphQL;
 using GixatBackend.Modules.Customers.GraphQL;
 using GixatBackend.Modules.Invites.GraphQL;
 using GixatBackend.Modules.Common.Services;
+using GixatBackend.Modules.Common.Services.AWS;
+using GixatBackend.Modules.Common.Services.Tenant;
+using GixatBackend.Modules.Common.Services.Redis;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -27,18 +30,33 @@ using System.Runtime.CompilerServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load .env file
-DotNetEnv.Env.Load();
+// Load .env file only if it exists and doesn't contain multi-line values
+var envPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), ".env");
+if (File.Exists(envPath))
+{
+    try
+    {
+        DotNetEnv.Env.Load();
+    }
+    catch (Exception ex) when (ex is FormatException || ex is ArgumentException)
+    {
+        // Skip .env if it has parsing issues (e.g., multi-line values)
+    }
+}
 
 // Add services to the container.
 var connectionString = $"Host={Environment.GetEnvironmentVariable("DB_SERVER")};Port=5432;Database={Environment.GetEnvironmentVariable("DB_DATABASE")};Username={Environment.GetEnvironmentVariable("DB_USER")};Password={Environment.GetEnvironmentVariable("DB_PASSWORD")};";
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<GixatBackend.Modules.Customers.Services.CustomerExportService>();
+builder.Services.AddScoped<GixatBackend.Modules.Customers.Services.CustomerActivityDataLoader>();
+builder.Services.AddScoped<IVirusScanService, ClamAvScanService>();
+builder.Services.AddScoped<IImageCompressionService, ImageCompressionService>();
 
 // AWS Configuration
 var awsOptions = builder.Configuration.GetAWSOptions();
@@ -50,10 +68,21 @@ builder.Services.AddDefaultAWSOptions(awsOptions);
 builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddScoped<IS3Service, S3Service>();
 
-// Redis Configuration
+// Redis Configuration (optional for local development)
 var redisConnectionString = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ?? "localhost:6379";
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
-builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
+try
+{
+    var redis = await ConnectionMultiplexer.ConnectAsync(redisConnectionString + ",abortConnect=false").ConfigureAwait(false);
+    builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
+    builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
+}
+catch (Exception ex) when (ex is StackExchange.Redis.RedisConnectionException || ex is TimeoutException)
+{
+    // Redis not available - skip cache service
+    using var loggerFactory = LoggerFactory.Create(b => b.AddConsole());
+    var logger = loggerFactory.CreateLogger("Startup");
+    Log.LogRedisWarning(logger, ex);
+}
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -129,14 +158,15 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        policy.WithOrigins("http://localhost:4200", "http://localhost:3002", "https://gixat.com", "https://www.gixat.com")
               .SetIsOriginAllowed(origin => 
               {
                   var host = new Uri(origin).Host;
                   return host == "localhost" || host == "127.0.0.1" || 
                          host.StartsWith("192.168.", StringComparison.Ordinal) || 
                          host.StartsWith("10.", StringComparison.Ordinal) || 
-                         host.StartsWith("172.", StringComparison.Ordinal);
+                         host.StartsWith("172.", StringComparison.Ordinal) ||
+                         host == "gixat.com" || host == "www.gixat.com" || host.EndsWith(".gixat.com", StringComparison.Ordinal);
               })
               .AllowAnyHeader()
               .AllowAnyMethod()
@@ -152,14 +182,16 @@ builder.Services
         .AddType(typeof(UserExtensions))
         .AddType(typeof(OrganizationQueries))
         .AddType(typeof(LookupQueries))
-        .AddType(typeof(SessionQueries))
+        .AddTypeExtension(typeof(SessionQueries))
         .AddType(typeof(JobCardQueries))
         .AddType(typeof(CustomerQueries))
+        .AddType(typeof(CustomerExtensions))
         .AddType(typeof(InviteQueries))
     .AddMutationType()
         .AddType(typeof(AuthMutations))
         .AddType(typeof(OrganizationMutations))
         .AddType(typeof(MediaMutations))
+        .AddTypeExtension(typeof(PresignedUploadMutations))
         .AddType(typeof(LookupMutations))
         .AddType(typeof(SessionMutations))
         .AddType(typeof(JobCardMutations))
@@ -176,7 +208,9 @@ builder.Services
         options.MaxPageSize = 100;
         options.IncludeTotalCount = true;
     })
-    .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = builder.Environment.IsDevelopment())
+    .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
+    .AddMaxExecutionDepthRule(10)
+    .ModifyCostOptions(options => options.MaxFieldCost = 10000)
     .AddAuthorization();
 
 builder.Services.AddOpenApi();
@@ -217,8 +251,15 @@ app.MapGraphQL();
 
 await app.RunAsync().ConfigureAwait(false);
 
+// LoggerMessage delegates for performance
 internal static partial class ProgramLogMessages
 {
     [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while seeding the database.")]
     public static partial void LogSeedingError(ILogger logger, Exception ex);
+}
+
+internal static partial class Log
+{
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Redis connection failed. Cache service will not be available.")]
+    public static partial void LogRedisWarning(ILogger logger, Exception ex);
 }

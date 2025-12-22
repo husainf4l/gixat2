@@ -136,7 +136,7 @@ internal sealed class AuthService : IAuthService
         var privateKeyPem = _configuration["Jwt:PrivateKey"] 
             ?? throw new InvalidOperationException("Jwt:PrivateKey is not configured.");
         
-        using var rsa = RSA.Create();
+        var rsa = RSA.Create();
         rsa.ImportFromPem(privateKeyPem);
         
         var key = new RsaSecurityKey(rsa);
@@ -151,6 +151,8 @@ internal sealed class AuthService : IAuthService
             signingCredentials: creds
         );
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+        rsa.Dispose();
+        return tokenString;
     }
 }

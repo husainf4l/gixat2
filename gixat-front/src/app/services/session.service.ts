@@ -24,8 +24,25 @@ export interface SessionLog {
   id: string;
   fromStatus: string;
   toStatus: string;
-  notes?: string | null;
+  notes?: string;
   createdAt: string;
+}
+
+export interface AppMedia {
+  id: string;
+  url: string;
+  alt?: string | null;
+  type?: string | null;
+  createdAt?: string;
+}
+
+export interface SessionMedia {
+  id: string;
+  stage: string;
+  media: AppMedia;
+  createdAt?: string;
+  isPending?: boolean;
+  status?: 'uploading' | 'success' | 'error';
 }
 
 export interface Session {
@@ -38,11 +55,15 @@ export interface Session {
   car: SessionCar | null;
   // Workflow steps
   intakeNotes?: string | null;
+  intakeRequests?: string | null;
   customerRequests?: string | null;
   inspectionNotes?: string | null;
+  inspectionRequests?: string | null;
   testDriveNotes?: string | null;
+  testDriveRequests?: string | null;
   initialReport?: string | null;
   logs: SessionLog[];
+  media?: SessionMedia[];
 }
 
 export interface SessionsConnection {
@@ -97,9 +118,12 @@ const GET_SESSION_BY_ID_QUERY = gql`
       status
       createdAt
       intakeNotes
+      intakeRequests
       customerRequests
       inspectionNotes
+      inspectionRequests
       testDriveNotes
+      testDriveRequests
       initialReport
       car {
         id
@@ -124,16 +148,29 @@ const GET_SESSION_BY_ID_QUERY = gql`
         notes
         createdAt
       }
+      media {
+        id
+        stage
+        media {
+          id
+          url
+          alt
+          type
+          createdAt
+        }
+        createdAt
+      }
     }
   }
 `;
 
 const UPDATE_INTAKE_MUTATION = gql`
-  mutation UpdateIntake($sessionId: UUID!, $intakeNotes: String) {
-    updateIntake(sessionId: $sessionId, intakeNotes: $intakeNotes) {
+  mutation UpdateIntake($sessionId: UUID!, $intakeNotes: String, $intakeRequests: String) {
+    updateIntake(sessionId: $sessionId, intakeNotes: $intakeNotes, intakeRequests: $intakeRequests) {
       id
       status
       intakeNotes
+      intakeRequests
     }
   }
 `;
@@ -149,21 +186,23 @@ const UPDATE_CUSTOMER_REQUESTS_MUTATION = gql`
 `;
 
 const UPDATE_INSPECTION_MUTATION = gql`
-  mutation UpdateInspection($sessionId: UUID!, $inspectionNotes: String) {
-    updateInspection(sessionId: $sessionId, inspectionNotes: $inspectionNotes) {
+  mutation UpdateInspection($sessionId: UUID!, $inspectionNotes: String, $inspectionRequests: String) {
+    updateInspection(sessionId: $sessionId, inspectionNotes: $inspectionNotes, inspectionRequests: $inspectionRequests) {
       id
       status
       inspectionNotes
+      inspectionRequests
     }
   }
 `;
 
 const UPDATE_TEST_DRIVE_MUTATION = gql`
-  mutation UpdateTestDrive($sessionId: UUID!, $testDriveNotes: String) {
-    updateTestDrive(sessionId: $sessionId, testDriveNotes: $testDriveNotes) {
+  mutation UpdateTestDrive($sessionId: UUID!, $testDriveNotes: String, $testDriveRequests: String) {
+    updateTestDrive(sessionId: $sessionId, testDriveNotes: $testDriveNotes, testDriveRequests: $testDriveRequests) {
       id
       status
       testDriveNotes
+      testDriveRequests
     }
   }
 `;
@@ -188,18 +227,22 @@ const CREATE_JOB_CARD_MUTATION = gql`
 `;
 
 const UPLOAD_MEDIA_TO_SESSION_MUTATION = gql`
-  mutation UploadMediaToSession($sessionId: UUID!, $file: Upload!, $stage: String, $alt: String) {
+  mutation UploadMediaToSession($sessionId: UUID!, $file: Upload!, $stage: SessionStage!, $alt: String) {
     uploadMediaToSession(sessionId: $sessionId, file: $file, stage: $stage, alt: $alt) {
       id
-      url
-      alt
+      stage
+      media {
+        id
+        url
+        alt
+      }
     }
   }
 `;
 
 const GET_PRESIGNED_URL_MUTATION = gql`
-  mutation PresignedUploadUrl($fileName: String!, $contentType: String!) {
-    presignedUploadUrl(fileName: $fileName, contentType: $contentType) {
+  mutation PresignedUploadUrl($sessionId: UUID!, $stage: SessionStage!, $files: [SessionFileUploadRequestInput!]!) {
+    presignedUploadUrl(sessionId: $sessionId, stage: $stage, files: $files) {
       uploadUrl
       fileKey
     }
@@ -212,6 +255,25 @@ const PROCESS_UPLOADED_FILE_MUTATION = gql`
       id
       url
       alt
+    }
+  }
+`;
+
+const PROCESS_BULK_SESSION_UPLOADS_MUTATION = gql`
+  mutation ProcessBulkSessionUploads($sessionId: UUID!, $files: [BulkSessionFileUploadRequestInput!]!) {
+    processBulkSessionUploads(sessionId: $sessionId, files: $files) {
+      fileKey
+      success
+      sessionMedia {
+        id
+        stage
+        media {
+          id
+          url
+          alt
+        }
+      }
+      errorMessage
     }
   }
 `;
@@ -260,7 +322,7 @@ export class SessionService {
     );
   }
 
-  updateSessionStep(sessionId: string, stepId: string, notes: string): Observable<Session> {
+  updateSessionStep(sessionId: string, stepId: string, notes: string, requests?: string): Observable<Session> {
     let mutation;
     let variables: any = { sessionId };
     
@@ -269,18 +331,22 @@ export class SessionService {
       case 'intake':
         mutation = UPDATE_INTAKE_MUTATION;
         variables.intakeNotes = notes;
+        variables.intakeRequests = requests;
         break;
       case 'customerRequests':
         mutation = UPDATE_CUSTOMER_REQUESTS_MUTATION;
-        variables.customerRequests = notes;
+        // For customer requests, we use the requests parameter if provided, otherwise notes
+        variables.customerRequests = requests || notes;
         break;
       case 'inspection':
         mutation = UPDATE_INSPECTION_MUTATION;
         variables.inspectionNotes = notes;
+        variables.inspectionRequests = requests;
         break;
       case 'testDrive':
         mutation = UPDATE_TEST_DRIVE_MUTATION;
         variables.testDriveNotes = notes;
+        variables.testDriveRequests = requests;
         break;
       case 'initialReport':
         mutation = GENERATE_INITIAL_REPORT_MUTATION;
@@ -336,14 +402,18 @@ export class SessionService {
   }
 
   // Presigned URL flow - matches backend implementation
-  getPresignedUrl(filename: string, contentType: string): Observable<{ uploadUrl: string; fileKey: string }> {
-    return this.apollo.mutate<{ presignedUploadUrl: { uploadUrl: string; fileKey: string } }>({
+  getPresignedUrls(
+    sessionId: string, 
+    stage: string, 
+    files: { fileName: string; contentType: string }[]
+  ): Observable<{ uploadUrl: string; fileKey: string }[]> {
+    return this.apollo.mutate<{ presignedUploadUrl: { uploadUrl: string; fileKey: string }[] }>({
       mutation: GET_PRESIGNED_URL_MUTATION,
-      variables: { fileName: filename, contentType }
+      variables: { sessionId, stage, files }
     }).pipe(
       map(result => {
         if (!result.data?.presignedUploadUrl) {
-          throw new Error('Failed to get presigned URL');
+          throw new Error('Failed to get presigned URLs');
         }
         return result.data.presignedUploadUrl;
       }),
@@ -374,6 +444,23 @@ export class SessionService {
           throw new Error('Failed to process uploaded file');
         }
         return result.data.processUploadedFile;
+      }),
+    );
+  }
+
+  processBulkSessionUploads(
+    sessionId: string, 
+    files: { fileKey: string; stage: string; alt?: string }[]
+  ): Observable<{ fileKey: string; success: boolean; sessionMedia?: SessionMedia; errorMessage?: string }[]> {
+    return this.apollo.mutate<{ processBulkSessionUploads: { fileKey: string; success: boolean; sessionMedia?: SessionMedia; errorMessage?: string }[] }>({
+      mutation: PROCESS_BULK_SESSION_UPLOADS_MUTATION,
+      variables: { sessionId, files }
+    }).pipe(
+      map(result => {
+        if (!result.data?.processBulkSessionUploads) {
+          throw new Error('Failed to process bulk session uploads');
+        }
+        return result.data.processBulkSessionUploads;
       }),
     );
   }

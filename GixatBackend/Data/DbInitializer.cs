@@ -1,4 +1,4 @@
-using GixatBackend.Modules.Lookup.Models;
+using GixatBackend.Modules.Common.Lookup.Models;
 using GixatBackend.Modules.Organizations.Models;
 using GixatBackend.Modules.Customers.Models;
 using Microsoft.EntityFrameworkCore;

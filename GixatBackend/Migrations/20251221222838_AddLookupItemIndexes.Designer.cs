@@ -3,6 +3,7 @@ using System;
 using GixatBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GixatBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251221222838_AddLookupItemIndexes")]
+    partial class AddLookupItemIndexes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,41 +24,6 @@ namespace GixatBackend.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("GixatBackend.Modules.Common.Lookup.Models.LookupItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Metadata")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("ParentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId", "IsActive");
-
-                    b.HasIndex("Category", "IsActive", "ParentId");
-
-                    b.ToTable("LookupItems");
-                });
 
             modelBuilder.Entity("GixatBackend.Modules.Common.Models.Address", b =>
                 {
@@ -326,6 +294,41 @@ namespace GixatBackend.Migrations
                     b.ToTable("JobItems");
                 });
 
+            modelBuilder.Entity("GixatBackend.Modules.Lookup.Models.LookupItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId", "IsActive");
+
+                    b.HasIndex("Category", "IsActive", "ParentId");
+
+                    b.ToTable("LookupItems");
+                });
+
             modelBuilder.Entity("GixatBackend.Modules.Organizations.Models.Organization", b =>
                 {
                     b.Property<Guid>("Id")
@@ -381,13 +384,7 @@ namespace GixatBackend.Migrations
                     b.Property<string>("InspectionNotes")
                         .HasColumnType("text");
 
-                    b.Property<string>("InspectionRequests")
-                        .HasColumnType("text");
-
                     b.Property<string>("IntakeNotes")
-                        .HasColumnType("text");
-
-                    b.Property<string>("IntakeRequests")
                         .HasColumnType("text");
 
                     b.Property<Guid>("OrganizationId")
@@ -397,9 +394,6 @@ namespace GixatBackend.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("TestDriveNotes")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TestDriveRequests")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -742,16 +736,6 @@ namespace GixatBackend.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("GixatBackend.Modules.Common.Lookup.Models.LookupItem", b =>
-                {
-                    b.HasOne("GixatBackend.Modules.Common.Lookup.Models.LookupItem", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Parent");
-                });
-
             modelBuilder.Entity("GixatBackend.Modules.Customers.Models.Car", b =>
                 {
                     b.HasOne("GixatBackend.Modules.Customers.Models.Customer", "Customer")
@@ -847,6 +831,16 @@ namespace GixatBackend.Migrations
                         .IsRequired();
 
                     b.Navigation("JobCard");
+                });
+
+            modelBuilder.Entity("GixatBackend.Modules.Lookup.Models.LookupItem", b =>
+                {
+                    b.HasOne("GixatBackend.Modules.Lookup.Models.LookupItem", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("GixatBackend.Modules.Organizations.Models.Organization", b =>
@@ -992,11 +986,6 @@ namespace GixatBackend.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("GixatBackend.Modules.Common.Lookup.Models.LookupItem", b =>
-                {
-                    b.Navigation("Children");
-                });
-
             modelBuilder.Entity("GixatBackend.Modules.Customers.Models.Customer", b =>
                 {
                     b.Navigation("Cars");
@@ -1009,6 +998,11 @@ namespace GixatBackend.Migrations
             modelBuilder.Entity("GixatBackend.Modules.JobCards.Models.JobCard", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("GixatBackend.Modules.Lookup.Models.LookupItem", b =>
+                {
+                    b.Navigation("Children");
                 });
 
             modelBuilder.Entity("GixatBackend.Modules.Organizations.Models.Organization", b =>

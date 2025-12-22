@@ -1,6 +1,7 @@
 using GixatBackend.Modules.Organizations.Models;
 using GixatBackend.Modules.Common.Models;
 using GixatBackend.Modules.Common.Services;
+using GixatBackend.Modules.Common.Services.Tenant;
 using GixatBackend.Data;
 using System.Diagnostics.CodeAnalysis;
 using HotChocolate.Authorization;

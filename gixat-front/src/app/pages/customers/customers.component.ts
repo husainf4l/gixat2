@@ -131,6 +131,7 @@ export class CustomersComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load statistics:', err);
+        this.errorMessage.set('Failed to load dashboard statistics. Please check backend logs.');
       }
     });
   }

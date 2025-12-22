@@ -2,8 +2,9 @@ using GixatBackend.Modules.Users.Models;
 using GixatBackend.Modules.Organizations.Models;
 using GixatBackend.Modules.Common.Models;
 using GixatBackend.Modules.Common.Services;
+using GixatBackend.Modules.Common.Services.Tenant;
 using GixatBackend.Modules.Customers.Models;
-using GixatBackend.Modules.Lookup.Models;
+using GixatBackend.Modules.Common.Lookup.Models;
 using GixatBackend.Modules.Sessions.Models;
 using GixatBackend.Modules.JobCards.Models;
 using GixatBackend.Modules.Invites.Models;
@@ -14,8 +15,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace GixatBackend.Data;
 
-[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated by DI")]
-internal sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+[SuppressMessage("Performance", "CA1515:Consider making public types internal", Justification = "Required for EF Core and testing")]
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
     private readonly ITenantService _tenantService;
 
@@ -66,6 +67,13 @@ internal sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(l => l.Children)
             .HasForeignKey(l => l.ParentId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Add indexes for fast filtering on LookupItems
+        builder.Entity<LookupItem>()
+            .HasIndex(l => new { l.Category, l.IsActive, l.ParentId });
+
+        builder.Entity<LookupItem>()
+            .HasIndex(l => new { l.ParentId, l.IsActive });
 
         builder.Entity<GarageSession>()
             .HasMany(s => s.Media)

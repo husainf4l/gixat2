@@ -1,5 +1,7 @@
 using GixatBackend.Modules.Common.Models;
 using GixatBackend.Modules.Organizations.Models;
+using GixatBackend.Modules.Sessions.Models;
+using GixatBackend.Modules.JobCards.Models;
 using System.Diagnostics.CodeAnalysis;
 
 namespace GixatBackend.Modules.Customers.Models;
@@ -20,6 +22,8 @@ public sealed class Customer : IMustHaveOrganization
     public Organization? Organization { get; set; }
     
     public ICollection<Car> Cars { get; } = new List<Car>();
+    public ICollection<GarageSession> Sessions { get; } = new List<GarageSession>();
+    public ICollection<JobCard> JobCards { get; } = new List<JobCard>();
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

@@ -1,6 +1,7 @@
 using FluentAssertions;
 using GixatBackend.Data;
 using GixatBackend.Modules.Common.Services;
+using GixatBackend.Modules.Common.Services.Tenant;
 using GixatBackend.Modules.Users.Enums;
 using GixatBackend.Modules.Users.Models;
 using GixatBackend.Modules.Users.Services;

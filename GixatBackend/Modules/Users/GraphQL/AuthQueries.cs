@@ -14,12 +14,10 @@ internal static class AuthQueries
 {
     public static async Task<ApplicationUser?> GetMeAsync(
         ClaimsPrincipal claimsPrincipal,
-        [Service] ApplicationDbContext context,
-        [Service] IRedisCacheService cache)
+        [Service] ApplicationDbContext context)
     {
         ArgumentNullException.ThrowIfNull(claimsPrincipal);
         ArgumentNullException.ThrowIfNull(context);
-        ArgumentNullException.ThrowIfNull(cache);
 
         var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
@@ -27,27 +25,12 @@ internal static class AuthQueries
             return null;
         }
 
-        // Try to get from cache first
-        var cacheKey = $"user:{userId}";
-        var cachedUser = await cache.GetAsync<ApplicationUser>(cacheKey).ConfigureAwait(false);
-        
-        if (cachedUser != null)
-        {
-            return cachedUser;
-        }
-
-        // If not in cache, get from database
+        // Query is fast with indexed userId, no need for caching
         var user = await context.Users
             .AsNoTracking()
             .Include(u => u.Organization)
             .FirstOrDefaultAsync(u => u.Id == userId)
             .ConfigureAwait(false);
-
-        // Cache for 5 minutes
-        if (user != null)
-        {
-            await cache.SetAsync(cacheKey, user, TimeSpan.FromMinutes(5)).ConfigureAwait(false);
-        }
 
         return user;
     }

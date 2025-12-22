@@ -1,9 +1,9 @@
 using GixatBackend.Data;
-using GixatBackend.Modules.Lookup.Models;
+using GixatBackend.Modules.Common.Lookup.Models;
 using System.Diagnostics.CodeAnalysis;
 using HotChocolate.Authorization;
 
-namespace GixatBackend.Modules.Lookup.GraphQL;
+namespace GixatBackend.Modules.Common.Lookup.GraphQL;
 
 [SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Required to be public for HotChocolate type discovery")]
 public sealed record CreateLookupItemInput(

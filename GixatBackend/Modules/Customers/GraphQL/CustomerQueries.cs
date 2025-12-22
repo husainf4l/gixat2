@@ -11,13 +11,12 @@ namespace GixatBackend.Modules.Customers.GraphQL;
 internal static class CustomerQueries
 {
     [UsePaging]
-    [UseProjection]
-    [UseFiltering]
+    [UseFiltering(typeof(CustomerFilterType))]
     [UseSorting]
     public static IQueryable<Customer> GetCustomers(ApplicationDbContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
-        return context.Customers;
+        return context.Customers.Include(c => c.Cars).Include(c => c.Address);
     }
 
     [UsePaging]
@@ -69,5 +68,40 @@ internal static class CustomerQueries
         return await context.Cars
             .Include(c => c.Customer)
             .FirstOrDefaultAsync(c => c.Id == id).ConfigureAwait(false);
+    }
+
+    // Customer statistics
+    public static async Task<CustomerStatistics> GetCustomerStatisticsAsync(ApplicationDbContext context, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        var now = DateTime.UtcNow;
+        var startOfMonth = new DateTime(now.Year, now.Month, 1);
+
+        var totalCustomers = await context.Customers.CountAsync(cancellationToken).ConfigureAwait(false);
+        var customersThisMonth = await context.Customers
+            .CountAsync(c => c.CreatedAt >= startOfMonth, cancellationToken)
+            .ConfigureAwait(false);
+
+        var activeCustomers = await context.Customers
+            .Where(c => c.Sessions.Any(s => s.CreatedAt >= now.AddMonths(-3)))
+            .CountAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        // Handle case where there are no completed job cards (returns 0 instead of null)
+        var completedJobCards = await context.JobCards
+            .Where(j => j.Status == GixatBackend.Modules.JobCards.Models.JobCardStatus.Completed)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var totalRevenue = completedJobCards.Sum(j => j.TotalActualCost);
+
+        return new CustomerStatistics
+        {
+            TotalCustomers = totalCustomers,
+            CustomersThisMonth = customersThisMonth,
+            ActiveCustomers = activeCustomers,
+            TotalRevenue = totalRevenue
+        };
     }
 }

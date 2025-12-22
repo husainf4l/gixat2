@@ -5,17 +5,20 @@ using HotChocolate.Authorization;
 
 namespace GixatBackend.Modules.Sessions.GraphQL;
 
-[ExtendObjectType(OperationTypeNames.Query)]
+[ExtendObjectType("Query")]
 [Authorize]
 internal static class SessionQueries
 {
-    [UseProjection]
+    [UsePaging(DefaultPageSize = 50, MaxPageSize = 100, IncludeTotalCount = true)]
     [UseFiltering]
     [UseSorting]
     public static IQueryable<GarageSession> GetSessions(ApplicationDbContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
-        return context.GarageSessions;
+        return context.GarageSessions
+            .Include(s => s.Car)
+            .Include(s => s.Customer)
+            .OrderByDescending(s => s.CreatedAt);
     }
 
     public static async Task<GarageSession?> GetSessionByIdAsync(Guid id, ApplicationDbContext context)

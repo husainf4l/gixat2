@@ -2,6 +2,7 @@ using GixatBackend.Data;
 using GixatBackend.Modules.Customers.Models;
 using GixatBackend.Modules.Common.Models;
 using GixatBackend.Modules.Common.Services;
+using GixatBackend.Modules.Customers.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 using HotChocolate.Authorization;
@@ -94,5 +95,18 @@ internal static class CustomerMutations
         context.Cars.Add(car);
         await context.SaveChangesAsync().ConfigureAwait(false);
         return car;
+    }
+
+    // Export customers to CSV
+    public static async Task<string> ExportCustomersToCsvAsync(
+        [Service] CustomerExportService exportService,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(exportService);
+
+        var csvBytes = await exportService.ExportCustomersToCsvAsync(cancellationToken).ConfigureAwait(false);
+        var base64 = Convert.ToBase64String(csvBytes);
+        
+        return base64; // Return base64 encoded CSV that frontend can download
     }
 }

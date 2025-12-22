@@ -2,8 +2,9 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { SessionService, Session } from '../../../services/session.service';
+import { SessionService, Session, SessionMedia } from '../../../services/session.service';
 import { catchError, of } from 'rxjs';
+import imageCompression from 'browser-image-compression';
 
 interface WorkflowStep {
   id: string;
@@ -11,7 +12,17 @@ interface WorkflowStep {
   description: string;
   completed: boolean;
   notes: string | null | undefined;
+  requests?: string | null | undefined;
   icon: string;
+}
+
+interface PendingUpload {
+  id: string;
+  file: File;
+  previewUrl: string;
+  stage: string;
+  status: 'uploading' | 'success' | 'error';
+  errorMessage?: string;
 }
 
 @Component({
@@ -33,11 +44,12 @@ export class SessionDetailComponent implements OnInit {
   showStepModal = signal<boolean>(false);
   selectedStep = signal<WorkflowStep | null>(null);
   stepNotes = signal<string>('');
+  stepRequests = signal<string[]>([]);
   isSavingStep = signal<boolean>(false);
   
   // Media upload
-  isUploadingMedia = signal<boolean>(false);
   selectedStage = signal<string>('intake');
+  pendingUploads = signal<PendingUpload[]>([]);
 
   ngOnInit() {
     const sessionId = this.route.snapshot.paramMap.get('id');
@@ -97,6 +109,7 @@ export class SessionDetailComponent implements OnInit {
         description: 'Vehicle received',
         completed: !!session.intakeNotes,
         notes: session.intakeNotes,
+        requests: session.intakeRequests,
         icon: 'ri-login-box-line'
       },
       {
@@ -104,7 +117,8 @@ export class SessionDetailComponent implements OnInit {
         title: 'Customer Requests',
         description: 'Customer concerns documented',
         completed: !!session.customerRequests,
-        notes: session.customerRequests,
+        notes: '',
+        requests: session.customerRequests,
         icon: 'ri-user-voice-line'
       },
       {
@@ -113,6 +127,7 @@ export class SessionDetailComponent implements OnInit {
         description: 'Vehicle inspection performed',
         completed: !!session.inspectionNotes,
         notes: session.inspectionNotes,
+        requests: session.inspectionRequests,
         icon: 'ri-search-eye-line'
       },
       {
@@ -121,6 +136,7 @@ export class SessionDetailComponent implements OnInit {
         description: 'Test drive completed',
         completed: !!session.testDriveNotes,
         notes: session.testDriveNotes,
+        requests: session.testDriveRequests,
         icon: 'ri-steering-2-line'
       },
       {
@@ -146,6 +162,19 @@ export class SessionDetailComponent implements OnInit {
       .join(' ');
   }
 
+  getProgress(): number {
+    const steps = this.getWorkflowSteps();
+    if (steps.length === 0) return 0;
+    const completedSteps = steps.filter(s => s.completed).length;
+    return (completedSteps / steps.length) * 100;
+  }
+
+  copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      // Optional: Show a toast or feedback
+    });
+  }
+
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     const now = new Date();
@@ -165,13 +194,94 @@ export class SessionDetailComponent implements OnInit {
   openStepModal(step: WorkflowStep) {
     this.selectedStep.set(step);
     this.stepNotes.set(step.notes || '');
+    
+    // Split requests by newline if they exist, otherwise start with one empty request if it's a request-enabled step
+    const requestsStr = step.requests || '';
+    const requestsArray = requestsStr ? requestsStr.split('\n').filter(r => r.trim()) : [];
+    this.stepRequests.set(requestsArray.length > 0 ? requestsArray : ['']);
+    
     this.showStepModal.set(true);
+
+    // Trigger auto-resize for all textareas after modal opens
+    setTimeout(() => {
+      const textareas = document.querySelectorAll('.request-input');
+      textareas.forEach((textarea: any) => {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      });
+    }, 100);
   }
 
   closeStepModal() {
     this.showStepModal.set(false);
     this.selectedStep.set(null);
     this.stepNotes.set('');
+    this.stepRequests.set([]);
+  }
+
+  addRequest(index?: number) {
+    this.stepRequests.update(reqs => {
+      const newReqs = [...reqs];
+      if (index !== undefined) {
+        newReqs.splice(index + 1, 0, '');
+      } else {
+        newReqs.push('');
+      }
+      return newReqs;
+    });
+
+    // Focus the new request in the next tick
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('.request-input');
+      const targetIndex = index !== undefined ? index + 1 : this.stepRequests().length - 1;
+      (inputs[targetIndex] as HTMLElement)?.focus();
+    }, 0);
+  }
+
+  handleRequestKeydown(event: KeyboardEvent, index: number) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.addRequest(index);
+    } else if (event.key === 'Backspace' && !this.stepRequests()[index] && this.stepRequests().length > 1) {
+      event.preventDefault();
+      this.removeRequest(index);
+      
+      // Focus previous input
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('.request-input');
+        (inputs[Math.max(0, index - 1)] as HTMLElement)?.focus();
+      }, 0);
+    }
+  }
+
+  removeRequest(index: number) {
+    this.stepRequests.update(reqs => {
+      const newReqs = [...reqs];
+      newReqs.splice(index, 1);
+      return newReqs.length > 0 ? newReqs : [''];
+    });
+  }
+
+  updateRequest(index: number, value: string) {
+    this.stepRequests.update(reqs => {
+      const newReqs = [...reqs];
+      newReqs[index] = value;
+      return newReqs;
+    });
+    
+    // Auto-resize the textarea
+    setTimeout(() => {
+      const textareas = document.querySelectorAll('.request-input');
+      const textarea = textareas[index] as HTMLElement;
+      if (textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      }
+    }, 0);
+  }
+
+  hasValidRequests(): boolean {
+    return this.stepRequests().some(r => r.trim().length > 0);
   }
 
   async saveStepNotes() {
@@ -182,11 +292,17 @@ export class SessionDetailComponent implements OnInit {
     this.isSavingStep.set(true);
     
     try {
+      // Join requests with newlines, filtering out empty ones
+      const requestsStr = this.stepRequests()
+        .filter(r => r.trim())
+        .join('\n');
+
       // Call the update mutation based on step id
       await this.sessionService.updateSessionStep(
         session.id, 
         step.id, 
-        this.stepNotes()
+        this.stepNotes(),
+        requestsStr
       ).toPromise();
 
       // Reload session data
@@ -224,52 +340,195 @@ export class SessionDetailComponent implements OnInit {
     const session = this.sessionDetail();
     if (!session) return;
 
-    const file = files[0];
+    // Convert FileList to Array
+    const fileArray = Array.from(files);
 
-    // Security validations
-    const validationError = this.validateFile(file);
-    if (validationError) {
-      alert(validationError);
-      input.value = '';
-      return;
+    // Validate all files first
+    for (const file of fileArray) {
+      const validationError = this.validateFile(file);
+      if (validationError) {
+        alert(`${file.name}: ${validationError}`);
+        input.value = '';
+        return;
+      }
     }
 
-    this.isUploadingMedia.set(true);
     this.selectedStage.set(stage);
 
+    // Create local previews and add to pending immediately for best UX
+    const newPending: PendingUpload[] = fileArray.map(file => ({
+      id: Math.random().toString(36).substring(7),
+      file,
+      previewUrl: URL.createObjectURL(file),
+      stage,
+      status: 'uploading'
+    }));
+
+    this.pendingUploads.update(prev => [...prev, ...newPending]);
+    input.value = ''; // Reset input immediately
+
+    // Start background compression and upload
+    this.processAndUpload(session.id, stage, newPending);
+  }
+
+  private async processAndUpload(sessionId: string, stage: string, pendingItems: PendingUpload[]) {
     try {
-      // Step 1: Get presigned URL from backend (no sessionId needed)
-      const presignedData = await this.sessionService.getPresignedUrl(
-        file.name,
-        file.type
+      // Step 1: Compress files (especially images)
+      const processedItems = await Promise.all(pendingItems.map(async (item) => {
+        if (this.isImage(item.file.name)) {
+          try {
+            const options = {
+              maxSizeMB: 1,
+              maxWidthOrHeight: 1920,
+              useWebWorker: true
+            };
+            const compressedFile = await imageCompression(item.file, options);
+            // Keep the original name but use the compressed blob
+            const finalFile = new File([compressedFile], item.file.name, { type: compressedFile.type });
+            return { ...item, file: finalFile };
+          } catch (e) {
+            console.warn('Image compression failed, using original:', e);
+            return item;
+          }
+        }
+        // For videos, we currently don't compress browser-side as it's too heavy
+        // but we could add logic here if needed in the future
+        return item;
+      }));
+
+      const fileRequests = processedItems.map(item => ({
+        fileName: item.file.name,
+        contentType: item.file.type
+      }));
+
+      const presignedUrls = await this.sessionService.getPresignedUrls(
+        sessionId,
+        this.getBackendStage(stage),
+        fileRequests
       ).toPromise();
 
-      if (!presignedData) {
-        throw new Error('Failed to get presigned URL');
+      if (!presignedUrls || presignedUrls.length !== processedItems.length) {
+        throw new Error('Failed to get presigned URLs');
       }
 
-      const { uploadUrl, fileKey } = presignedData;
+      // Upload all files to S3 in parallel
+      const uploadPromises = processedItems.map((item, index) => {
+        const presignedData = presignedUrls[index];
+        return this.sessionService.uploadToS3(presignedData.uploadUrl, item.file);
+      });
 
-      // Step 2: Upload directly to S3
-      await this.sessionService.uploadToS3(uploadUrl, file);
+      await Promise.all(uploadPromises);
 
-      // Step 3: Process the uploaded file (backend downloads, scans, compresses)
-      await this.sessionService.processUploadedFile(
-        fileKey,
-        `${stage} - ${file.name}`
+      // Process all uploaded files with session context
+      const processRequests = presignedUrls.map((presignedData, index) => ({
+        fileKey: presignedData.fileKey,
+        stage: this.getBackendStage(stage),
+        alt: `${stage} - ${processedItems[index].file.name}`
+      }));
+
+      const result = await this.sessionService.processBulkSessionUploads(
+        sessionId,
+        processRequests
       ).toPromise();
 
-      // Reload session to show new media
-      this.loadSessionDetail(session.id);
-      alert('Media uploaded successfully! Processing in background...');
+      if (result) {
+        const failures = result.filter(r => !r.success);
+        if (failures.length > 0) {
+          console.error('Some files failed to process:', failures);
+        }
+      }
+
+      // Update status to success and then remove after a delay
+      this.pendingUploads.update(prev => 
+        prev.map(p => pendingItems.find(item => item.id === p.id) ? { ...p, status: 'success' } : p)
+      );
+
+      // Reload session to show real media
+      this.loadSessionDetail(sessionId);
+
+      // Clean up pending items after a short delay
+      setTimeout(() => {
+        this.pendingUploads.update(prev => 
+          prev.filter(p => !pendingItems.find(item => item.id === p.id))
+        );
+        // Revoke object URLs
+        pendingItems.forEach(item => URL.revokeObjectURL(item.previewUrl));
+      }, 2000);
+
     } catch (error) {
-      console.error('Failed to upload media:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to upload media';
-      alert(`Upload failed: ${errorMessage}`);
-    } finally {
-      this.isUploadingMedia.set(false);
-      input.value = ''; // Reset input
+      console.error('Background upload failed:', error);
+      this.pendingUploads.update(prev => 
+        prev.map(p => pendingItems.find(item => item.id === p.id) 
+          ? { ...p, status: 'error', errorMessage: error instanceof Error ? error.message : 'Upload failed' } 
+          : p
+        )
+      );
     }
+  }
+
+  private getBackendStage(stage: string): string {
+    const stageMap: { [key: string]: string } = {
+      'intake': 'INTAKE',
+      'customerRequests': 'GENERAL',
+      'inspection': 'INSPECTION',
+      'testDrive': 'TEST_DRIVE',
+      'initialReport': 'GENERAL'
+    };
+    return stageMap[stage] || stage.toUpperCase();
+  }
+
+  getMediaByStage(stage: string): SessionMedia[] {
+    const session = this.sessionDetail();
+    const backendStage = this.getBackendStage(stage);
+    
+    const uploadedMedia = session?.media?.filter(m => m.stage?.toUpperCase() === backendStage) || [];
+    const pendingMedia = this.pendingUploads().filter(p => p.stage === stage);
+    
+    return [
+      ...pendingMedia.map(p => ({
+        id: p.id,
+        stage: p.stage,
+        isPending: true,
+        status: p.status,
+        media: { id: p.id, url: p.previewUrl, alt: p.file.name }
+      })),
+      ...uploadedMedia
+    ];
+  }
+
+  getAllMedia(): SessionMedia[] {
+    const session = this.sessionDetail();
+    const uploadedMedia = session?.media || [];
+    const pendingMedia = this.pendingUploads();
+    
+    return [
+      ...pendingMedia.map(p => ({
+        id: p.id,
+        stage: p.stage,
+        isPending: true,
+        status: p.status,
+        media: { id: p.id, url: p.previewUrl, alt: p.file.name }
+      })),
+      ...uploadedMedia
+    ];
+  }
+
+  isImage(url: string): boolean {
+    if (!url) return false;
+    // Handle URLs with query parameters (like S3 presigned URLs)
+    const cleanUrl = url.split('?')[0];
+    return /\.(jpg|jpeg|png|gif|webp|heic)$/i.test(cleanUrl);
+  }
+
+  isVideo(url: string): boolean {
+    if (!url) return false;
+    // Handle URLs with query parameters
+    const cleanUrl = url.split('?')[0];
+    return /\.(mp4|mov|avi|webm)$/i.test(cleanUrl);
+  }
+
+  openMedia(url: string) {
+    window.open(url, '_blank');
   }
 
   private validateFile(file: File): string | null {

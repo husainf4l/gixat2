@@ -1,6 +1,7 @@
 using GixatBackend.Modules.Organizations.Models;
 using GixatBackend.Data;
 using GixatBackend.Modules.Common.Services;
+using GixatBackend.Modules.Common.Services.Tenant;
 using Microsoft.EntityFrameworkCore;
 using HotChocolate.Authorization;
 

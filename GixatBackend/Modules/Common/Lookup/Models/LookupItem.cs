@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace GixatBackend.Modules.Lookup.Models;
+namespace GixatBackend.Modules.Common.Lookup.Models;
 
 [SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Required to be public for HotChocolate type discovery")]
 public sealed class LookupItem

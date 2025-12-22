@@ -1,0 +1,19 @@
+{
+  "CORSRules": [
+    {
+      "AllowedHeaders": ["*"],
+      "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
+      "AllowedOrigins": [
+        "http://localhost:4200",
+        "http://localhost:3000",
+        "http://localhost:3002",
+        "https://gixat.com",
+        "https://www.gixat.com",
+        "https://*.gixat.com",
+        "https://next.aqlaan.com"
+      ],
+      "ExposeHeaders": ["ETag", "x-amz-request-id"],
+      "MaxAgeSeconds": 3600
+    }
+  ]
+}
