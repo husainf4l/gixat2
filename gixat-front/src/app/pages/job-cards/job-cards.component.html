@@ -1,151 +1,104 @@
-<div class="min-h-screen bg-slate-50">
-  <div class="max-w-7xl mx-auto px-8 py-8">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+  <div class="max-w-7xl mx-auto px-6 py-12">
     <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-slate-900 mb-2">Job Cards</h1>
-      <p class="text-sm text-slate-600">Manage and track all job cards</p>
-    </div>
+    <div class="mb-12">
+      <h1 class="text-4xl font-semibold text-slate-900 tracking-tight mb-2">Job Cards</h1>
+      <p class="text-base text-slate-500 mb-8">Track and manage service operations</p>
 
     <!-- Search and Filters Bar -->
-    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 mb-6">
-      <div class="flex items-center gap-4">
-        <!-- Search Input -->
-        <div class="flex-1 relative">
-          <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-          <input
-            type="text"
-            [(ngModel)]="searchQuery"
-            (ngModelChange)="searchQuery.set($event)"
-            placeholder="Search by job number, customer, or vehicle..."
-            class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent transition-all"
-          />
+    <div class="flex items-center gap-3 mb-6">
+      <div class="relative flex-1">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <i class="ri-search-line text-slate-400"></i>
         </div>
-
-        <!-- Filter Button -->
-        <button
-          (click)="toggleFilters()"
-          [class.bg-[#1b75bc]]="showFilters()"
-          [class.text-white]="showFilters()"
-          [class.bg-slate-100]="!showFilters()"
-          [class.text-slate-700]="!showFilters()"
-          class="px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 hover:shadow-sm"
-        >
-          <i class="ri-filter-3-line"></i>
-          <span>Filters</span>
-          @if (statusFilter() !== 'all') {
-            <span class="w-2 h-2 rounded-full bg-white"></span>
-          }
-        </button>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="searchQuery.set($event); onSearch()"
+          placeholder="Search job cards..."
+          class="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent text-sm text-slate-900 placeholder:text-slate-400 transition-all"
+        />
       </div>
+      <button
+        (click)="toggleFilters()"
+        class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-all"
+        [class.border-[#1b75bc]]="showFilters()"
+        [class.bg-blue-50]="showFilters()"
+        [class.border-slate-200]="!showFilters()"
+      >
+        <i class="ri-filter-3-line"></i>
+        <span>Filters</span>
+        @if (statusFilter() !== 'ALL') {
+          <span class="flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-[#1b75bc] opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-[#1b75bc]"></span>
+          </span>
+        }
+      </button>
+    </div>
 
-      <!-- Filter Panel -->
-      @if (showFilters()) {
-        <div class="mt-4 pt-4 border-t border-slate-100 animate-fadeIn">
+    <!-- Filters Panel -->
+    @if (showFilters()) {
+      <div class="mb-6 p-4 bg-white border border-slate-200 rounded-lg">
+        <div class="flex items-center gap-4">
+          <span class="text-xs font-medium text-slate-600">Status</span>
           <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status:</span>
             <button
-              (click)="setStatusFilter('all')"
-              [class.bg-[#1b75bc]]="statusFilter() === 'all'"
-              [class.text-white]="statusFilter() === 'all'"
-              [class.bg-slate-100]="statusFilter() !== 'all'"
-              [class.text-slate-700]="statusFilter() !== 'all'"
-              class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm"
+              (click)="setStatusFilter('ALL')"
+              class="px-3 py-1.5 text-xs font-medium rounded-md transition-all"
+              [class.bg-[#1b75bc]]="statusFilter() === 'ALL'"
+              [class.text-white]="statusFilter() === 'ALL'"
+              [class.bg-slate-100]="statusFilter() !== 'ALL'"
+              [class.text-slate-700]="statusFilter() !== 'ALL'"
+              [class.hover:bg-slate-200]="statusFilter() !== 'ALL'"
             >
               All
             </button>
-            <button
-              (click)="setStatusFilter('pending')"
-              [class.bg-[#1b75bc]]="statusFilter() === 'pending'"
-              [class.text-white]="statusFilter() === 'pending'"
-              [class.bg-slate-100]="statusFilter() !== 'pending'"
-              [class.text-slate-700]="statusFilter() !== 'pending'"
-              class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm"
-            >
-              Pending
-            </button>
-            <button
-              (click)="setStatusFilter('in-progress')"
-              [class.bg-[#1b75bc]]="statusFilter() === 'in-progress'"
-              [class.text-white]="statusFilter() === 'in-progress'"
-              [class.bg-slate-100]="statusFilter() !== 'in-progress'"
-              [class.text-slate-700]="statusFilter() !== 'in-progress'"
-              class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm"
-            >
-              In Progress
-            </button>
-            <button
-              (click)="setStatusFilter('completed')"
-              [class.bg-[#1b75bc]]="statusFilter() === 'completed'"
-              [class.text-white]="statusFilter() === 'completed'"
-              [class.bg-slate-100]="statusFilter() !== 'completed'"
-              [class.text-slate-700]="statusFilter() !== 'completed'"
-              class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm"
-            >
-              Completed
-            </button>
-            <button
-              (click)="setStatusFilter('cancelled')"
-              [class.bg-[#1b75bc]]="statusFilter() === 'cancelled'"
-              [class.text-white]="statusFilter() === 'cancelled'"
-              [class.bg-slate-100]="statusFilter() !== 'cancelled'"
-              [class.text-slate-700]="statusFilter() !== 'cancelled'"
-              class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm"
-            >
-              Cancelled
-            </button>
+            @for (status of jobCardStatuses; track status) {
+              <button
+                (click)="setStatusFilter(status)"
+                class="px-3 py-1.5 text-xs font-medium rounded-md transition-all capitalize"
+                [class.bg-[#1b75bc]]="statusFilter() === status"
+                [class.text-white]="statusFilter() === status"
+                [class.bg-slate-100]="statusFilter() !== status"
+                [class.text-slate-700]="statusFilter() !== status"
+                [class.hover:bg-slate-200]="statusFilter() !== status"
+              >
+                {{ formatStatus(status) }}
+              </button>
+            }
           </div>
         </div>
-      }
-    </div>
+      </div>
+    }
 
     <!-- Job Cards Table -->
     @if (!isLoading()) {
       @if (jobCards().length > 0) {
-        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           <!-- Table Header -->
-          <div class="border-b border-slate-200 bg-slate-50/50 px-8 py-4">
-            <div class="flex items-center gap-6">
-              <div class="flex-1 grid grid-cols-6 gap-6">
-                <button
-                  (click)="toggleSort('jobNumber')"
-                  class="text-xs font-semibold text-slate-500 uppercase tracking-wider text-left flex items-center gap-1.5 hover:text-[#1b75bc] transition-colors"
-                >
-                  Job Number
-                  @if (sortField() === 'jobNumber') {
-                    <i class="text-sm" [class.ri-arrow-up-s-line]="sortDirection() === 'asc'" [class.ri-arrow-down-s-line]="sortDirection() === 'desc'"></i>
-                  }
-                </button>
-                <button
-                  (click)="toggleSort('customerName')"
-                  class="text-xs font-semibold text-slate-500 uppercase tracking-wider text-left flex items-center gap-1.5 hover:text-[#1b75bc] transition-colors"
-                >
-                  Customer
-                  @if (sortField() === 'customerName') {
-                    <i class="text-sm" [class.ri-arrow-up-s-line]="sortDirection() === 'asc'" [class.ri-arrow-down-s-line]="sortDirection() === 'desc'"></i>
-                  }
-                </button>
-                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Vehicle</div>
-                <button
-                  (click)="toggleSort('status')"
-                  class="text-xs font-semibold text-slate-500 uppercase tracking-wider text-left flex items-center gap-1.5 hover:text-[#1b75bc] transition-colors"
-                >
-                  Status
-                  @if (sortField() === 'status') {
-                    <i class="text-sm" [class.ri-arrow-up-s-line]="sortDirection() === 'asc'" [class.ri-arrow-down-s-line]="sortDirection() === 'desc'"></i>
-                  }
-                </button>
-                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Cost</div>
-                <button
-                  (click)="toggleSort('createdAt')"
-                  class="text-xs font-semibold text-slate-500 uppercase tracking-wider text-left flex items-center gap-1.5 hover:text-[#1b75bc] transition-colors"
-                >
-                  Created
-                  @if (sortField() === 'createdAt') {
-                    <i class="text-sm" [class.ri-arrow-up-s-line]="sortDirection() === 'asc'" [class.ri-arrow-down-s-line]="sortDirection() === 'desc'"></i>
-                  }
-                </button>
-              </div>
-              <div class="w-6"></div>
+          <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-3">
+            <div class="grid grid-cols-12 gap-4">
+              <button (click)="toggleSort('id')" class="col-span-2 text-xs font-medium text-slate-600 text-left flex items-center gap-1.5 hover:text-slate-900 transition-colors">
+                ID
+                @if (sortField() === 'id') {
+                  <i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line text-sm' : 'ri-arrow-down-s-line text-sm'"></i>
+                }
+              </button>
+              <button (click)="toggleSort('customerName')" class="col-span-3 text-xs font-medium text-slate-600 text-left flex items-center gap-1.5 hover:text-slate-900 transition-colors">
+                Customer
+                @if (sortField() === 'customerName') {
+                  <i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line text-sm' : 'ri-arrow-down-s-line text-sm'"></i>
+                }
+              </button>
+              <div class="col-span-2 text-xs font-medium text-slate-600">Vehicle</div>
+              <button (click)="toggleSort('status')" class="col-span-2 text-xs font-medium text-slate-600 text-left flex items-center gap-1.5 hover:text-slate-900 transition-colors">
+                Status
+                @if (sortField() === 'status') {
+                  <i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line text-sm' : 'ri-arrow-down-s-line text-sm'"></i>
+                }
+              </button>
+              <div class="col-span-3 text-xs font-medium text-slate-600 text-right">Estimate</div>
             </div>
           </div>
 
@@ -154,73 +107,67 @@
             @for (jobCard of jobCards(); track jobCard.id) {
               <button
                 (click)="viewJobCard(jobCard.id)"
-                class="w-full px-8 py-5 flex items-center gap-6 hover:bg-slate-50/50 active:bg-slate-100/50 transition-all text-left group"
+                class="w-full px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-slate-50/50 transition-all text-left group"
               >
-                <!-- Info Grid -->
-                <div class="flex-1 grid grid-cols-6 gap-6 min-w-0">
-                  <!-- Job Number -->
-                  <div class="min-w-0">
-                    <p class="text-sm font-semibold text-slate-900">{{ jobCard.jobNumber }}</p>
-                  </div>
+                <!-- ID -->
+                <div class="col-span-2">
+                  <p class="text-sm font-medium text-slate-900 group-hover:text-[#1b75bc] transition-colors truncate">#{{ jobCard.id.split('-')[0] }}</p>
+                  @if (jobCard.assignedTechnician?.fullName) {
+                    <p class="text-xs text-slate-500 truncate mt-0.5">{{ jobCard.assignedTechnician?.fullName }}</p>
+                  }
+                </div>
 
-                  <!-- Customer -->
-                  <div class="min-w-0">
-                    <p class="text-sm text-slate-900 truncate">{{ jobCard.customerName }}</p>
-                  </div>
-
-                  <!-- Vehicle -->
-                  <div class="min-w-0">
-                    <p class="text-sm text-slate-600 truncate flex items-center gap-2">
-                      <i class="ri-car-line text-slate-400"></i>
-                      {{ jobCard.vehicle }}
-                    </p>
-                  </div>
-
-                  <!-- Status -->
-                  <div class="min-w-0">
-                    <span [class]="'inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-xs font-semibold w-fit ' + getStatusColor(jobCard.status)">
-                      {{ formatStatus(jobCard.status) }}
-                    </span>
-                  </div>
-
-                  <!-- Total Cost -->
-                  <div class="min-w-0">
-                    @if (jobCard.totalCost) {
-                      <p class="text-sm text-slate-900 font-semibold">{{ formatCurrency(jobCard.totalCost) }}</p>
+                <!-- Customer -->
+                <div class="col-span-3">
+                  <p class="text-sm font-medium text-slate-900 truncate">{{ jobCard.customer?.firstName }} {{ jobCard.customer?.lastName }}</p>
+                  <div class="mt-1 flex items-center gap-2">
+                    @if (jobCard.isApprovedByCustomer) {
+                      <span class="text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Approved</span>
                     } @else {
-                      <p class="text-sm text-slate-400">—</p>
+                      <span class="text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Pending</span>
                     }
-                  </div>
-
-                  <!-- Created Date -->
-                  <div class="min-w-0">
-                    <p class="text-sm text-slate-900 font-medium">{{ formatDate(jobCard.createdAt) }}</p>
                   </div>
                 </div>
 
-                <!-- Arrow -->
-                <div class="flex-shrink-0">
-                  <i class="ri-arrow-right-s-line text-slate-300 text-xl group-hover:text-[#1b75bc] group-hover:translate-x-1 transition-all"></i>
+                <!-- Vehicle -->
+                <div class="col-span-2">
+                  <p class="text-sm text-slate-600 truncate">{{ jobCard.car?.make }} {{ jobCard.car?.model }}</p>
+                  @if (jobCard.car?.licensePlate) {
+                    <p class="text-xs text-slate-500 mt-0.5">{{ jobCard.car?.licensePlate }}</p>
+                  }
+                </div>
+
+                <!-- Status -->
+                <div class="col-span-2">
+                  <span [class]="'px-2.5 py-1 rounded-md text-xs font-medium border ' + getStatusColor(jobCard.status)">
+                    {{ formatStatus(jobCard.status) }}
+                  </span>
+                </div>
+
+                <!-- Estimate -->
+                <div class="col-span-3 flex items-center justify-end gap-2">
+                  <div class="text-right">
+                    <p class="text-xs text-slate-500">Estimated</p>
+                    <p class="text-sm font-semibold text-slate-900">{{ formatCurrency(jobCard.totalEstimatedCost || 0) }}</p>
+                  </div>
+                  <i class="ri-arrow-right-s-line text-slate-400 text-xl group-hover:text-[#1b75bc] group-hover:translate-x-0.5 transition-all"></i>
                 </div>
               </button>
             }
           </div>
         </div>
       } @else {
-        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-12 text-center">
-          <div class="w-16 h-16 mx-auto mb-4 bg-slate-50 rounded-2xl flex items-center justify-center">
-            <i class="ri-file-list-3-line text-3xl text-slate-300"></i>
+        <div class="bg-white border border-slate-200 rounded-xl p-16 text-center">
+          <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="ri-file-list-line text-3xl text-slate-400"></i>
           </div>
-          <p class="text-sm font-bold text-slate-900 mb-1">No job cards found</p>
-          <p class="text-xs text-slate-500">Job cards will appear here once created from sessions</p>
+          <h3 class="text-lg font-semibold text-slate-900 mb-2">No job cards found</h3>
+          <p class="text-sm text-slate-500">Job cards will appear here once sessions are completed</p>
         </div>
       }
     } @else {
-      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-12 text-center">
-        <div class="relative w-8 h-8 mx-auto mb-4">
-          <div class="absolute inset-0 rounded-full border-2 border-slate-100"></div>
-          <div class="absolute inset-0 rounded-full border-2 border-t-[#1b75bc] animate-spin"></div>
-        </div>
+      <div class="py-24 flex flex-col items-center justify-center">
+        <div class="w-8 h-8 border-2 border-slate-200 border-t-[#1b75bc] rounded-full animate-spin mb-4"></div>
         <p class="text-sm text-slate-500">Loading job cards...</p>
       </div>
     }

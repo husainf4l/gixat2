@@ -56,6 +56,7 @@ export class CustomersComponent implements OnInit {
   sortDirection = signal<SortDirection>('asc');
   statusFilter = signal<StatusFilter>('all');
   showFilters = signal<boolean>(false);
+  filterOptions: StatusFilter[] = ['active-job', 'recent', 'active', 'new', 'inactive'];
 
   private allCustomers = toSignal(
     this.searchSubject.pipe(
@@ -182,8 +183,10 @@ export class CustomersComponent implements OnInit {
 
   onCustomerCreated(customerData: { id: string; name: string }) {
     this.showAddModal.set(false);
-    // Refresh the list first
-    this.searchSubject.next(this.searchQuery());
+    // Give the backend a moment to process, then refresh
+    setTimeout(() => {
+      this.searchSubject.next(this.searchQuery());
+    }, 100);
     // Then open add car modal
     this.newCustomerId.set(customerData.id);
     this.newCustomerName.set(customerData.name);
@@ -200,8 +203,10 @@ export class CustomersComponent implements OnInit {
     this.showAddCarModal.set(false);
     this.newCustomerId.set(null);
     this.newCustomerName.set(null);
-    // Refresh the list
-    this.searchSubject.next(this.searchQuery());
+    // Refresh the list with a small delay
+    setTimeout(() => {
+      this.searchSubject.next(this.searchQuery());
+    }, 100);
   }
 
   onCreateSession(data: { carId: string; customerId: string }) {
@@ -212,8 +217,10 @@ export class CustomersComponent implements OnInit {
     // TODO: Implement session creation page
     console.log('Create session for car:', data.carId, 'customer:', data.customerId);
     alert('Session creation page will be implemented. CarID: ' + data.carId);
-    // Refresh the list
-    this.searchSubject.next(this.searchQuery());
+    // Refresh the list with a small delay
+    setTimeout(() => {
+      this.searchSubject.next(this.searchQuery());
+    }, 100);
   }
 
   toggleSort(field: SortField) {

@@ -152,7 +152,27 @@ export class AddCustomerModalComponent implements OnInit {
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        this.errorMessage.set(err instanceof Error ? err.message : 'Failed to create customer');
+        let errorMsg = 'Failed to create customer';
+        
+        // Handle specific GraphQL errors
+        if (err.graphQLErrors && err.graphQLErrors.length > 0) {
+          const gqlError = err.graphQLErrors[0];
+          if (gqlError.message.includes('duplicate') || gqlError.message.includes('unique')) {
+            if (gqlError.message.toLowerCase().includes('email')) {
+              errorMsg = 'This email address is already registered';
+            } else if (gqlError.message.toLowerCase().includes('phone')) {
+              errorMsg = 'This phone number is already registered';
+            } else {
+              errorMsg = 'A customer with this information already exists';
+            }
+          } else {
+            errorMsg = gqlError.message;
+          }
+        } else if (err instanceof Error) {
+          errorMsg = err.message;
+        }
+        
+        this.errorMessage.set(errorMsg);
       },
     });
   }

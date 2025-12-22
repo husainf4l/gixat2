@@ -117,8 +117,7 @@ export class CustomerDetail implements OnInit {
         // Show success message
         alert(`Session created successfully!\n\nSession ID: ${session.id}\nStatus: ${session.status}`);
         
-        // TODO: Navigate to session detail page once implemented
-        // this.router.navigate(['/dashboard/sessions', session.id]);
+        this.router.navigate(['/dashboard/sessions', session.id]);
       },
       error: (err) => {
         // Show error message
@@ -147,8 +146,7 @@ export class CustomerDetail implements OnInit {
         // Show success message
         alert(`Session created successfully!\n\nSession ID: ${session.id}\nStatus: ${session.status}`);
         
-        // TODO: Navigate to session detail page once implemented
-        // this.router.navigate(['/dashboard/sessions', session.id]);
+        this.router.navigate(['/dashboard/sessions', session.id]);
       },
       error: (err) => {
         // Show error message
@@ -169,10 +167,11 @@ export class CustomerDetail implements OnInit {
 
   getActiveSessionForCar(carId: string) {
     const sessions = this.customerDetail()?.sessions || [];
-    // Find active session (INTAKE or IN_PROGRESS status) for this car
+    // Find active session for this car
+    const activeStatuses = ['CUSTOMER_REQUEST', 'CUSTOMERREQUEST', 'INSPECTION', 'TESTDRIVE', 'TEST_DRIVE', 'REPORTGENERATED', 'REPORT_GENERATED'];
     return sessions.find(s => 
       s.carId === carId && 
-      (s.status === 'INTAKE' || s.status === 'IN_PROGRESS' || s.status === 'Intake' || s.status === 'InProgress')
+      activeStatuses.includes(s.status.toUpperCase())
     );
   }
 
@@ -185,5 +184,13 @@ export class CustomerDetail implements OnInit {
     if (activeSession) {
       this.router.navigate(['/dashboard/sessions', activeSession.id]);
     }
+  }
+
+  navigateToSessionById(sessionId: string) {
+    this.router.navigate(['/dashboard/sessions', sessionId]);
+  }
+
+  navigateToVehicle(vehicleId: string) {
+    this.router.navigate(['/dashboard/vehicles', vehicleId]);
   }
 }

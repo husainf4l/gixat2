@@ -1,0 +1,323 @@
+<div class="min-h-screen bg-[#fbfbfd]">
+  <div class="max-w-7xl mx-auto px-8 py-10">
+    <!-- Navigation Header -->
+    <div class="flex items-center justify-between mb-10">
+      <div class="flex items-center gap-6">
+        <button
+          routerLink="/dashboard/job-cards"
+          class="inline-flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest hover:text-[#1b75bc] transition-all group"
+        >
+          <div class="w-8 h-8 rounded-full bg-white border border-slate-200/60 group-hover:border-[#1b75bc]/30 flex items-center justify-center transition-all shadow-sm">
+            <i class="ri-arrow-left-line text-lg"></i>
+          </div>
+          <span>Back to Pipeline</span>
+        </button>
+        
+        <div class="h-6 w-px bg-slate-200"></div>
+
+        @if (jobCard()?.isApprovedByCustomer) {
+          <span class="px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-widest rounded-full border border-emerald-100 flex items-center gap-2">
+            <i class="ri-checkbox-circle-fill text-sm"></i>
+            Client Approved
+          </span>
+        } @else {
+          <span class="px-4 py-1.5 bg-amber-50 text-amber-600 text-[9px] font-black uppercase tracking-widest rounded-full border border-amber-100 flex items-center gap-2">
+            <i class="ri-time-fill text-sm"></i>
+            Awaiting Client Approval
+          </span>
+        }
+      </div>
+
+      @if (jobCard()) {
+        <div class="flex items-center gap-3">
+          @if (!jobCard()?.isApprovedByCustomer) {
+            <button
+              (click)="approveJobCard()"
+              class="px-6 py-2.5 bg-emerald-500 text-white text-[11px] font-black uppercase tracking-widest rounded-full hover:bg-emerald-600 active:scale-95 transition-all shadow-lg shadow-emerald-100 flex items-center gap-2"
+            >
+              <i class="ri-check-double-line text-lg font-bold"></i>
+              Approve Production
+            </button>
+          }
+          <div class="relative group">
+            <select
+              [ngModel]="jobCard()?.status"
+              (ngModelChange)="updateJobCardStatus($event)"
+              class="appearance-none pl-6 pr-12 py-2.5 bg-slate-900 border border-slate-800 rounded-full text-[11px] font-black text-white focus:ring-4 focus:ring-slate-200/20 outline-none cursor-pointer hover:bg-black transition-all uppercase tracking-widest"
+            >
+              @for (status of jobCardStatuses; track status) {
+                <option [value]="status">{{ formatStatus(status) }}</option>
+              }
+            </select>
+            <i class="ri-arrow-down-s-line absolute right-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none group-hover:text-white transition-colors"></i>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="py-32 flex flex-col items-center justify-center">
+        <div class="w-10 h-10 border-2 border-slate-100 border-t-[#1b75bc] rounded-full animate-spin mb-4"></div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Synchronizing Production State</p>
+      </div>
+    }
+
+    <!-- Detail View -->
+    @if (!isLoading() && jobCard(); as jc) {
+      <div class="grid grid-cols-12 gap-10">
+        <!-- Main Column -->
+        <div class="col-span-8 space-y-10">
+          
+          <!-- Summary Banner -->
+          <div class="p-8 bg-white border border-slate-200/60 rounded-[2.5rem] shadow-sm flex items-center justify-between">
+            <div class="flex items-center gap-6">
+              <div class="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[#1b75bc] shadow-inner">
+                <i class="ri-file-list-3-fill text-3xl opacity-40"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span [class]="'px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border ' + getStatusColor(jc.status)">
+                    {{ formatStatus(jc.status) }}
+                  </span>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cycle ID #{{ jc.id.slice(0,8) }}</span>
+                </div>
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Production Items</h2>
+              </div>
+            </div>
+            <button
+              (click)="openAddItemModal()"
+              class="px-6 py-2.5 bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest rounded-full hover:bg-black active:scale-95 transition-all shadow-lg shadow-slate-200 flex items-center gap-2"
+            >
+              <i class="ri-add-line text-lg font-bold"></i>
+              Add protocol
+            </button>
+          </div>
+
+          <!-- Job Items List -->
+          <div class="space-y-6">
+            @for (item of jc.items; track item.id) {
+              <div class="group bg-white border border-slate-200/60 rounded-[2rem] overflow-hidden hover:border-[#1b75bc]/30 transition-all duration-500 shadow-sm">
+                <div class="p-8">
+                  <div class="flex items-start justify-between mb-8">
+                    <div class="flex-1">
+                      <div class="flex items-center gap-3 mb-2">
+                        <span [class]="'px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest border ' + getStatusColor(item.status)">
+                          {{ formatStatus(item.status) }}
+                        </span>
+                        <h3 class="text-lg font-black text-slate-900 tracking-tight">{{ item.description }}</h3>
+                      </div>
+                      
+                      <div class="flex items-center gap-4">
+                        @if (item.assignedTechnician) {
+                          <div (click)="openAssignTechModal('item', item.id, item.assignedTechnicianId)" class="flex items-center gap-2 cursor-pointer">
+                            <div class="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center text-[10px] font-black text-[#1b75bc]">
+                              {{ item.assignedTechnician.fullName[0] }}
+                            </div>
+                            <span class="text-[11px] font-bold text-slate-500 hover:text-[#1b75bc] transition-colors">{{ item.assignedTechnician.fullName }}</span>
+                          </div>
+                        } @else {
+                          <button (click)="openAssignTechModal('item', item.id)" class="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-dashed border-slate-200 hover:text-[#1b75bc] hover:border-[#1b75bc]">Assign Staff</button>
+                        }
+                        <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Protocol initialized {{ formatDate(item.createdAt) }}</span>
+                      </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                      <label class="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#1b75bc] hover:bg-blue-50 transition-all cursor-pointer shadow-sm">
+                        <i class="ri-camera-fill text-lg"></i>
+                        <input type="file" class="hidden" (change)="onMediaUpload($event, item.id)" accept="image/*,video/*">
+                      </label>
+                      <button (click)="openUpdateItemModal(item)" class="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#1b75bc] hover:bg-blue-50 transition-all shadow-sm">
+                        <i class="ri-edit-2-fill text-lg"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Item Stats -->
+                  <div class="grid grid-cols-4 gap-4 mb-8">
+                    <div class="p-5 bg-[#fbfbfd] border border-slate-100 rounded-2xl">
+                      <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Est. Labor</p>
+                      <p class="text-sm font-black text-slate-900 tracking-tight">{{ formatCurrency(item.estimatedLaborCost) }}</p>
+                    </div>
+                    <div class="p-5 bg-[#fbfbfd] border border-slate-100 rounded-2xl">
+                      <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Est. Parts</p>
+                      <p class="text-sm font-black text-slate-900 tracking-tight">{{ formatCurrency(item.estimatedPartsCost) }}</p>
+                    </div>
+                    <div class="p-5 bg-emerald-50/30 border border-emerald-100/50 rounded-2xl">
+                      <p class="text-[9px] font-black text-emerald-500/70 uppercase tracking-widest mb-1.5">Final Labor</p>
+                      <p class="text-sm font-black text-emerald-600 tracking-tight">{{ formatCurrency(item.actualLaborCost || 0) }}</p>
+                    </div>
+                    <div class="p-5 bg-emerald-50/30 border border-emerald-100/50 rounded-2xl">
+                      <p class="text-[9px] font-black text-emerald-500/70 uppercase tracking-widest mb-1.5">Final Parts</p>
+                      <p class="text-sm font-black text-emerald-600 tracking-tight">{{ formatCurrency(item.actualPartsCost || 0) }}</p>
+                    </div>
+                  </div>
+
+                  <!-- Observations & Media -->
+                  <div class="space-y-6">
+                    @if (item.technicianNotes) {
+                      <div class="p-5 bg-blue-50/20 border border-blue-100/50 rounded-2xl">
+                        <p class="text-[9px] font-black text-[#1b75bc] uppercase tracking-widest mb-2">Technician Observations</p>
+                        <p class="text-xs text-slate-600 leading-relaxed font-medium italic">"{{ item.technicianNotes }}"</p>
+                      </div>
+                    }
+
+                    @if (item.media && item.media.length > 0) {
+                      <div class="flex flex-wrap gap-2">
+                        @for (m of item.media; track m.id) {
+                          <div (click)="openMedia(m.media.url)" class="relative w-14 h-14 rounded-xl overflow-hidden border border-slate-200 cursor-pointer hover:scale-105 transition-all shadow-xs">
+                            <img [src]="m.media.url" class="w-full h-full object-cover">
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Internal Audit Trail -->
+          <div class="bg-white border border-slate-200/60 rounded-[2.5rem] overflow-hidden shadow-sm">
+            <div class="p-8 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3">
+              <i class="ri-sticky-note-fill text-[#1b75bc] text-xl opacity-40"></i>
+              <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Internal Audit & Session Intelligence</h3>
+            </div>
+            <div class="p-10">
+              <pre class="text-sm text-slate-600 leading-relaxed font-medium whitespace-pre-wrap font-sans">{{ jc.internalNotes || 'Initial state protocol finalized.' }}</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Column -->
+        <div class="col-span-4 space-y-10">
+          
+          <!-- Financial Protocol -->
+          <div class="bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200">
+            <div class="p-8 border-b border-white/5">
+              <h3 class="text-[10px] font-black text-white/40 uppercase tracking-widest">Production Value Analysis</h3>
+            </div>
+            
+            <div class="p-8 space-y-8">
+              <!-- Estimated -->
+              <div>
+                <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-4">Initial Assessment</p>
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between text-xs font-bold text-slate-400">
+                    <span>Labor Base</span>
+                    <span>{{ formatCurrency(jc.totalEstimatedLabor) }}</span>
+                  </div>
+                  <div class="flex items-center justify-between text-xs font-bold text-slate-400">
+                    <span>Assets/Parts</span>
+                    <span>{{ formatCurrency(jc.totalEstimatedParts) }}</span>
+                  </div>
+                  <div class="flex items-center justify-between pt-3 border-t border-white/5 text-white">
+                    <span class="text-[10px] font-black uppercase tracking-widest opacity-60">Projected Total</span>
+                    <span class="text-lg font-black tracking-tighter">{{ formatCurrency(jc.totalEstimatedCost) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actual -->
+              <div class="p-6 bg-white/5 rounded-3xl border border-white/5">
+                <p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-4">Finalized Output</p>
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between text-xs font-bold text-white/60">
+                    <span>Realized Labor</span>
+                    <span>{{ formatCurrency(jc.totalActualLabor) }}</span>
+                  </div>
+                  <div class="flex items-center justify-between text-xs font-bold text-white/60">
+                    <span>Realized Assets</span>
+                    <span>{{ formatCurrency(jc.totalActualParts) }}</span>
+                  </div>
+                  <div class="flex items-center justify-between pt-3 border-t border-white/10 text-emerald-400">
+                    <span class="text-[10px] font-black uppercase tracking-widest opacity-80">Cycle Final Value</span>
+                    <span class="text-2xl font-black tracking-tighter">{{ formatCurrency(jc.totalActualCost) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Entity & Asset Link -->
+          <div class="bg-white border border-slate-200/60 rounded-[2.5rem] overflow-hidden shadow-sm">
+            <div class="p-8 border-b border-slate-50 bg-slate-50/30">
+              <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol Context</h3>
+            </div>
+            
+            <div class="p-8 space-y-8">
+              <!-- Customer -->
+              @if (jc.customer) {
+                <div class="group cursor-pointer">
+                  <div class="flex items-center gap-4 mb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-[#1b75bc] flex items-center justify-center text-white font-black text-lg shadow-lg shadow-blue-100 group-hover:scale-110 transition-all">
+                      {{ jc.customer.firstName[0] }}{{ jc.customer.lastName[0] }}
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-sm font-black text-slate-900 tracking-tight truncate">{{ jc.customer.firstName }} {{ jc.customer.lastName }}</p>
+                      <p class="text-[11px] text-slate-400 font-bold truncate tracking-tight">Verified Client</p>
+                    </div>
+                  </div>
+                  <div class="h-px bg-slate-50"></div>
+                </div>
+              }
+
+              <!-- Vehicle -->
+              @if (jc.car) {
+                <div>
+                  <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-lg shadow-slate-100">
+                      <i class="ri-car-fill text-xl"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-sm font-black text-slate-900 tracking-tight truncate">{{ jc.car.make }} {{ jc.car.model }}</p>
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <span class="px-1.5 py-0.5 bg-slate-100 rounded text-[9px] font-mono font-black border border-slate-200 text-slate-600">{{ jc.car.licensePlate }}</span>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{{ jc.car.year }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modal Refinements (Simplified for style context) -->
+@if (showAddItemModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/70 backdrop-blur-md transition-all animate-fadeIn">
+    <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden border border-white/20">
+      <div class="px-10 py-8 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+        <h3 class="text-xl font-black text-slate-900 tracking-tight">Define Protocol</h3>
+        <button (click)="showAddItemModal.set(false)" class="text-slate-400 hover:text-slate-900 transition-all"><i class="ri-close-line text-2xl"></i></button>
+      </div>
+      <div class="p-10 space-y-6">
+        <!-- Form elements already styled high-end in previous turns -->
+        <div class="space-y-2">
+          <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Task Specification</label>
+          <input type="text" [(ngModel)]="newItem.description" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Labor Assessment</label>
+            <input type="number" [(ngModel)]="newItem.estimatedLaborCost" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-black focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Asset Assessment</label>
+            <input type="number" [(ngModel)]="newItem.estimatedPartsCost" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-black focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+          </div>
+        </div>
+      </div>
+      <div class="px-10 py-8 bg-slate-50 flex gap-3">
+        <button (click)="showAddItemModal.set(false)" class="flex-1 py-4 bg-white border border-slate-200 text-[11px] font-black uppercase tracking-widest rounded-2xl active:scale-95 transition-all">Cancel</button>
+        <button (click)="addItem()" class="flex-1 py-4 bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest rounded-2xl active:scale-95 transition-all shadow-lg shadow-slate-200">Initialize</button>
+      </div>
+    </div>
+  </div>
+}

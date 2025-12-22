@@ -1,0 +1,254 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    
+    <!-- Navigation Header -->
+    <div class="flex items-center justify-between mb-8">
+      <button
+        (click)="goBack()"
+        class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-all group"
+      >
+        <i class="ri-arrow-left-line text-base"></i>
+        <span>Back to Vehicles</span>
+      </button>
+
+      @if (!isLoading() && vehicleDetail()) {
+        <div class="flex items-center gap-3">
+          <button class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-all">
+            <i class="ri-pencil-line text-base"></i>
+            <span>Edit Vehicle</span>
+          </button>
+          <button 
+            (click)="createSession()"
+            class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all shadow-sm"
+          >
+            <i class="ri-add-line text-base"></i>
+            <span>New Service</span>
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="py-24 flex flex-col items-center justify-center">
+        <div class="w-8 h-8 border-2 border-slate-200 border-t-[#1b75bc] rounded-full animate-spin mb-4"></div>
+        <p class="text-sm text-slate-500">Loading vehicle details...</p>
+      </div>
+    }
+
+    <!-- Error Message -->
+    @if (errorMessage(); as err) {
+      <div class="max-w-lg mx-auto mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-center">
+        <div class="flex items-start gap-3 justify-center">
+          <i class="ri-error-warning-line text-lg text-red-600"></i>
+          <div>
+            <p class="text-sm text-red-800 mb-3">{{ err }}</p>
+            <button (click)="goBack()" class="text-sm font-medium text-[#1b75bc] hover:underline">Go back</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Detail Content -->
+    @if (!isLoading() && vehicleDetail(); as vehicle) {
+      <div class="grid grid-cols-12 gap-10">
+        
+        <!-- Vehicle Info Column -->
+        <div class="col-span-4 space-y-6">
+          
+          <!-- Vehicle Identity Card -->
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <div class="p-8 text-center bg-gradient-to-br from-[#1b75bc] to-[#155a92] text-white">
+              <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="ri-car-line text-4xl"></i>
+              </div>
+              <h1 class="text-2xl font-semibold mb-2">
+                {{ vehicle.make }} {{ vehicle.model }}
+              </h1>
+              <p class="text-sm text-blue-100">{{ vehicle.year }}</p>
+            </div>
+            
+            <div class="p-6 space-y-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                  <i class="ri-bank-card-line text-base"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs text-slate-500">License Plate</p>
+                  <p class="text-sm font-semibold text-slate-900">{{ vehicle.licensePlate }}</p>
+                </div>
+              </div>
+
+              @if (vehicle.vin) {
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                    <i class="ri-barcode-line text-base"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-xs text-slate-500">VIN</p>
+                    <p class="text-sm font-medium text-slate-900 truncate">{{ vehicle.vin }}</p>
+                  </div>
+                </div>
+              }
+
+              @if (vehicle.color) {
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                    <i class="ri-palette-line text-base"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-xs text-slate-500">Color</p>
+                    <p class="text-sm font-medium text-slate-900 capitalize">{{ vehicle.color }}</p>
+                  </div>
+                </div>
+              }
+
+              @if (vehicle.mileage) {
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                    <i class="ri-dashboard-line text-base"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-xs text-slate-500">Mileage</p>
+                    <p class="text-sm font-medium text-slate-900">{{ vehicle.mileage | number }} mi</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Owner Info Card -->
+          <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+            <h3 class="text-sm font-semibold text-slate-900 mb-4">Vehicle Owner</h3>
+            <button 
+              (click)="navigateToCustomer()"
+              class="w-full group"
+            >
+              <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-all">
+                <div class="w-10 h-10 bg-[#1b75bc] rounded-full flex items-center justify-center text-white font-medium">
+                  {{ vehicle.customer.firstName[0] }}{{ vehicle.customer.lastName[0] }}
+                </div>
+                <div class="flex-1 text-left min-w-0">
+                  <p class="text-sm font-semibold text-slate-900 group-hover:text-[#1b75bc] transition-colors truncate">
+                    {{ vehicle.customer.firstName }} {{ vehicle.customer.lastName }}
+                  </p>
+                  <p class="text-xs text-slate-500 truncate">{{ vehicle.customer.email }}</p>
+                </div>
+                <i class="ri-arrow-right-s-line text-slate-400 text-xl group-hover:text-[#1b75bc] group-hover:translate-x-0.5 transition-all"></i>
+              </div>
+            </button>
+
+            @if (vehicle.customer.phoneNumber) {
+              <div class="mt-4 p-3 bg-slate-50 rounded-lg flex items-center gap-3">
+                <i class="ri-phone-line text-slate-400"></i>
+                <a href="tel:{{ vehicle.customer.phoneNumber }}" class="text-sm font-medium text-[#1b75bc] hover:underline">
+                  {{ vehicle.customer.phoneNumber }}
+                </a>
+              </div>
+            }
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="p-6 bg-white border border-slate-200 rounded-lg shadow-sm">
+              <p class="text-xs text-slate-500 mb-2">Total Services</p>
+              <p class="text-2xl font-semibold text-slate-900">{{ vehicle.sessions.length }}</p>
+            </div>
+            <div class="p-6 bg-white border border-slate-200 rounded-lg shadow-sm">
+              <p class="text-xs text-slate-500 mb-2">Last Service</p>
+              <p class="text-sm font-medium text-slate-900">
+                @if (vehicle.sessions.length > 0) {
+                  {{ formatDate(vehicle.sessions[0].createdAt).split(',')[0] }}
+                } @else {
+                  N/A
+                }
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service History Column -->
+        <div class="col-span-8 space-y-6">
+          
+          <!-- Service History Section -->
+          <div class="bg-white border border-slate-200 rounded-xl shadow-sm">
+            <div class="flex items-center justify-between p-6 border-b border-slate-100">
+              <div>
+                <h3 class="text-lg font-semibold text-slate-900">Service History</h3>
+                <p class="text-sm text-slate-500 mt-1">Complete maintenance and repair records</p>
+              </div>
+              <button 
+                (click)="createSession()"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all"
+              >
+                <i class="ri-add-line"></i>
+                <span>Schedule Service</span>
+              </button>
+            </div>
+
+            @if (vehicle.sessions.length > 0) {
+              <div class="divide-y divide-slate-100">
+                @for (session of vehicle.sessions; track session.id) {
+                  <button
+                    (click)="navigateToSession(session.id)"
+                    class="w-full p-6 hover:bg-slate-50/50 transition-all text-left group"
+                  >
+                    <div class="flex items-start justify-between gap-4">
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-3 mb-3">
+                          <span class="text-sm font-semibold text-slate-900 group-hover:text-[#1b75bc] transition-colors">
+                            #{{ session.id.split('-')[0] }}
+                          </span>
+                          <span [class]="'px-2.5 py-1 rounded-md text-xs font-medium border ' + getStatusColor(session.status)">
+                            {{ formatStatus(session.status) }}
+                          </span>
+                        </div>
+
+                        <div class="flex items-center gap-4 text-xs text-slate-500">
+                          <div class="flex items-center gap-1.5">
+                            <i class="ri-calendar-line"></i>
+                            <span>{{ formatDate(session.createdAt) }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <i class="ri-arrow-right-s-line text-slate-400 text-xl group-hover:text-[#1b75bc] group-hover:translate-x-0.5 transition-all mt-1"></i>
+                    </div>
+                  </button>
+                }
+              </div>
+            } @else {
+              <div class="p-16 text-center">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="ri-history-line text-3xl text-slate-400"></i>
+                </div>
+                <h4 class="text-base font-semibold text-slate-900 mb-2">No service history</h4>
+                <p class="text-sm text-slate-500 mb-6">This vehicle hasn't been serviced yet</p>
+                <button 
+                  (click)="createSession()"
+                  class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all shadow-sm"
+                >
+                  <i class="ri-add-line text-base"></i>
+                  <span>Schedule First Service</span>
+                </button>
+              </div>
+            }
+          </div>
+
+          <!-- Maintenance Reminders (Future Enhancement) -->
+          <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600">
+                <i class="ri-alarm-warning-line text-lg"></i>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-sm font-semibold text-amber-900 mb-1">Maintenance Reminders</h4>
+                <p class="text-sm text-amber-700">Schedule regular maintenance to keep your vehicle in optimal condition</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -59,6 +59,7 @@ export class SessionDetailComponent implements OnInit {
   selectedStep = signal<WorkflowStep | null>(null);
   stepNotes = signal<string>('');
   stepRequests = signal<string[]>([]);
+  stepMileage = signal<number>(0);
   isSavingStep = signal<boolean>(false);
   
   // Job Card Modal
@@ -79,7 +80,7 @@ export class SessionDetailComponent implements OnInit {
   });
   
   // Media upload
-  selectedStage = signal<string>('intake');
+  selectedStage = signal<string>('customerRequests');
   pendingUploads = signal<PendingUpload[]>([]);
 
   ngOnInit() {
@@ -114,16 +115,20 @@ export class SessionDetailComponent implements OnInit {
 
   getStatusColor(status: string): string {
     switch (status.toUpperCase()) {
-      case 'INTAKE':
+      case 'CUSTOMERREQUEST':
         return 'bg-blue-100 text-blue-800';
-      case 'IN_PROGRESS':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'QUALITY_CHECK':
+      case 'INSPECTION':
         return 'bg-purple-100 text-purple-800';
-      case 'READY_FOR_PICKUP':
+      case 'TESTDRIVE':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'REPORTGENERATED':
+        return 'bg-indigo-100 text-indigo-800';
+      case 'JOBCARDCREATED':
         return 'bg-green-100 text-green-800';
       case 'COMPLETED':
         return 'bg-slate-100 text-slate-800';
+      case 'CANCELLED':
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-slate-100 text-slate-600';
     }
@@ -134,15 +139,6 @@ export class SessionDetailComponent implements OnInit {
     if (!session) return [];
 
     return [
-      {
-        id: 'intake',
-        title: 'Intake',
-        description: 'Vehicle received',
-        completed: !!session.intakeNotes,
-        notes: session.intakeNotes,
-        requests: session.intakeRequests,
-        icon: 'ri-login-box-line'
-      },
       {
         id: 'customerRequests',
         title: 'Customer Requests',
@@ -155,8 +151,8 @@ export class SessionDetailComponent implements OnInit {
       {
         id: 'inspection',
         title: 'Inspection',
-        description: 'Vehicle inspection performed',
-        completed: !!session.inspectionNotes,
+        description: 'Vehicle inspection with mileage',
+        completed: !!session.inspectionNotes && !!session.mileage,
         notes: session.inspectionNotes,
         requests: session.inspectionRequests,
         icon: 'ri-search-eye-line'
@@ -182,8 +178,19 @@ export class SessionDetailComponent implements OnInit {
   }
 
   canGenerateJobCard(): boolean {
-    const steps = this.getWorkflowSteps();
-    return steps.every(step => step.completed);
+    const session = this.sessionDetail();
+    return session?.status.toUpperCase() === 'REPORTGENERATED';
+  }
+
+  hasJobCard(): boolean {
+    const session = this.sessionDetail();
+    return session?.status.toUpperCase() === 'JOBCARDCREATED';
+  }
+
+  viewJobCard() {
+    // In a real app, we might need to fetch the job card ID associated with this session
+    // For now, we'll navigate to the job cards list or search for it
+    this.router.navigate(['/dashboard/job-cards']);
   }
 
   formatStatus(status: string): string {
@@ -198,6 +205,52 @@ export class SessionDetailComponent implements OnInit {
     if (steps.length === 0) return 0;
     const completedSteps = steps.filter(s => s.completed).length;
     return (completedSteps / steps.length) * 100;
+  }
+
+  canAccessStep(stepId: string): boolean {
+    const session = this.sessionDetail();
+    if (!session) return false;
+    
+    switch(stepId) {
+      case 'customerRequests': 
+        return true;
+      case 'inspection': 
+        return !!session.customerRequests;
+      case 'testDrive': 
+        return !!session.customerRequests && !!session.mileage;
+      case 'initialReport': 
+        return !!session.testDriveNotes;
+      default: 
+        return false;
+    }
+  }
+
+  getStepDisabledMessage(stepId: string): string | null {
+    const session = this.sessionDetail();
+    if (!session) return null;
+
+    switch(stepId) {
+      case 'inspection':
+        if (!session.customerRequests) {
+          return 'Complete Customer Requests first';
+        }
+        return null;
+      case 'testDrive':
+        if (!session.customerRequests) {
+          return 'Complete Customer Requests first';
+        }
+        if (!session.mileage) {
+          return 'Complete Inspection first';
+        }
+        return null;
+      case 'initialReport':
+        if (!session.testDriveNotes) {
+          return 'Complete Test Drive first';
+        }
+        return null;
+      default:
+        return null;
+    }
   }
 
   copyToClipboard(text: string) {
@@ -226,6 +279,20 @@ export class SessionDetailComponent implements OnInit {
     const session = this.sessionDetail();
     if (!session) return;
 
+    // Check if step can be accessed
+    if (!this.canAccessStep(step.id)) {
+      const message = this.getStepDisabledMessage(step.id);
+      if (message) {
+        alert(message);
+      }
+      return;
+    }
+
+    // Populate mileage if editing inspection
+    if (step.id === 'inspection' && session.mileage) {
+      this.stepMileage.set(session.mileage);
+    }
+
     // Navigate all steps to full-page widget for consistent experience
     this.router.navigate(['/dashboard/sessions', session.id, 'request-widget'], {
       queryParams: { stepId: step.id }
@@ -237,6 +304,7 @@ export class SessionDetailComponent implements OnInit {
     this.selectedStep.set(null);
     this.stepNotes.set('');
     this.stepRequests.set([]);
+    this.stepMileage.set(0);
   }
 
   addRequest(index?: number) {
@@ -309,8 +377,17 @@ export class SessionDetailComponent implements OnInit {
     const step = this.selectedStep();
     if (!session || !step) return;
 
+    // Validate mileage for inspection step
+    if (step.id === 'inspection') {
+      const mileage = this.stepMileage();
+      if (!mileage || mileage <= 0) {
+        alert('Please enter a valid mileage value.');
+        return;
+      }
+    }
+
     this.isSavingStep.set(true);
-    
+
     try {
       // Join requests with newlines, filtering out empty ones
       const requestsStr = this.stepRequests()
@@ -319,10 +396,11 @@ export class SessionDetailComponent implements OnInit {
 
       // Call the update mutation based on step id
       await this.sessionService.updateSessionStep(
-        session.id, 
-        step.id, 
+        session.id,
+        step.id,
         this.stepNotes(),
-        requestsStr
+        requestsStr,
+        step.id === 'inspection' ? this.stepMileage() : undefined
       ).toPromise();
 
       // Reload session data
@@ -330,7 +408,7 @@ export class SessionDetailComponent implements OnInit {
       this.closeStepModal();
     } catch (error: any) {
       console.error('Failed to save step:', error);
-      
+
       // Check for specific error types
       const errorMessage = error?.message || '';
       if (errorMessage.includes('concurrency') || errorMessage.includes('modified or deleted')) {
@@ -339,6 +417,8 @@ export class SessionDetailComponent implements OnInit {
       } else if (errorMessage.includes('not found') || errorMessage.includes('does not exist')) {
         alert('Session not found. It may have been deleted.');
         this.router.navigate(['/dashboard/sessions']);
+      } else if (errorMessage.includes('Mileage is required')) {
+        alert('Mileage is required for the inspection step.');
       } else {
         alert('Failed to save step notes. Please try again.');
       }
@@ -367,20 +447,17 @@ export class SessionDetailComponent implements OnInit {
     const session = this.sessionDetail();
     if (!session) return;
 
-    // Populate job card data from session
+    // Populate job card data from session (simplified workflow)
     const requests: string[] = [];
-    
-    if (session.intakeRequests) {
-      requests.push(...session.intakeRequests.split('\n').filter(r => r.trim()));
-    }
+
     if (session.customerRequests) {
-      requests.push(...session.customerRequests.split('\n').filter(r => r.trim()));
+      requests.push(...session.customerRequests.split('\n').filter((r: string) => r.trim()));
     }
     if (session.inspectionRequests) {
-      requests.push(...session.inspectionRequests.split('\n').filter(r => r.trim()));
+      requests.push(...session.inspectionRequests.split('\n').filter((r: string) => r.trim()));
     }
     if (session.testDriveRequests) {
-      requests.push(...session.testDriveRequests.split('\n').filter(r => r.trim()));
+      requests.push(...session.testDriveRequests.split('\n').filter((r: string) => r.trim()));
     }
 
     this.jobCardData.set({
@@ -424,20 +501,18 @@ export class SessionDetailComponent implements OnInit {
     const session = this.sessionDetail();
     if (!session) return;
 
+    if (!confirm('Are you sure you want to create a job card from this session? All findings and reports will be copied.')) return;
+
     this.isCreatingJobCard.set(true);
 
     try {
-      // TODO: Call backend mutation to create job card with the edited data
-      // For now, just call the existing generateJobCard method
-      await this.sessionService.generateJobCard(session.id).toPromise();
+      const result = await this.sessionService.generateJobCard(session.id).toPromise();
+      const jobCardId = result.createJobCardFromSession.id;
       
       this.closeJobCardModal();
-      alert('Job card created successfully! Redirecting to job cards page...');
+      alert('Job card created successfully!');
       
-      // TODO: Navigate to job cards page when it's ready
-      // this.router.navigate(['/dashboard/job-cards']);
-      
-      this.loadSessionDetail(session.id);
+      this.router.navigate(['/dashboard/job-cards', jobCardId]);
     } catch (error) {
       console.error('Failed to create job card:', error);
       alert('Failed to create job card. Please try again.');
@@ -582,7 +657,6 @@ export class SessionDetailComponent implements OnInit {
 
   private getBackendStage(stage: string): string {
     const stageMap: { [key: string]: string } = {
-      'intake': 'INTAKE',
       'customerRequests': 'GENERAL',
       'inspection': 'INSPECTION',
       'testDrive': 'TEST_DRIVE',

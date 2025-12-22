@@ -1,773 +1,314 @@
-<div class="min-h-screen bg-white">
-  <div class="max-w-7xl mx-auto px-8 py-8">
-    <!-- Back Button -->
-    <button
-      (click)="goBack()"
-      class="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 transition-colors mb-6"
-    >
-      <i class="ri-arrow-left-line"></i>
-      <span>Back to Sessions</span>
-    </button>
+<div class="min-h-screen bg-[#fbfbfd]">
+  <div class="max-w-7xl mx-auto px-8 py-10">
+    <!-- Back Button & Header Actions -->
+    <div class="flex items-center justify-between mb-10">
+      <button
+        (click)="goBack()"
+        class="inline-flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest hover:text-[#1b75bc] transition-all group"
+      >
+        <div class="w-8 h-8 rounded-full bg-white border border-slate-200/60 group-hover:border-[#1b75bc]/30 flex items-center justify-center transition-all shadow-sm">
+          <i class="ri-arrow-left-line text-lg"></i>
+        </div>
+        <span>Back to Sessions</span>
+      </button>
+
+      @if (!isLoading() && sessionDetail()) {
+        <div class="flex items-center gap-3">
+          <button class="px-5 py-2 bg-white border border-slate-200 text-slate-600 text-[11px] font-bold uppercase tracking-widest rounded-full hover:bg-slate-50 active:scale-95 transition-all shadow-sm">
+            <i class="ri-printer-line mr-1.5 text-slate-400"></i>
+            Print Report
+          </button>
+          <button class="px-5 py-2 bg-slate-900 text-white text-[11px] font-bold uppercase tracking-widest rounded-full hover:bg-black active:scale-95 transition-all shadow-lg shadow-slate-200">
+            <i class="ri-settings-3-line mr-1.5 text-slate-400"></i>
+            Configure
+          </button>
+        </div>
+      }
+    </div>
 
     <!-- Loading State -->
     @if (isLoading()) {
-      <div class="py-16">
-        <div class="flex flex-col items-center justify-center">
-          <div class="relative w-8 h-8 mb-4">
-            <div class="absolute inset-0 rounded-full border-2 border-slate-100"></div>
-            <div class="absolute inset-0 rounded-full border-2 border-t-[#1b75bc] animate-spin"></div>
-          </div>
-          <p class="text-sm text-slate-500">Loading session details...</p>
-        </div>
+      <div class="py-32 flex flex-col items-center justify-center">
+        <div class="w-10 h-10 border-2 border-slate-100 border-t-[#1b75bc] rounded-full animate-spin mb-4"></div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Retrieving Session Protocol</p>
       </div>
     }
 
     <!-- Error Message -->
     @if (errorMessage(); as err) {
-      <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-        {{ err }}
+      <div class="max-w-lg mx-auto mb-10 p-8 bg-white border border-red-100 rounded-3xl shadow-sm text-center">
+        <div class="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <i class="ri-error-warning-line text-3xl text-red-500"></i>
+        </div>
+        <h4 class="text-lg font-bold text-slate-900 mb-1 tracking-tight">Access Restricted</h4>
+        <p class="text-sm text-slate-500 mb-6 font-medium tracking-tight">{{ err }}</p>
+        <button (click)="loadSessionDetail(sessionDetail()?.id || '')" class="text-[11px] font-bold text-[#1b75bc] uppercase tracking-widest hover:underline">Request Resynchronization</button>
       </div>
     }
 
     <!-- Session Detail Content -->
     @if (!isLoading() && sessionDetail(); as detail) {
-      <!-- Header Section -->
-      <div class="mb-8">
-        <div class="flex items-start justify-between">
-          <div>
-            <div class="flex items-center gap-3 mb-2">
-              <h1 class="text-3xl font-semibold text-slate-900">
-                Session #{{ detail.id.slice(0, 8) }}
-              </h1>
-              <span [class]="'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ' + getStatusColor(detail.status)">
-                {{ formatStatus(detail.status) }}
-              </span>
+      <div class="grid grid-cols-12 gap-10">
+        
+        <!-- Left Column: Primary Data -->
+        <div class="col-span-8 space-y-10">
+          
+          <!-- Title Section -->
+          <div class="flex items-end justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span [class]="'px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest border ' + getStatusColor(detail.status)">
+                  {{ formatStatus(detail.status) }}
+                </span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Modified {{ formatDate(detail.updatedAt) }}</span>
+              </div>
+              <h1 class="text-4xl font-bold text-slate-900 tracking-tight">Session <span class="text-[#1b75bc]">#{{ detail.id.slice(0, 8) }}</span></h1>
             </div>
-            <p class="text-sm text-slate-500">Created on {{ formatDate(detail.createdAt) }}</p>
           </div>
 
-          <!-- Action Buttons -->
-          <div class="flex items-center gap-2">
-            <button class="px-4 py-2 text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors text-sm font-medium">
-              <i class="ri-printer-line mr-1.5"></i>
-              Print
-            </button>
-            <button class="px-4 py-2 bg-[#1b75bc] text-white rounded-lg hover:bg-[#155a92] transition-colors text-sm font-medium">
-              <i class="ri-pencil-line mr-1.5"></i>
-              Edit Status
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Left Column - Customer & Vehicle Info -->
-        <div class="lg:col-span-1 space-y-6">
-          <!-- Customer Info -->
-          @if (detail.customer) {
-            <div class="bg-white border border-slate-200 rounded-lg p-6">
-              <h2 class="text-base font-semibold text-slate-900 mb-4">Customer</h2>
-              <div class="space-y-3">
-                <div>
-                  <p class="text-sm font-medium text-slate-900">
-                    {{ detail.customer.firstName }} {{ detail.customer.lastName }}
-                  </p>
-                </div>
-                <div class="flex items-center gap-2 text-sm text-slate-600">
-                  <i class="ri-mail-line text-slate-400"></i>
-                  <span>{{ detail.customer.email }}</span>
-                </div>
-                <div class="flex items-center gap-2 text-sm text-slate-600">
-                  <i class="ri-phone-line text-slate-400"></i>
-                  <span>{{ detail.customer.phoneNumber }}</span>
-                </div>
-                <button 
-                  [routerLink]="['/dashboard/customers', detail.customer.id]"
-                  class="mt-4 w-full px-3 py-2 text-sm font-medium text-[#1b75bc] bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-                >
-                  View Customer Profile
-                </button>
-              </div>
-            </div>
-          }
-
-          <!-- Vehicle Info -->
-          @if (detail.car) {
-            <div class="bg-white border border-slate-200 rounded-lg p-6">
-              <h2 class="text-base font-semibold text-slate-900 mb-4">Vehicle</h2>
-              <div class="p-4 bg-slate-50 rounded-lg border border-slate-100">
-                <div class="flex items-start gap-3">
-                  <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center text-slate-600 shrink-0">
-                    <i class="ri-car-line text-lg"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <h3 class="font-semibold text-slate-900 text-sm">
-                      {{ detail.car.make }} {{ detail.car.model }}
-                    </h3>
-                    <p class="text-xs text-slate-500 mt-0.5">{{ detail.car.year }}</p>
-                    <div class="mt-2 space-y-0.5">
-                      <p class="text-xs text-slate-600">
-                        <span class="font-semibold">Plate:</span> {{ detail.car.licensePlate }}
-                      </p>
-                      @if (detail.car.color) {
-                        <p class="text-xs text-slate-600">
-                          <span class="font-semibold">Color:</span> {{ detail.car.color }}
-                        </p>
-                      }
-                      @if (detail.car.vin) {
-                        <p class="text-xs text-slate-600 font-mono">
-                          <span class="font-semibold font-sans">VIN:</span> {{ detail.car.vin }}
-                        </p>
-                      }
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-
-        <!-- Right Column - Session Details -->
-        <div class="lg:col-span-2 space-y-6">
-          <!-- Sticky Customer Requests Reference -->
-          @if (detail.customerRequests) {
-            <div class="sticky top-0 z-20 mb-6 p-4 border border-amber-100 rounded-2xl shadow-sm backdrop-blur-md bg-amber-50/90">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
-                    <i class="ri-user-voice-line"></i>
-                  </div>
-                  <span class="text-xs font-bold text-amber-800 uppercase tracking-wider">Customer Requests</span>
-                </div>
-                <button 
-                  (click)="copyToClipboard(detail.customerRequests)"
-                  class="p-1.5 hover:bg-amber-100 rounded-lg transition-colors text-amber-600"
-                  title="Copy to clipboard">
-                  <i class="ri-file-copy-line"></i>
-                </button>
-              </div>
-              <p class="text-sm text-amber-900 leading-relaxed font-medium">{{ detail.customerRequests }}</p>
-            </div>
-          }
-
-          <!-- Workflow Steps -->
-          <div class="bg-white border border-slate-200 rounded-lg p-6">
+          <!-- Workflow Progress Tracker -->
+          <div class="bg-white border border-slate-200/60 rounded-[2rem] p-8 shadow-sm">
             <div class="flex items-center justify-between mb-6">
-              <h2 class="text-base font-semibold text-slate-900">Session Workflow</h2>
-              <div class="flex items-center gap-2">
-                <span class="text-xs text-slate-500">Progress:</span>
-                <div class="w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div 
-                    class="h-full bg-green-500 transition-all duration-500" 
-                    [style.width.%]="getProgress()">
-                  </div>
-                </div>
+              <div class="flex items-center gap-3">
+                <div class="w-1.5 h-1.5 rounded-full bg-[#1b75bc]"></div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Workflow Execution</span>
               </div>
+              <span class="text-xs font-black text-[#1b75bc] tracking-widest">{{ getProgress() }}% Complete</span>
             </div>
-
-            <div class="space-y-6">
-              @for (step of getWorkflowSteps(); track step.id; let last = $last) {
-                <div class="relative">
-                  <!-- Connection line -->
-                  @if (!last) {
-                    <div class="absolute left-4 top-10 w-0.5 h-full bg-slate-200"></div>
-                  }
-                  
-                  <div class="flex items-start gap-4">
-                    <!-- Step icon -->
-                    <div [class]="'relative z-10 w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ' + (step.completed ? 'bg-green-500 text-white shadow-sm' : 'bg-slate-100 text-slate-400')">
-                      <i [class]="step.icon + ' text-sm'"></i>
-                    </div>
-                    
-                    <!-- Step content -->
-                    <div class="flex-1 min-w-0 pb-6">
-                      <div class="flex items-start justify-between mb-2">
-                        <div>
-                          <h3 [class]="'text-sm font-semibold ' + (step.completed ? 'text-slate-900' : 'text-slate-500')">
-                            {{ step.title }}
-                          </h3>
-                          <p class="text-xs text-slate-500 mt-0.5">{{ step.description }}</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                          @if (step.completed) {
-                            <button 
-                              (click)="openStepModal(step)"
-                              class="text-xs font-medium text-slate-400 hover:text-[#1b75bc] transition-colors">
-                              Edit
-                            </button>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              <i class="ri-check-line mr-1"></i>
-                              Complete
-                            </span>
-                          } @else {
-                            <button 
-                              (click)="openStepModal(step)" 
-                              class="px-3 py-1 bg-[#1b75bc] text-white text-xs font-medium rounded-md hover:bg-[#155a92] transition-colors shadow-sm">
-                              Add Info
-                            </button>
-                          }
-                        </div>
-                      </div>
-                      
-                      @if (step.notes) {
-                        <div class="mt-3 p-4 bg-slate-50 rounded-xl border border-slate-100 group relative">
-                          @if (step.requests) {
-                            <div class="mb-3 p-3 bg-amber-50/50 rounded-xl border border-amber-100/50">
-                              <div class="flex items-center gap-1.5 mb-2">
-                                <i class="ri-user-voice-line text-amber-600 text-xs"></i>
-                                <span class="text-[10px] font-bold text-amber-800 uppercase tracking-wider">Requests</span>
-                              </div>
-                              <ul class="space-y-1.5">
-                                @for (request of step.requests.split('\n'); track $index) {
-                                  @if (request.trim()) {
-                                    <li class="flex items-start gap-2 text-sm text-amber-900">
-                                      <i class="ri-checkbox-blank-circle-fill text-[6px] mt-1.5 text-amber-400"></i>
-                                      <span class="leading-relaxed">{{ request }}</span>
-                                    </li>
-                                  }
-                                }
-                              </ul>
-                            </div>
-                          }
-                          @if (step.notes) {
-                            <p class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">{{ step.notes }}</p>
-                          }
-                          
-                          <!-- Media Thumbnails for this step -->
-                          @if (getMediaByStage(step.id).length > 0) {
-                            <div class="mt-4 flex flex-wrap gap-2">
-                              @for (sessionMedia of getMediaByStage(step.id); track sessionMedia.id) {
-                                <div 
-                                  (click)="openMedia(sessionMedia.media.url)"
-                                  class="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-200 cursor-pointer hover:border-[#1b75bc] transition-all hover:scale-105 shadow-sm">
-                                  @if (isImage(sessionMedia.media.url)) {
-                                    <img [src]="sessionMedia.media.url" class="w-full h-full object-cover" />
-                                  } @else {
-                                    <div class="w-full h-full bg-slate-200 flex items-center justify-center">
-                                      <i class="ri-video-line text-slate-500"></i>
-                                    </div>
-                                  }
-
-                                  <!-- Pending/Status Overlay -->
-                                  @if (sessionMedia.isPending) {
-                                    <div class="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center">
-                                      @if (sessionMedia.status === 'uploading') {
-                                        <i class="ri-loader-4-line animate-spin text-white text-lg"></i>
-                                      } @else if (sessionMedia.status === 'uploaded') {
-                                        <i class="ri-checkbox-circle-fill text-green-400 text-lg"></i>
-                                      } @else if (sessionMedia.status === 'error') {
-                                        <i class="ri-error-warning-fill text-red-400 text-lg"></i>
-                                      }
-                                    </div>
-                                  }
-                                </div>
-                              }
-                            </div>
-                          }
-                        </div>
-                      }
-                    </div>
+            
+            <div class="relative flex items-center justify-between px-2">
+              <div class="absolute left-0 right-0 h-0.5 bg-slate-100 -z-0"></div>
+              <div class="absolute left-0 h-0.5 bg-[#1b75bc] transition-all duration-1000 -z-0" [style.width.%]="getProgress()"></div>
+              
+              @for (step of getWorkflowSteps(); track step.id) {
+                <div class="relative z-10 flex flex-col items-center">
+                  <div [class]="'w-10 h-10 rounded-full flex items-center justify-center border-4 border-[#fbfbfd] transition-all duration-500 ' + (step.completed ? 'bg-emerald-500 text-white shadow-md shadow-emerald-100' : canAccessStep(step.id) ? 'bg-white border-slate-200 text-[#1b75bc]' : 'bg-slate-100 border-slate-50 text-slate-300')">
+                    <i [class]="(step.completed ? 'ri-check-line' : step.icon) + ' text-base font-bold'"></i>
                   </div>
-                </div>
-              }
-            </div>
-
-            <!-- Generate Job Card Button -->
-            <div class="mt-6 pt-6 border-t border-slate-200">
-              @if (canGenerateJobCard()) {
-                <button 
-                  (click)="openJobCardModal()" 
-                  class="w-full px-4 py-3 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-colors shadow-sm flex items-center justify-center gap-2">
-                  <i class="ri-file-add-line text-base"></i>
-                  <span>Create Job Card</span>
-                </button>
-              } @else {
-                <div class="text-center p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                  <i class="ri-information-line text-amber-600 text-lg mb-2"></i>
-                  <p class="text-sm font-medium text-amber-900 mb-1">Complete All Steps First</p>
-                  <p class="text-xs text-amber-700">All workflow steps must be completed before creating a job card</p>
+                  <span [class]="'absolute top-12 whitespace-nowrap text-[9px] font-black uppercase tracking-widest transition-colors ' + (step.completed ? 'text-slate-900' : 'text-slate-400')">
+                    {{ step.title }}
+                  </span>
                 </div>
               }
             </div>
           </div>
 
-          <!-- Session Timeline (Logs) -->
-          <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-            <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-              <h2 class="text-base font-bold text-slate-900">Activity Timeline</h2>
-              <i class="ri-history-line text-slate-400"></i>
-            </div>
-            <div class="p-6">
-              @if (detail.logs && detail.logs.length > 0) {
-                <div class="relative space-y-6 before:absolute before:inset-0 before:ml-5 before:-translate-x-px before:h-full before:w-0.5 before:bg-linear-to-b before:from-slate-200 before:via-slate-200 before:to-transparent">
-                  @for (log of detail.logs; track log.id) {
-                    <div class="relative flex items-start gap-4 group">
-                      <div class="absolute left-0 w-10 h-10 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center z-10 group-hover:border-[#1b75bc] transition-colors">
-                        <div class="w-2 h-2 rounded-full bg-slate-400 group-hover:bg-[#1b75bc] transition-colors"></div>
-                      </div>
-                      <div class="flex-1 ml-12 min-w-0 pt-1">
-                        <div class="flex items-center justify-between mb-1">
-                          <p class="text-sm font-bold text-slate-900">
-                            {{ formatStatus(log.fromStatus) }} 
-                            <i class="ri-arrow-right-line mx-1 text-slate-400"></i>
-                            {{ formatStatus(log.toStatus) }}
-                          </p>
-                          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{{ formatDate(log.createdAt) }}</span>
+          <!-- Main Step Details -->
+          <div class="space-y-6">
+            @for (step of getWorkflowSteps(); track step.id) {
+              <div [class]="'bg-white border transition-all duration-300 rounded-3xl overflow-hidden ' + (step.completed ? 'border-slate-200/60 opacity-100' : canAccessStep(step.id) ? 'border-[#1b75bc]/20 shadow-sm' : 'border-transparent opacity-40 grayscale pointer-events-none')">
+                <div class="px-8 py-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/20">
+                  <div class="flex items-center gap-4">
+                    <div [class]="'w-10 h-10 rounded-xl flex items-center justify-center transition-colors ' + (step.completed ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-[#1b75bc]')">
+                      <i [class]="step.icon + ' text-xl'"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-sm font-bold text-slate-900 tracking-tight">{{ step.title }}</h3>
+                      <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{{ step.description }}</p>
+                    </div>
+                  </div>
+                  
+                  <button
+                    (click)="openStepModal(step)"
+                    [disabled]="!canAccessStep(step.id)"
+                    class="px-4 py-1.5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-[#1b75bc] transition-all active:scale-95 disabled:opacity-30">
+                    {{ step.completed ? 'Update Entry' : 'Begin Process' }}
+                  </button>
+                </div>
+
+                @if (step.completed || (step.notes || step.requests)) {
+                  <div class="p-8 space-y-6">
+                    @if (step.id === 'inspection' && detail.mileage) {
+                      <div class="flex items-center gap-6 p-5 bg-[#fbfbfd] border border-slate-100 rounded-2xl w-fit">
+                        <div class="text-center">
+                          <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Odometer Reading</p>
+                          <p class="text-2xl font-black text-slate-900 tracking-tighter">{{ detail.mileage | number }} <span class="text-xs font-bold text-[#1b75bc] ml-1 uppercase">km</span></p>
                         </div>
+                      </div>
+                    }
+
+                    @if (step.requests) {
+                      <div class="space-y-3">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                          <i class="ri-list-check text-[#1b75bc]"></i>
+                          Target Protocols
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          @for (req of step.requests.split('\n'); track $index) {
+                            @if (req.trim()) {
+                              <div class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl text-[13px] font-bold text-slate-700 tracking-tight">
+                                <i class="ri-checkbox-circle-fill text-emerald-500 text-base"></i>
+                                {{ req }}
+                              </div>
+                            }
+                          }
+                        </div>
+                      </div>
+                    }
+
+                    @if (step.notes) {
+                      <div class="space-y-2">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Technician Observations</p>
+                        <div class="p-5 bg-blue-50/30 border border-blue-100/50 rounded-2xl">
+                          <p class="text-sm text-slate-600 leading-relaxed font-medium italic">"{{ step.notes }}"</p>
+                        </div>
+                      </div>
+                    }
+
+                    @if (getMediaByStage(step.id).length > 0) {
+                      <div class="space-y-3">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Visual Documentation</p>
+                        <div class="flex flex-wrap gap-3">
+                          @for (m of getMediaByStage(step.id); track m.id) {
+                            <div (click)="openMedia(m.media.url)" class="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200 cursor-pointer hover:scale-105 active:scale-95 transition-all group/media">
+                              <img [src]="m.media.url" class="w-full h-full object-cover">
+                              <div class="absolute inset-0 bg-black/20 opacity-0 group-hover/media:opacity-100 transition-opacity flex items-center justify-center">
+                                <i class="ri-zoom-in-line text-white text-lg font-black"></i>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Job Card Generation -->
+          <div class="mt-12">
+            @if (hasJobCard()) {
+              <button (click)="viewJobCard()" class="w-full p-6 bg-emerald-500 text-white rounded-[2rem] flex items-center justify-center gap-4 hover:bg-emerald-600 hover:shadow-xl hover:shadow-emerald-100 transition-all active:scale-[0.98]">
+                <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shadow-inner">
+                  <i class="ri-file-shield-line text-2xl"></i>
+                </div>
+                <div class="text-left">
+                  <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Protocol Finalized</p>
+                  <p class="text-xl font-black tracking-tight uppercase">Access Security Job Card</p>
+                </div>
+              </button>
+            } @else if (canGenerateJobCard()) {
+              <button (click)="submitJobCard()" class="w-full p-6 bg-[#1b75bc] text-white rounded-[2rem] flex items-center justify-center gap-4 hover:bg-[#145a91] hover:shadow-xl hover:shadow-blue-100 transition-all active:scale-[0.98]">
+                <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shadow-inner">
+                  <i class="ri-file-add-line text-2xl"></i>
+                </div>
+                <div class="text-left">
+                  <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Cycle Complete</p>
+                  <p class="text-xl font-black tracking-tight uppercase">Initialize Production Job Card</p>
+                </div>
+              </button>
+            } @else {
+              <div class="p-10 bg-white border border-slate-200 border-dashed rounded-[2.5rem] text-center">
+                <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <i class="ri-lock-2-line text-slate-300 text-3xl"></i>
+                </div>
+                <h4 class="text-lg font-bold text-slate-900 tracking-tight">System Locked</h4>
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Complete diagnostic report to unlock production</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Right Column: Context Panels -->
+        <div class="col-span-4 space-y-10">
+          
+          <!-- Identity Summary -->
+          <div class="bg-white border border-slate-200/60 rounded-[2.5rem] overflow-hidden shadow-sm">
+            <div class="p-8 border-b border-slate-50 bg-slate-50/30">
+              <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Entity Context</h3>
+            </div>
+            
+            <div class="p-8 space-y-8">
+              <!-- Customer -->
+              @if (detail.customer) {
+                <div class="group cursor-pointer" [routerLink]="['/dashboard/customers', detail.customer.id]">
+                  <div class="flex items-center gap-4 mb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-[#1b75bc] flex items-center justify-center text-white font-black text-lg shadow-lg shadow-blue-100">
+                      {{ detail.customer.firstName[0] }}{{ detail.customer.lastName[0] }}
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-sm font-black text-slate-900 tracking-tight truncate">{{ detail.customer.firstName }} {{ detail.customer.lastName }}</p>
+                      <p class="text-[11px] text-slate-400 font-bold truncate tracking-tight">{{ detail.customer.phoneNumber }}</p>
+                    </div>
+                  </div>
+                  <div class="h-px bg-slate-50"></div>
+                </div>
+              }
+
+              <!-- Vehicle -->
+              @if (detail.car) {
+                <div>
+                  <div class="flex items-center gap-4 mb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-lg shadow-slate-100">
+                      <i class="ri-car-fill text-xl"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-sm font-black text-slate-900 tracking-tight truncate">{{ detail.car.make }} {{ detail.car.model }}</p>
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <span class="px-1.5 py-0.5 bg-slate-100 rounded text-[9px] font-mono font-bold border border-slate-200 text-slate-600">{{ detail.car.licensePlate }}</span>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{{ detail.car.year }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Activity History -->
+          <div class="bg-white border border-slate-200/60 rounded-[2.5rem] overflow-hidden shadow-sm">
+            <div class="p-8 border-b border-slate-50 bg-slate-50/30">
+              <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Audit History</h3>
+            </div>
+            <div class="p-8">
+              @if (detail.logs && detail.logs.length > 0) {
+                <div class="relative space-y-6 before:absolute before:left-4 before:top-2 before:bottom-2 before:w-px before:bg-slate-100">
+                  @for (log of detail.logs; track log.id) {
+                    <div class="relative flex items-start gap-4 pl-8 group">
+                      <div class="absolute left-3.5 top-1 w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-[#1b75bc] transition-colors"></div>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-[11px] font-black text-slate-900 tracking-tight">{{ formatStatus(log.toStatus) }}</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{{ formatDate(log.createdAt) }}</p>
                         @if (log.notes) {
-                          <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                            <p class="text-xs text-slate-600 leading-relaxed">{{ log.notes }}</p>
-                          </div>
+                          <p class="text-[10px] text-slate-500 font-medium mt-1.5 border-l-2 border-slate-100 pl-2 leading-relaxed italic">"{{ log.notes }}"</p>
                         }
                       </div>
                     </div>
                   }
                 </div>
               } @else {
-                <div class="text-center py-8">
-                  <div class="w-12 h-12 mx-auto mb-3 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <i class="ri-time-line text-xl text-slate-300"></i>
-                  </div>
-                  <p class="text-xs font-medium text-slate-500">No activity logs yet</p>
-                </div>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center py-10">Initial State Recorded</p>
               }
             </div>
           </div>
 
-          <!-- Media Gallery Section -->
-          <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-            <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                <i class="ri-gallery-line text-[#1b75bc]"></i>
-                Media Gallery
-              </h2>
-              <span class="px-2.5 py-1 bg-slate-200 text-slate-700 text-xs font-bold rounded-full">
-                {{ getAllMedia().length }} Files
-              </span>
+          <!-- Gallery Preview -->
+          <div class="bg-white border border-slate-200/60 rounded-[2.5rem] overflow-hidden shadow-sm">
+            <div class="p-8 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
+              <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol Media</h3>
+              <span class="text-[9px] font-black text-[#1b75bc] px-2 py-0.5 bg-blue-50 rounded-full border border-blue-100 uppercase tracking-tighter">{{ getAllMedia().length }} Files</span>
             </div>
-            
-            <div class="p-6">
+            <div class="p-8">
               @if (getAllMedia().length > 0) {
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  @for (sessionMedia of getAllMedia(); track sessionMedia.id) {
-                    <div class="group relative aspect-square rounded-xl overflow-hidden border border-slate-100 hover:border-[#1b75bc] transition-all hover:shadow-lg hover:-translate-y-1">
-                      @if (isImage(sessionMedia.media.url)) {
-                        <img 
-                          [src]="sessionMedia.media.url" 
-                          [alt]="sessionMedia.media.alt || 'Session media'"
-                          class="w-full h-full object-cover cursor-pointer"
-                          (click)="openMedia(sessionMedia.media.url)" />
-                      } @else if (isVideo(sessionMedia.media.url)) {
-                        <div class="relative w-full h-full bg-slate-900 flex flex-col items-center justify-center cursor-pointer"
-                             (click)="openMedia(sessionMedia.media.url)">
-                          <i class="ri-video-line text-4xl text-white/50 mb-2"></i>
-                          <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                              <i class="ri-play-fill text-white text-2xl"></i>
-                            </div>
-                          </div>
-                        </div>
-                      }
-                      
-                      <!-- Pending/Status Overlay -->
-                      @if (sessionMedia.isPending) {
-                        <div class="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex flex-col items-center justify-center z-20">
-                          @if (sessionMedia.status === 'uploading') {
-                            <i class="ri-loader-4-line animate-spin text-white text-2xl mb-1"></i>
-                            <span class="text-[10px] text-white font-bold uppercase tracking-wider">Uploading</span>
-                          } @else if (sessionMedia.status === 'uploaded') {
-                            <i class="ri-checkbox-circle-fill text-green-400 text-2xl"></i>
-                          } @else if (sessionMedia.status === 'error') {
-                            <i class="ri-error-warning-fill text-red-400 text-2xl mb-1"></i>
-                            <span class="text-[10px] text-white font-bold uppercase tracking-wider">Failed</span>
-                          }
-                        </div>
-                      }
-
-                      <!-- Stage Badge -->
-                      @if (sessionMedia.stage) {
-                        <div class="absolute top-2 left-2 px-2 py-1 bg-black/60 backdrop-blur-md rounded-lg text-[10px] font-bold text-white uppercase tracking-wider">
-                          {{ formatStatus(sessionMedia.stage) }}
-                        </div>
-                      }
-                      
-                      <!-- Hover Overlay -->
-                      <div class="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-                        <button (click)="openMedia(sessionMedia.media.url)" class="w-full py-1.5 bg-white/20 backdrop-blur-md border border-white/30 rounded-lg text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/40 transition-colors">
-                          View Full
-                        </button>
-                      </div>
+                <div class="grid grid-cols-3 gap-2">
+                  @for (m of getAllMedia().slice(0, 6); track m.id) {
+                    <div (click)="openMedia(m.media.url)" class="aspect-square rounded-xl overflow-hidden border border-slate-100 cursor-pointer hover:opacity-80 transition-opacity">
+                      <img [src]="m.media.url" class="w-full h-full object-cover">
                     </div>
                   }
                 </div>
               } @else {
-                <div class="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                  <div class="w-16 h-16 mx-auto mb-4 bg-white rounded-2xl shadow-sm flex items-center justify-center">
-                    <i class="ri-image-add-line text-3xl text-slate-300"></i>
-                  </div>
-                  <p class="text-sm font-bold text-slate-900">No media uploaded yet</p>
-                  <p class="text-xs text-slate-500 mt-1">Photos and videos from workflow steps will appear here</p>
+                <div class="text-center py-10">
+                  <i class="ri-camera-off-line text-2xl text-slate-200"></i>
+                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">Zero Assets Logged</p>
                 </div>
               }
             </div>
           </div>
+
         </div>
       </div>
     }
   </div>
-
-  <!-- Step Modal -->
-  @if (showStepModal()) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn" (click)="closeStepModal()">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col" (click)="$event.stopPropagation()">
-        <!-- Modal Header -->
-        <div class="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50/50">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-[#1b75bc]/10 text-[#1b75bc] flex items-center justify-center">
-              <i [class]="selectedStep()?.icon + ' text-xl'"></i>
-            </div>
-            <div>
-              <h2 class="text-lg font-bold text-slate-900">{{ selectedStep()?.title }}</h2>
-              <p class="text-xs text-slate-500">{{ selectedStep()?.description }}</p>
-            </div>
-          </div>
-          <button (click)="closeStepModal()" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
-            <i class="ri-close-line text-xl text-slate-400"></i>
-          </button>
-        </div>
-
-        <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
-          <div class="space-y-6">
-            <!-- Customer Requests Reference in Modal -->
-            @if (selectedStep()?.id !== 'customerRequests' && sessionDetail()?.customerRequests) {
-              <div class="p-4 bg-amber-50 border border-amber-100 rounded-xl">
-                <div class="flex items-center gap-2 mb-2">
-                  <i class="ri-user-voice-line text-amber-600"></i>
-                  <span class="text-xs font-bold text-amber-800 uppercase tracking-wider">Customer Requests Reference</span>
-                </div>
-                <p class="text-sm text-amber-900 leading-relaxed">{{ sessionDetail()?.customerRequests }}</p>
-              </div>
-            }
-
-            @if (['intake', 'customerRequests', 'inspection', 'testDrive'].includes(selectedStep()?.id || '')) {
-              <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                  <label class="block text-sm font-semibold text-slate-700">
-                    Requests & Instructions
-                  </label>
-                  <button 
-                    (click)="addRequest()"
-                    class="text-xs font-bold text-[#1b75bc] hover:text-[#155a92] flex items-center gap-1">
-                    <i class="ri-add-line"></i>
-                    Add Request
-                  </button>
-                </div>
-                
-                <div class="space-y-3">
-                  @for (request of stepRequests(); track $index) {
-                    <div class="flex items-start gap-3 group animate-slide-in">
-                      <div class="flex-1 relative">
-                        <textarea
-                          [ngModel]="request"
-                          (ngModelChange)="updateRequest($index, $event)"
-                          (keydown)="handleRequestKeydown($event, $index)"
-                          rows="1"
-                          class="request-input w-full px-4 py-3 bg-amber-50/40 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm transition-all resize-none leading-relaxed"
-                          placeholder="Type a request and press Enter..."></textarea>
-                        <div class="absolute left-0 top-3 bottom-3 w-1 bg-amber-400 rounded-full opacity-50"></div>
-                      </div>
-                      <div class="flex items-center pt-2">
-                        <button 
-                          (click)="removeRequest($index)"
-                          class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                          title="Remove request">
-                          <i class="ri-delete-bin-line text-lg"></i>
-                        </button>
-                      </div>
-                    </div>
-                  }
-                </div>
-                <div class="flex items-center gap-4 px-1">
-                  <p class="text-[10px] text-slate-400 flex items-center gap-1">
-                    <kbd class="px-1 py-0.5 bg-slate-100 border border-slate-200 rounded text-[9px]">Enter</kbd> for new item
-                  </p>
-                  <p class="text-[10px] text-slate-400 flex items-center gap-1">
-                    <kbd class="px-1 py-0.5 bg-slate-100 border border-slate-200 rounded text-[9px]">Shift + Enter</kbd> for new line
-                  </p>
-                </div>
-              </div>
-            }
-
-            @if (selectedStep()?.id !== 'customerRequests') {
-              <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                  Notes & Observations <span class="text-red-500">*</span>
-                </label>
-                <textarea
-                  [(ngModel)]="stepNotes"
-                  rows="6"
-                  class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent resize-none text-sm leading-relaxed transition-all"
-                  placeholder="Enter detailed notes for this step..."></textarea>
-              </div>
-            }
-
-            <!-- Media Upload -->
-            <div class="space-y-3">
-              <label class="block text-sm font-semibold text-slate-700">
-                Photos & Videos
-              </label>
-              
-              <!-- Uploaded Media Preview -->
-              @if (getMediaByStage(selectedStep()?.id || 'general').length > 0) {
-                <div class="grid grid-cols-4 gap-3 mb-4">
-                  @for (sessionMedia of getMediaByStage(selectedStep()?.id || 'general'); track sessionMedia.id) {
-                    <div class="relative group aspect-square rounded-xl overflow-hidden border border-slate-100 shadow-sm">
-                      @if (isImage(sessionMedia.media.url)) {
-                        <img 
-                          [src]="sessionMedia.media.url" 
-                          class="w-full h-full object-cover cursor-pointer"
-                          (click)="openMedia(sessionMedia.media.url)" />
-                      } @else {
-                        <div class="w-full h-full bg-slate-100 flex items-center justify-center cursor-pointer"
-                             (click)="openMedia(sessionMedia.media.url)">
-                          <i class="ri-video-line text-2xl text-slate-400"></i>
-                        </div>
-                      }
-
-                      <!-- Pending/Status Overlay -->
-                      @if (sessionMedia.isPending) {
-                        <div class="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center z-20">
-                          @if (sessionMedia.status === 'uploading') {
-                            <i class="ri-loader-4-line animate-spin text-white text-lg"></i>
-                          } @else if (sessionMedia.status === 'uploaded') {
-                            <i class="ri-checkbox-circle-fill text-green-400 text-lg"></i>
-                          } @else if (sessionMedia.status === 'error') {
-                            <i class="ri-error-warning-fill text-red-400 text-lg"></i>
-                          }
-                        </div>
-                      }
-
-                      <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <i class="ri-external-link-line text-white"></i>
-                      </div>
-                    </div>
-                  }
-                </div>
-              }
-
-              <label class="block cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*,video/*"
-                  multiple
-                  (change)="onMediaUpload($event, selectedStep()?.id || 'general')"
-                  class="hidden" />
-                <div class="flex flex-col items-center justify-center gap-2 p-8 border-2 border-dashed border-slate-200 rounded-2xl hover:border-[#1b75bc] hover:bg-blue-50/50 transition-all group">
-                  <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-white transition-colors">
-                    <i class="ri-upload-cloud-2-line text-2xl text-[#1b75bc]"></i>
-                  </div>
-                  <div class="text-center">
-                    <p class="text-sm font-semibold text-slate-900">Click to upload or drag and drop</p>
-                    <p class="text-xs text-slate-500 mt-1">Multiple images and videos supported (max 50MB each)</p>
-                  </div>
-                </div>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="p-6 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-3">
-          <button 
-            (click)="closeStepModal()"
-            class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-            Cancel
-          </button>
-          <button 
-            (click)="saveStepNotes()"
-            [disabled]="isSavingStep() || (!stepNotes().trim() && !hasValidRequests())"
-            class="px-6 py-2 bg-[#1b75bc] text-white text-sm font-bold rounded-xl hover:bg-[#155a92] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md flex items-center gap-2">
-            @if (isSavingStep()) {
-              <i class="ri-loader-4-line animate-spin"></i>
-            }
-            <span>Save & Complete Step</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  }
-
-  <!-- Job Card Creation Modal -->
-  @if (showJobCardModal()) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn" (click)="closeJobCardModal()">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col" (click)="$event.stopPropagation()">
-        <!-- Modal Header -->
-        <div class="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50/50">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-[#1b75bc]/10 text-[#1b75bc] flex items-center justify-center">
-              <i class="ri-file-list-3-line text-lg"></i>
-            </div>
-            <div>
-              <h3 class="text-lg font-bold text-slate-900">Create Job Card</h3>
-              <p class="text-xs text-slate-500">Review and edit information before creating</p>
-            </div>
-          </div>
-          <button (click)="closeJobCardModal()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600">
-            <i class="ri-close-line text-xl"></i>
-          </button>
-        </div>
-
-        <!-- Modal Body -->
-        <div class="flex-1 overflow-y-auto p-6 space-y-6">
-          <!-- Customer Info -->
-          <div class="bg-white border border-slate-200 rounded-xl p-4">
-            <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <i class="ri-user-line text-[#1b75bc]"></i>
-              Customer Information
-            </h4>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">First Name</label>
-                <input
-                  [(ngModel)]="jobCardData().customerFirstName"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Last Name</label>
-                <input
-                  [(ngModel)]="jobCardData().customerLastName"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Phone</label>
-                <input
-                  [(ngModel)]="jobCardData().customerPhone"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Email</label>
-                <input
-                  [(ngModel)]="jobCardData().customerEmail"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Vehicle Info -->
-          <div class="bg-white border border-slate-200 rounded-xl p-4">
-            <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <i class="ri-car-line text-[#1b75bc]"></i>
-              Vehicle Information
-            </h4>
-            <div class="grid grid-cols-3 gap-4">
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Make</label>
-                <input
-                  [(ngModel)]="jobCardData().carMake"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Model</label>
-                <input
-                  [(ngModel)]="jobCardData().carModel"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Year</label>
-                <input
-                  [(ngModel)]="jobCardData().carYear"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">License Plate</label>
-                <input
-                  [(ngModel)]="jobCardData().licensePlate"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">VIN</label>
-                <input
-                  [(ngModel)]="jobCardData().vin"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Mileage</label>
-                <input
-                  [(ngModel)]="jobCardData().mileage"
-                  type="number"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Service Requests -->
-          <div class="bg-white border border-slate-200 rounded-xl p-4">
-            <div class="flex items-center justify-between mb-4">
-              <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <i class="ri-tools-line text-[#1b75bc]"></i>
-                Service Requests
-              </h4>
-              <button
-                (click)="addJobCardRequest()"
-                class="px-3 py-1.5 text-xs font-semibold text-[#1b75bc] hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1"
-              >
-                <i class="ri-add-line"></i>
-                Add Request
-              </button>
-            </div>
-            <div class="space-y-2">
-              @for (request of jobCardData().requests; track $index) {
-                <div class="flex items-center gap-2">
-                  <input
-                    [(ngModel)]="jobCardData().requests[$index]"
-                    class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent"
-                    placeholder="Enter service request..."
-                  />
-                  <button
-                    (click)="removeJobCardRequest($index)"
-                    class="w-8 h-8 flex items-center justify-center text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    <i class="ri-delete-bin-line"></i>
-                  </button>
-                </div>
-              }
-              @if (jobCardData().requests.length === 0) {
-                <p class="text-xs text-slate-500 text-center py-4">No service requests added yet</p>
-              }
-            </div>
-          </div>
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="flex items-center justify-end gap-3 p-6 border-t border-slate-100 bg-slate-50/50">
-          <button
-            (click)="closeJobCardModal()"
-            class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            (click)="submitJobCard()"
-            [disabled]="isCreatingJobCard()"
-            class="px-6 py-2 text-sm font-bold text-white bg-[#1b75bc] rounded-lg hover:bg-[#155a92] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            @if (isCreatingJobCard()) {
-              <i class="ri-loader-4-line animate-spin"></i>
-            }
-            <span>Create Job Card</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  }
 </div>

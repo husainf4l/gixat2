@@ -12,7 +12,15 @@ interface PendingUpload {
   stage: string;
   status: 'pending' | 'uploading' | 'uploaded' | 'error';
   errorMessage?: string;
+  progress?: number; // Upload progress percentage
 }
+
+// File upload constants
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
+const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-msvideo', 'video/webm'];
+const ALLOWED_MIME_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES];
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif', '.mp4', '.mov', '.avi', '.mpeg', '.webm'];
 
 @Component({
   selector: 'app-request-widget',
@@ -32,12 +40,17 @@ export class RequestWidgetComponent implements OnInit {
 
   requests = signal<string[]>(['']);
   notes = signal<string>('');
+  mileage = signal<number>(0);
 
   sessionDetail = signal<Session | null>(null);
   pendingUploads = signal<PendingUpload[]>([]);
 
   isSaving = signal<boolean>(false);
   isLoading = signal<boolean>(true);
+
+  // File upload helpers
+  readonly maxFileSizeMB = MAX_FILE_SIZE / (1024 * 1024);
+  readonly allowedFormats = ALLOWED_EXTENSIONS.join(', ');
 
   ngOnInit() {
     const sessionId = this.route.snapshot.paramMap.get('sessionId');
@@ -60,7 +73,6 @@ export class RequestWidgetComponent implements OnInit {
 
   updateStepMetadata(stepId: string) {
     const stepMeta: Record<string, { title: string; icon: string }> = {
-      intake: { title: 'Intake Requests', icon: 'ri-login-box-line' },
       customerRequests: { title: 'Customer Requests', icon: 'ri-user-voice-line' },
       inspection: { title: 'Inspection Requests', icon: 'ri-search-eye-line' },
       testDrive: { title: 'Test Drive Requests', icon: 'ri-steering-2-line' },
@@ -78,18 +90,18 @@ export class RequestWidgetComponent implements OnInit {
       next: (session) => {
         this.sessionDetail.set(session);
 
-        // Load existing requests based on stepId
+        // Load existing requests based on stepId (simplified workflow)
         const stepId = this.stepId();
-        if (stepId === 'intake' && session.intakeRequests) {
-          this.requests.set(session.intakeRequests.split('\n').filter(r => r.trim()));
-          this.notes.set(session.intakeNotes || '');
-        } else if (stepId === 'customerRequests' && session.customerRequests) {
-          this.requests.set(session.customerRequests.split('\n').filter(r => r.trim()));
+        if (stepId === 'customerRequests' && session.customerRequests) {
+          this.requests.set(session.customerRequests.split('\n').filter((r: string) => r.trim()));
         } else if (stepId === 'inspection' && session.inspectionRequests) {
-          this.requests.set(session.inspectionRequests.split('\n').filter(r => r.trim()));
+          this.requests.set(session.inspectionRequests.split('\n').filter((r: string) => r.trim()));
           this.notes.set(session.inspectionNotes || '');
+          if (session.mileage) {
+            this.mileage.set(session.mileage);
+          }
         } else if (stepId === 'testDrive' && session.testDriveRequests) {
-          this.requests.set(session.testDriveRequests.split('\n').filter(r => r.trim()));
+          this.requests.set(session.testDriveRequests.split('\n').filter((r: string) => r.trim()));
           this.notes.set(session.testDriveNotes || '');
         } else if (stepId === 'initialReport' && session.initialReport) {
           this.notes.set(session.initialReport || '');
@@ -191,6 +203,34 @@ export class RequestWidgetComponent implements OnInit {
     return pending.some(p => p.status === 'error');
   }
 
+  private validateStep(): { valid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    const stepId = this.stepId();
+    
+    if (stepId === 'inspection') {
+      if (!this.mileage() || this.mileage() <= 0) {
+        errors.push('Mileage is required and must be greater than 0');
+      }
+      if (!this.hasValidRequests() && !this.notes()) {
+        errors.push('Please add either inspection notes or requests');
+      }
+    }
+    
+    if (stepId === 'customerRequests' && !this.hasValidRequests()) {
+      errors.push('Please add at least one customer request');
+    }
+
+    if (stepId === 'testDrive' && !this.hasValidRequests() && !this.notes()) {
+      errors.push('Please add either test drive notes or requests');
+    }
+
+    if (stepId === 'initialReport' && !this.notes()) {
+      errors.push('Please add initial report notes');
+    }
+    
+    return { valid: errors.length === 0, errors };
+  }
+
   getUploadStatusMessage(): string {
     const pending = this.pendingUploads();
     const uploading = pending.filter(p => p.status === 'uploading').length;
@@ -209,11 +249,39 @@ export class RequestWidgetComponent implements OnInit {
     return '';
   }
 
+  async generateReport() {
+    const sessionId = this.sessionId();
+    if (!sessionId) return;
+
+    this.isSaving.set(true);
+    try {
+      await this.sessionService.updateSessionStep(sessionId, 'initialReport', '').toPromise();
+      this.goBack();
+    } catch (error) {
+      console.error('Failed to generate report:', error);
+      alert('Failed to generate report. Please try again.');
+    } finally {
+      this.isSaving.set(false);
+    }
+  }
+
   async save() {
     const sessionId = this.sessionId();
     const stepId = this.stepId();
 
     if (!sessionId || !stepId) return;
+
+    if (stepId === 'initialReport') {
+      this.generateReport();
+      return;
+    }
+
+    // Enhanced validation
+    const validation = this.validateStep();
+    if (!validation.valid) {
+      alert(validation.errors.join('\n'));
+      return;
+    }
 
     // Check for uploads in progress or failed
     if (this.hasFailedUploads()) {
@@ -241,7 +309,8 @@ export class RequestWidgetComponent implements OnInit {
         sessionId,
         stepId,
         this.notes(),
-        requestsStr
+        requestsStr,
+        stepId === 'inspection' ? this.mileage() : undefined
       ).toPromise();
 
       this.goBack();
@@ -341,7 +410,16 @@ export class RequestWidgetComponent implements OnInit {
 
       const uploadPromises = processedItems.map((item, index) => {
         const presignedData = presignedUrls[index];
-        return this.sessionService.uploadToS3(presignedData.uploadUrl, item.file);
+        return this.sessionService.uploadToS3(
+          presignedData.uploadUrl, 
+          item.file,
+          (progress) => {
+            // Update progress for this specific file
+            this.pendingUploads.update(prev =>
+              prev.map(p => p.id === item.id ? { ...p, progress } : p)
+            );
+          }
+        );
       });
 
       await Promise.all(uploadPromises);
@@ -384,7 +462,6 @@ export class RequestWidgetComponent implements OnInit {
 
   private getBackendStage(stage: string): string {
     const stageMap: { [key: string]: string } = {
-      'intake': 'INTAKE',
       'customerRequests': 'GENERAL',
       'inspection': 'INSPECTION',
       'testDrive': 'TEST_DRIVE',
@@ -409,6 +486,7 @@ export class RequestWidgetComponent implements OnInit {
         stage: p.stage,
         isPending: p.status === 'error', // Only mark as pending if there's an error
         status: p.status,
+        progress: p.progress, // Include progress for UI
         media: { id: p.id, url: p.previewUrl, alt: p.file.name }
       })),
       ...uploadedMedia
@@ -500,34 +578,23 @@ export class RequestWidgetComponent implements OnInit {
   }
 
   private validateFile(file: File): string | null {
-    const MAX_SIZE = 50 * 1024 * 1024;
-    if (file.size > MAX_SIZE) {
-      return 'File size exceeds 50MB limit.';
+    if (file.size > MAX_FILE_SIZE) {
+      return `File size exceeds ${this.maxFileSizeMB}MB limit.`;
     }
 
     if (file.size === 0) {
       return 'File is empty.';
     }
 
-    const allowedMimeTypes = [
-      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif',
-      'video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-msvideo', 'video/webm'
-    ];
-
-    if (!allowedMimeTypes.includes(file.type)) {
-      return `File type "${file.type}" is not allowed.`;
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      return `File type "${file.type}" is not allowed. Allowed types: images and videos.`;
     }
 
-    const allowedExtensions = [
-      '.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif',
-      '.mp4', '.mov', '.avi', '.mpeg', '.webm'
-    ];
-
     const fileName = file.name.toLowerCase();
-    const hasValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+    const hasValidExtension = ALLOWED_EXTENSIONS.some(ext => fileName.endsWith(ext));
 
     if (!hasValidExtension) {
-      return 'File extension is not allowed.';
+      return `File extension is not allowed. Supported: ${this.allowedFormats}`;
     }
 
     if (file.name.includes('..') || file.name.includes('/') || file.name.includes('\\')) {

@@ -1,0 +1,147 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <!-- Header -->
+    <div class="mb-12">
+      <h1 class="text-4xl font-semibold text-slate-900 tracking-tight mb-2">Vehicles</h1>
+      <p class="text-base text-slate-500 mb-8">Manage all registered vehicles</p>
+
+      <!-- Search Bar -->
+      <div class="relative max-w-xl">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <i class="ri-search-line text-slate-400"></i>
+        </div>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="searchQuery.set($event); onSearch()"
+          placeholder="Search by make, model, license plate, or owner..."
+          class="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent text-sm text-slate-900 placeholder:text-slate-400 transition-all"
+        />
+      </div>
+    </div>
+
+    <!-- Cars Table -->
+    @if (!isLoading()) {
+      @if (filteredVehicles().length > 0) {
+        <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <!-- Table Header -->
+          <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-3">
+            <div class="grid grid-cols-12 gap-4">
+              <button (click)="toggleSort('make')" class="col-span-3 text-xs font-medium text-slate-600 text-left flex items-center gap-1.5 hover:text-slate-900 transition-colors">
+                Vehicle
+                @if (sortField() === 'make') {
+                  <i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line text-sm' : 'ri-arrow-down-s-line text-sm'"></i>
+                }
+              </button>
+              <button (click)="toggleSort('year')" class="col-span-1 text-xs font-medium text-slate-600 text-left flex items-center gap-1.5 hover:text-slate-900 transition-colors">
+                Year
+                @if (sortField() === 'year') {
+                  <i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line text-sm' : 'ri-arrow-down-s-line text-sm'"></i>
+                }
+              </button>
+              <div class="col-span-2 text-xs font-medium text-slate-600">License Plate</div>
+              <div class="col-span-2 text-xs font-medium text-slate-600">Color</div>
+              <button (click)="toggleSort('customerName')" class="col-span-3 text-xs font-medium text-slate-600 text-left flex items-center gap-1.5 hover:text-slate-900 transition-colors">
+                Owner
+                @if (sortField() === 'customerName') {
+                  <i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line text-sm' : 'ri-arrow-down-s-line text-sm'"></i>
+                }
+              </button>
+              <div class="col-span-1"></div>
+            </div>
+          </div>
+
+          <!-- Table Body -->
+          <div class="divide-y divide-slate-100">
+            @for (vehicle of filteredVehicles(); track vehicle.id) {
+              <button
+                (click)="viewVehicle(vehicle.customer.id, vehicle.id)"
+                class="w-full px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-slate-50/50 transition-all text-left group"
+              >
+                <!-- Vehicle -->
+                <div class="col-span-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-[#1b75bc] transition-colors">
+                      <i class="ri-car-line text-lg"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-sm font-semibold text-slate-900 group-hover:text-[#1b75bc] transition-colors truncate">{{ vehicle.make }} {{ vehicle.model }}</p>
+                      @if (vehicle.vin) {
+                        <p class="text-xs text-slate-500 truncate">VIN: {{ vehicle.vin }}</p>
+                      }
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Year -->
+                <div class="col-span-1">
+                  <p class="text-sm text-slate-600">{{ vehicle.year }}</p>
+                </div>
+
+                <!-- License Plate -->
+                <div class="col-span-2">
+                  <span class="inline-flex px-2.5 py-1 bg-slate-100 text-slate-700 rounded text-xs font-semibold border border-slate-200">
+                    {{ vehicle.licensePlate }}
+                  </span>
+                </div>
+
+                <!-- Color -->
+                <div class="col-span-2">
+                  @if (vehicle.color) {
+                    <p class="text-sm text-slate-600 capitalize">{{ vehicle.color }}</p>
+                  } @else {
+                    <p class="text-sm text-slate-400">N/A</p>
+                  }
+                </div>
+
+                <!-- Owner -->
+                <div class="col-span-3">
+                  <button
+                    (click)="viewCustomer(vehicle.customer.id); $event.stopPropagation()"
+                    class="text-left hover:text-[#1b75bc] transition-colors"
+                  >
+                    <p class="text-sm font-medium text-slate-900 truncate">{{ vehicle.customer.firstName }} {{ vehicle.customer.lastName }}</p>
+                    @if (vehicle.customer.phoneNumber) {
+                      <p class="text-xs text-slate-500 truncate">{{ vehicle.customer.phoneNumber }}</p>
+                    }
+                  </button>
+                </div>
+
+                <!-- Arrow -->
+                <div class="col-span-1 flex justify-end">
+                  <i class="ri-arrow-right-s-line text-slate-400 text-xl group-hover:text-[#1b75bc] group-hover:translate-x-0.5 transition-all"></i>
+                </div>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Results Count -->
+        <div class="mt-6 text-center">
+          <p class="text-sm text-slate-500">
+            Showing {{ filteredVehicles().length }} of {{ vehicles().length }} vehicles
+          </p>
+        </div>
+      } @else {
+        <div class="bg-white border border-slate-200 rounded-xl p-16 text-center">
+          <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="ri-car-line text-3xl text-slate-400"></i>
+          </div>
+          <h3 class="text-lg font-semibold text-slate-900 mb-2">No vehicles found</h3>
+          <p class="text-sm text-slate-500">
+            @if (searchQuery()) {
+              Try adjusting your search
+            } @else {
+              Vehicles will appear here once customers add them
+            }
+          </p>
+        </div>
+      }
+    } @else {
+      <div class="py-24 flex flex-col items-center justify-center">
+        <div class="w-8 h-8 border-2 border-slate-200 border-t-[#1b75bc] rounded-full animate-spin mb-4"></div>
+        <p class="text-sm text-slate-500">Loading vehicles...</p>
+      </div>
+    }
+  </div>
+</div>

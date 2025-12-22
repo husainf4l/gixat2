@@ -2,21 +2,10 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { JobCardService, JobCardStatus, JobCard } from '../../services/job-card.service';
 
-interface JobCard {
-  id: string;
-  jobNumber: string;
-  customerName: string;
-  vehicle: string;
-  status: string;
-  createdAt: string;
-  estimatedCompletion?: string;
-  totalCost?: number;
-}
-
-type SortField = 'jobNumber' | 'customerName' | 'status' | 'createdAt';
+type SortField = 'id' | 'customerName' | 'status' | 'createdAt';
 type SortDirection = 'asc' | 'desc';
-type StatusFilter = 'all' | 'pending' | 'in-progress' | 'completed' | 'cancelled';
 
 @Component({
   selector: 'app-job-cards',
@@ -26,62 +15,26 @@ type StatusFilter = 'all' | 'pending' | 'in-progress' | 'completed' | 'cancelled
 })
 export class JobCardsComponent implements OnInit {
   private router = inject(Router);
+  private jobCardService = inject(JobCardService);
 
   isLoading = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
 
   // Search & Filter
   searchQuery = signal<string>('');
-  statusFilter = signal<StatusFilter>('all');
+  statusFilter = signal<JobCardStatus | 'ALL'>('ALL');
   showFilters = signal<boolean>(false);
 
   // Sort
   sortField = signal<SortField>('createdAt');
   sortDirection = signal<SortDirection>('desc');
 
-  // Mock data - will be replaced with real API call
   allJobCards = signal<JobCard[]>([]);
+  
+  jobCardStatuses = Object.values(JobCardStatus);
 
   jobCards = computed(() => {
-    let result = this.allJobCards();
-
-    // Apply search filter
-    const query = this.searchQuery().toLowerCase();
-    if (query) {
-      result = result.filter(jc => 
-        jc.jobNumber.toLowerCase().includes(query) ||
-        jc.customerName.toLowerCase().includes(query) ||
-        jc.vehicle.toLowerCase().includes(query)
-      );
-    }
-
-    // Apply status filter
-    const filter = this.statusFilter();
-    if (filter !== 'all') {
-      result = result.filter(jc => jc.status.toLowerCase() === filter);
-    }
-
-    // Apply sorting
-    const field = this.sortField();
-    const direction = this.sortDirection();
-    result = [...result].sort((a, b) => {
-      let aVal: any = a[field];
-      let bVal: any = b[field];
-
-      if (field === 'createdAt') {
-        aVal = new Date(a.createdAt).getTime();
-        bVal = new Date(b.createdAt).getTime();
-      } else if (typeof aVal === 'string') {
-        aVal = aVal.toLowerCase();
-        bVal = bVal.toLowerCase();
-      }
-
-      if (aVal < bVal) return direction === 'asc' ? -1 : 1;
-      if (aVal > bVal) return direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    return result;
+    return this.allJobCards();
   });
 
   ngOnInit() {
@@ -89,9 +42,32 @@ export class JobCardsComponent implements OnInit {
   }
 
   loadJobCards() {
-    // TODO: Replace with actual API call
-    // For now, using empty array
-    this.allJobCards.set([]);
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+
+    const query = this.searchQuery();
+    const status = this.statusFilter() === 'ALL' ? undefined : this.statusFilter() as JobCardStatus;
+
+    this.jobCardService.searchJobCards(query, status).subscribe({
+      next: (connection) => {
+        this.allJobCards.set(connection.edges.map(e => e.node));
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading job cards:', err);
+        this.errorMessage.set('Failed to load job cards. Please try again.');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  onSearch() {
+    this.loadJobCards();
+  }
+
+  setStatusFilter(filter: JobCardStatus | 'ALL') {
+    this.statusFilter.set(filter);
+    this.loadJobCards();
   }
 
   toggleSort(field: SortField) {
@@ -101,10 +77,9 @@ export class JobCardsComponent implements OnInit {
       this.sortField.set(field);
       this.sortDirection.set('asc');
     }
-  }
-
-  setStatusFilter(filter: StatusFilter) {
-    this.statusFilter.set(filter);
+    // In a real app with server-side sorting, we'd reload here
+    // For now we just sort locally or let the service handle it if we add those params
+    this.loadJobCards();
   }
 
   toggleFilters() {
@@ -116,14 +91,14 @@ export class JobCardsComponent implements OnInit {
   }
 
   getStatusColor(status: string): string {
-    switch (status.toLowerCase()) {
-      case 'pending':
+    switch (status) {
+      case 'PENDING':
         return 'bg-yellow-100 text-yellow-700';
-      case 'in-progress':
+      case 'IN_PROGRESS':
         return 'bg-blue-100 text-blue-700';
-      case 'completed':
+      case 'COMPLETED':
         return 'bg-emerald-100 text-emerald-700';
-      case 'cancelled':
+      case 'CANCELLED':
         return 'bg-slate-100 text-slate-700';
       default:
         return 'bg-slate-100 text-slate-600';
@@ -131,7 +106,7 @@ export class JobCardsComponent implements OnInit {
   }
 
   formatStatus(status: string): string {
-    return status.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    return status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   }
 
   formatDate(dateString: string): string {

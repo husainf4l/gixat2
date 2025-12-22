@@ -167,15 +167,41 @@ export class AddCarModalComponent implements OnInit {
       color: this.carForm.value.color || null,
     };
 
+    console.log('Creating car with input:', input); // Debug log
+
     this.customerService.createCar(input).subscribe({
       next: (car) => {
+        console.log('Car created successfully:', car); // Debug log
+        console.log('Verify customerId in response:', car.customerId); // Verify customerId
         this.isSubmitting.set(false);
         this.createdCarId.set(car.id);
         // Don't close immediately, show the action buttons
       },
       error: (err) => {
+        console.error('Error creating car:', err); // Debug log
         this.isSubmitting.set(false);
-        this.errorMessage.set(err instanceof Error ? err.message : 'Failed to create car');
+        
+        let errorMsg = 'Failed to create car';
+        
+        // Handle specific GraphQL errors
+        if (err.graphQLErrors && err.graphQLErrors.length > 0) {
+          const gqlError = err.graphQLErrors[0];
+          if (gqlError.message.includes('duplicate') || gqlError.message.includes('unique')) {
+            if (gqlError.message.toLowerCase().includes('license') || gqlError.message.toLowerCase().includes('plate')) {
+              errorMsg = 'This license plate is already registered';
+            } else if (gqlError.message.toLowerCase().includes('vin')) {
+              errorMsg = 'This VIN is already registered';
+            } else {
+              errorMsg = 'A car with this information already exists';
+            }
+          } else {
+            errorMsg = gqlError.message;
+          }
+        } else if (err instanceof Error) {
+          errorMsg = err.message;
+        }
+        
+        this.errorMessage.set(errorMsg);
       },
     });
   }

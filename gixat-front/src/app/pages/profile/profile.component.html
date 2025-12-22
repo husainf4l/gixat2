@@ -1,0 +1,260 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-slate-900 mb-2">Profile Settings</h1>
+      <p class="text-slate-600">Manage your account information and preferences</p>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+        <div class="flex flex-col items-center justify-center">
+          <div class="relative w-12 h-12 mb-4">
+            <div class="absolute inset-0 rounded-full border-4 border-slate-100"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-t-[#1b75bc] animate-spin"></div>
+          </div>
+          <p class="text-sm text-slate-500">Loading profile...</p>
+        </div>
+      </div>
+    }
+
+    <!-- Error Message -->
+    @if (errorMessage(); as error) {
+      <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <div class="flex items-center gap-2">
+          <i class="ri-error-warning-line text-lg"></i>
+          <span>{{ error }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- Success Message -->
+    @if (successMessage(); as success) {
+      <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+        <div class="flex items-center gap-2">
+          <i class="ri-checkbox-circle-line text-lg"></i>
+          <span>{{ success }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- Profile Content -->
+    @if (!isLoading() && profile(); as userProfile) {
+      <div class="space-y-6">
+        <!-- Avatar Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <h2 class="text-lg font-semibold text-slate-900 mb-4">Profile Picture</h2>
+          
+          <div class="flex items-start gap-6">
+            <!-- Avatar Display -->
+            <div class="relative">
+              @if (avatarPreview()) {
+                <img 
+                  [src]="avatarPreview()" 
+                  alt="Profile avatar"
+                  class="w-24 h-24 rounded-full object-cover border-4 border-slate-200 shadow-sm"
+                />
+              } @else {
+                <div class="w-24 h-24 rounded-full bg-gradient-to-br from-[#1b75bc] to-[#155a92] flex items-center justify-center text-white text-2xl font-bold border-4 border-slate-200 shadow-sm">
+                  {{ getInitials() }}
+                </div>
+              }
+              
+              @if (isUploadingAvatar()) {
+                <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
+                  <div class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              }
+            </div>
+
+            <!-- Avatar Actions -->
+            <div class="flex-1 space-y-3">
+              <div class="flex flex-wrap gap-3">
+                <label 
+                  for="avatar-input"
+                  class="inline-flex items-center gap-2 px-4 py-2 bg-[#1b75bc] text-white rounded-lg hover:bg-[#155a92] transition-colors cursor-pointer text-sm font-medium"
+                  [class.opacity-50]="isUploadingAvatar()"
+                  [class.pointer-events-none]="isUploadingAvatar()"
+                >
+                  <i class="ri-upload-cloud-line"></i>
+                  <span>Upload New</span>
+                  <input 
+                    id="avatar-input"
+                    type="file" 
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                    class="hidden"
+                    (change)="onAvatarSelected($event)"
+                    [disabled]="isUploadingAvatar()"
+                  />
+                </label>
+
+                @if (avatarPreview() && !isUploadingAvatar()) {
+                  <button
+                    (click)="uploadAvatar()"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                  >
+                    <i class="ri-check-line"></i>
+                    <span>Save Avatar</span>
+                  </button>
+                }
+
+                @if (avatarPreview() && !isUploadingAvatar()) {
+                  <button
+                    (click)="deleteAvatar()"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                  >
+                    <i class="ri-delete-bin-line"></i>
+                    <span>Delete</span>
+                  </button>
+                }
+              </div>
+
+              <p class="text-xs text-slate-500">
+                JPG, PNG, GIF or WebP. Max size 5MB. Recommended: 400x400px square image.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Information Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <h2 class="text-lg font-semibold text-slate-900 mb-6">Profile Information</h2>
+
+          <form (ngSubmit)="saveProfile()" class="space-y-6">
+            <!-- Full Name -->
+            <div>
+              <label for="fullName" class="block text-sm font-medium text-slate-700 mb-2">
+                Full Name <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="fullName"
+                type="text"
+                [value]="formData().fullName"
+                (input)="onFieldChange('fullName', $any($event.target).value)"
+                class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-colors"
+                [class.border-red-300]="errors()['fullName']"
+                [class.bg-red-50]="errors()['fullName']"
+                placeholder="Enter your full name"
+                [disabled]="isSaving()"
+              />
+              @if (errors()['fullName']) {
+                <p class="mt-1.5 text-sm text-red-600">{{ errors()['fullName'] }}</p>
+              }
+            </div>
+
+            <!-- Email (Read-only) -->
+            <div>
+              <label for="email" class="block text-sm font-medium text-slate-700 mb-2">
+                Email Address
+              </label>
+              <input
+                id="email"
+                type="email"
+                [value]="userProfile.email"
+                disabled
+                class="w-full px-4 py-2.5 border border-slate-300 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed"
+              />
+              <p class="mt-1.5 text-xs text-slate-500">Email cannot be changed</p>
+            </div>
+
+            <!-- Phone Number -->
+            <div>
+              <label for="phoneNumber" class="block text-sm font-medium text-slate-700 mb-2">
+                Phone Number
+              </label>
+              <input
+                id="phoneNumber"
+                type="tel"
+                [value]="formData().phoneNumber || ''"
+                (input)="onFieldChange('phoneNumber', $any($event.target).value)"
+                class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-colors"
+                [class.border-red-300]="errors()['phoneNumber']"
+                [class.bg-red-50]="errors()['phoneNumber']"
+                placeholder="+1 (555) 123-4567"
+                [disabled]="isSaving()"
+              />
+              @if (errors()['phoneNumber']) {
+                <p class="mt-1.5 text-sm text-red-600">{{ errors()['phoneNumber'] }}</p>
+              }
+              <p class="mt-1.5 text-xs text-slate-500">Include country code for international numbers</p>
+            </div>
+
+            <!-- Bio -->
+            <div>
+              <label for="bio" class="block text-sm font-medium text-slate-700 mb-2">
+                Bio
+              </label>
+              <textarea
+                id="bio"
+                [value]="formData().bio || ''"
+                (input)="onFieldChange('bio', $any($event.target).value)"
+                rows="4"
+                class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-colors resize-none"
+                [class.border-red-300]="errors()['bio']"
+                [class.bg-red-50]="errors()['bio']"
+                placeholder="Tell us about yourself..."
+                [disabled]="isSaving()"
+              ></textarea>
+              <div class="flex items-center justify-between mt-1.5">
+                @if (errors()['bio']) {
+                  <p class="text-sm text-red-600">{{ errors()['bio'] }}</p>
+                } @else {
+                  <p class="text-xs text-slate-500">Optional. Max 500 characters.</p>
+                }
+                <p class="text-xs text-slate-400">
+                  {{ (formData().bio || '').length }}/500
+                </p>
+              </div>
+            </div>
+
+            <!-- Account Info (Read-only) -->
+            <div class="pt-6 border-t border-slate-200">
+              <h3 class="text-sm font-semibold text-slate-900 mb-4">Account Information</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <p class="text-xs text-slate-500 mb-1">User Type</p>
+                  <p class="text-sm font-medium text-slate-900">
+                    {{ userProfile.userType || 'Standard User' }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-slate-500 mb-1">Member Since</p>
+                  <p class="text-sm font-medium text-slate-900">
+                    {{ formatDate(userProfile.createdAt) }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="flex items-center justify-end gap-3 pt-4">
+              <button
+                type="button"
+                (click)="loadProfile()"
+                class="px-6 py-2.5 text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+                [disabled]="isSaving()"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="px-6 py-2.5 bg-[#1b75bc] text-white rounded-lg hover:bg-[#155a92] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                [disabled]="isSaving()"
+              >
+                @if (isSaving()) {
+                  <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Saving...</span>
+                } @else {
+                  <i class="ri-save-line"></i>
+                  <span>Save Changes</span>
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+

@@ -19,7 +19,7 @@ interface SessionRowVM {
 
 type SortField = 'sessionNumber' | 'customerName' | 'createdAt' | 'status';
 type SortDirection = 'asc' | 'desc';
-type StatusFilter = 'all' | 'intake' | 'in-progress' | 'quality-check' | 'ready-for-pickup' | 'completed';
+type StatusFilter = 'all' | 'in-progress' | 'quality-check' | 'ready-for-pickup' | 'completed';
 
 @Component({
   selector: 'app-sessions',
@@ -46,6 +46,8 @@ export class SessionsComponent implements OnInit {
   // Sort
   sortField = signal<SortField>('createdAt');
   sortDirection = signal<SortDirection>('desc');
+
+  readonly statusFilters: StatusFilter[] = ['in-progress', 'quality-check', 'ready-for-pickup', 'completed'];
 
   private allSessions = toSignal(
     this.searchSubject.pipe(
@@ -181,16 +183,20 @@ export class SessionsComponent implements OnInit {
 
   getStatusColor(status: string): string {
     switch (status.toUpperCase()) {
-      case 'INTAKE':
-        return 'bg-blue-100 text-blue-700';
-      case 'IN_PROGRESS':
-        return 'bg-yellow-100 text-yellow-700';
-      case 'QUALITY_CHECK':
-        return 'bg-purple-100 text-purple-700';
-      case 'READY_FOR_PICKUP':
-        return 'bg-emerald-100 text-emerald-700';
+      case 'CUSTOMERREQUEST':
+        return 'bg-blue-100 text-blue-800';
+      case 'INSPECTION':
+        return 'bg-purple-100 text-purple-800';
+      case 'TESTDRIVE':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'REPORTGENERATED':
+        return 'bg-indigo-100 text-indigo-800';
+      case 'JOBCARDCREATED':
+        return 'bg-green-100 text-green-800';
       case 'COMPLETED':
-        return 'bg-slate-100 text-slate-700';
+        return 'bg-slate-100 text-slate-800';
+      case 'CANCELLED':
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-slate-100 text-slate-600';
     }

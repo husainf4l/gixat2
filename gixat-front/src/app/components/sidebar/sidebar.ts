@@ -18,13 +18,16 @@ export class SidebarComponent {
   menuItems = [
     { path: '/dashboard', label: 'Dashboard', icon: 'ri-dashboard-line' },
     { path: '/dashboard/customers', label: 'Customers', icon: 'ri-user-3-line' },
-    { path: '/dashboard/sessions', label: 'Sessions', icon: 'ri-car-line' },
+    { path: '/dashboard/vehicles', label: 'Vehicles', icon: 'ri-car-line' },
+    { path: '/dashboard/sessions', label: 'Sessions', icon: 'ri-calendar-check-line' },
     { path: '/dashboard/job-cards', label: 'Job Cards', icon: 'ri-file-list-3-line' },
     { path: '/dashboard/projects', label: 'Projects', icon: 'ri-folder-line' },
     { path: '/dashboard/tasks', label: 'Tasks', icon: 'ri-checkbox-line' },
     { path: '/dashboard/team', label: 'Team', icon: 'ri-group-line' },
     { path: '/dashboard/settings', label: 'Settings', icon: 'ri-settings-3-line' }
   ];
+
+  profilePath = '/dashboard/profile';
 
   onNavigate() {
     // Close sidebar on mobile when navigating
