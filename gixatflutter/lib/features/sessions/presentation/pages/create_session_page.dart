@@ -41,6 +41,15 @@ class _CreateSessionPageState extends State<CreateSessionPage> with RouteAware {
     context.read<CreateSessionCubit>().loadCustomers();
   }
 
+  void _refreshCars() {
+    setState(() {
+      selectedCarId = null;
+    });
+    if (selectedCustomerId != null) {
+      context.read<CreateSessionCubit>().loadCarsForCustomer(selectedCustomerId!);
+    }
+  }
+
   Future<void> _navigateToCreateClient() async {
     await context.push('/clients/create');
     // Refresh customers list when returning from create client page
@@ -115,11 +124,13 @@ class _CreateSessionPageState extends State<CreateSessionPage> with RouteAware {
                             );
                           }).toList(),
                           onChanged: (value) {
+                            print('🚗 Customer selected: $value');
                             setState(() {
                               selectedCustomerId = value;
                               selectedCarId = null; // Reset car selection
                             });
                             if (value != null) {
+                              print('🚗 Loading cars for customer: $value');
                               context.read<CreateSessionCubit>().loadCarsForCustomer(value);
                             }
                           },
@@ -142,49 +153,58 @@ class _CreateSessionPageState extends State<CreateSessionPage> with RouteAware {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                'Select Customer',
+                                'Select Car',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.refresh),
-                                    tooltip: 'Refresh customers',
-                                    onPressed: _refreshCustomers,
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.add),
-                                    tooltip: 'Create new customer',
-                                    onPressed: _navigateToCreateClient,
-                                  ),
-                                ],
+                              IconButton(
+                                icon: const Icon(Icons.add),
+                                tooltip: 'Add new car',
+                                onPressed: () async {
+                                  final customerName = customers.firstWhere(
+                                    (c) => c['id'] == selectedCustomerId,
+                                    orElse: () => {'firstName': '', 'lastName': ''},
+                                  );
+                                  final name = '${customerName['firstName']} ${customerName['lastName']}'.trim();
+                                  
+                                  final result = await context.push(
+                                    '/clients/add-car?customerId=$selectedCustomerId&customerName=${Uri.encodeComponent(name)}',
+                                  );
+                                  
+                                  if (result == true && mounted) {
+                                    _refreshCars();
+                                  }
+                                },
                               ),
                             ],
                           ),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<String>(
                             value: selectedCarId,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Car',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
+                              helperText: cars.isEmpty ? 'No cars available. Click + to add a car.' : null,
                             ),
-                            items: cars.map((car) {
-                              return DropdownMenuItem<String>(
-                                value: car['id'] as String,
-                                child: Text(
-                                  '${car['make']} ${car['model']} - ${car['licensePlate']}',
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                selectedCarId = value;
-                              });
-                            },
+                            items: cars.isEmpty
+                                ? null
+                                : cars.map((car) {
+                                    return DropdownMenuItem<String>(
+                                      value: car['id'] as String,
+                                      child: Text(
+                                        '${car['make']} ${car['model']} - ${car['licensePlate']}',
+                                      ),
+                                    );
+                                  }).toList(),
+                            onChanged: cars.isEmpty
+                                ? null
+                                : (value) {
+                                    setState(() {
+                                      selectedCarId = value;
+                                    });
+                                  },
                           ),
                         ],
                       ),

@@ -16,6 +16,8 @@ class SessionsCubit extends Cubit<SessionsState> {
     bool refresh = false,
     Map<String, dynamic>? where,
   }) async {
+    if (isClosed) return; // Don't emit if cubit is closed
+    
     if (refresh) {
       emit(const SessionsLoading());
     } else if (state is! SessionsLoaded) {
@@ -31,6 +33,8 @@ class SessionsCubit extends Cubit<SessionsState> {
         ],
       );
 
+      if (isClosed) return; // Don't emit if cubit is closed
+      
       emit(SessionsLoaded(
         sessions: response.sessions,
         totalCount: response.totalCount,
@@ -38,6 +42,7 @@ class SessionsCubit extends Cubit<SessionsState> {
         endCursor: response.endCursor,
       ));
     } catch (e) {
+      if (isClosed) return; // Don't emit if cubit is closed
       emit(SessionsError(message: e.toString()));
     }
   }

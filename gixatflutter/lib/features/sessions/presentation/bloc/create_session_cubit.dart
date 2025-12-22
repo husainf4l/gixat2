@@ -83,10 +83,16 @@ class CreateSessionCubit extends Cubit<CreateSessionState> {
   }
 
   Future<void> loadCarsForCustomer(String customerId) async {
+    print('🔍 loadCarsForCustomer called with: $customerId');
     final currentState = state;
-    if (currentState is! CreateSessionLoaded) return;
+    print('🔍 Current state type: ${currentState.runtimeType}');
+    if (currentState is! CreateSessionLoaded) {
+      print('❌ State is not CreateSessionLoaded, returning');
+      return;
+    }
 
     try {
+      print('🔍 Querying cars with customerId: $customerId');
       final result = await client.query(
         QueryOptions(
           document: gql(getCarsQuery),
