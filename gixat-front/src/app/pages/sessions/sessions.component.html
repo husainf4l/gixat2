@@ -1,27 +1,140 @@
 <div class="min-h-screen bg-slate-50">
-  <div class="max-w-7xl mx-auto px-8 py-6">
+  <div class="max-w-[1400px] mx-auto px-8 py-8">
     <!-- Header -->
-    <div class="mb-6">
-      <div class="flex items-start justify-between mb-5">
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-8">
         <div>
-          <h1 class="text-2xl font-semibold text-slate-900">Sessions</h1>
-          <p class="mt-0.5 text-sm text-slate-500">Manage all garage sessions</p>
+          <h1 class="text-3xl font-semibold text-slate-900 tracking-tight">Sessions</h1>
+          <p class="mt-1.5 text-sm text-slate-500">Manage all garage sessions</p>
         </div>
         <button
           (click)="createNewSession()"
-          class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1b75bc] text-white text-sm font-medium rounded-md hover:bg-[#155a92] transition-colors shadow-sm"
+          class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1b75bc] text-white text-sm font-medium rounded-xl hover:bg-[#155a92] transition-all shadow-sm"
         >
-          <i class="ri-add-line text-base"></i>
-          New Session
+          <i class="ri-add-line text-lg"></i>
+          <span>New Session</span>
         </button>
       </div>
+
+      <!-- Search & Filter Bar -->
+      <div class="flex items-center gap-3">
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <i class="ri-search-line text-slate-400 text-lg"></i>
+          </div>
+          <input
+            type="text"
+            [value]="searchQuery()"
+            (input)="onSearchChange($any($event.target).value)"
+            placeholder="Search by customer, vehicle, or license plate..."
+            class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#1b75bc] focus:ring-4 focus:ring-[#1b75bc]/10 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition-all"
+          />
+        </div>
+        <button
+          (click)="toggleFilters()"
+          class="px-5 py-3 bg-white border text-slate-700 text-sm font-medium rounded-xl hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2"
+          [class.border-[#1b75bc]]="showFilters()"
+          [class.bg-[#1b75bc]/5]="showFilters()"
+          [class.text-[#1b75bc]]="showFilters()"
+          [class.border-slate-200]="!showFilters()"
+        >
+          <i class="ri-filter-3-line text-lg"></i>
+          <span>Filters</span>
+        </button>
+      </div>
+
+      <!-- Filters Panel -->
+      @if (showFilters()) {
+        <div class="mt-4 p-5 bg-white border border-slate-200 rounded-xl shadow-sm">
+          <div class="flex items-center gap-4">
+            <span class="text-sm font-semibold text-slate-700">Status</span>
+            <div class="flex items-center gap-2 flex-wrap">
+              <button
+                (click)="setStatusFilter('all')"
+                class="px-4 py-2 text-xs font-medium rounded-lg transition-all"
+                [class.bg-[#1b75bc]]="statusFilter() === 'all'"
+                [class.text-white]="statusFilter() === 'all'"
+                [class.bg-slate-100]="statusFilter() !== 'all'"
+                [class.text-slate-600]="statusFilter() !== 'all'"
+                [class.hover:bg-slate-200]="statusFilter() !== 'all'"
+              >
+                All
+              </button>
+              <button
+                (click)="setStatusFilter('intake')"
+                class="px-4 py-2 text-xs font-medium rounded-lg transition-all"
+                [class.bg-blue-500]="statusFilter() === 'intake'"
+                [class.text-white]="statusFilter() === 'intake'"
+                [class.bg-blue-50]="statusFilter() !== 'intake'"
+                [class.text-blue-700]="statusFilter() !== 'intake'"
+                [class.hover:bg-blue-100]="statusFilter() !== 'intake'"
+              >
+                Intake
+              </button>
+              <button
+                (click)="setStatusFilter('in-progress')"
+                class="px-4 py-2 text-xs font-medium rounded-lg transition-all"
+                [class.bg-yellow-500]="statusFilter() === 'in-progress'"
+                [class.text-white]="statusFilter() === 'in-progress'"
+                [class.bg-yellow-50]="statusFilter() !== 'in-progress'"
+                [class.text-yellow-700]="statusFilter() !== 'in-progress'"
+                [class.hover:bg-yellow-100]="statusFilter() !== 'in-progress'"
+              >
+                In Progress
+              </button>
+              <button
+                (click)="setStatusFilter('quality-check')"
+                class="px-4 py-2 text-xs font-medium rounded-lg transition-all"
+                [class.bg-purple-500]="statusFilter() === 'quality-check'"
+                [class.text-white]="statusFilter() === 'quality-check'"
+                [class.bg-purple-50]="statusFilter() !== 'quality-check'"
+                [class.text-purple-700]="statusFilter() !== 'quality-check'"
+                [class.hover:bg-purple-100]="statusFilter() !== 'quality-check'"
+              >
+                Quality Check
+              </button>
+              <button
+                (click)="setStatusFilter('ready-for-pickup')"
+                class="px-4 py-2 text-xs font-medium rounded-lg transition-all"
+                [class.bg-emerald-500]="statusFilter() === 'ready-for-pickup'"
+                [class.text-white]="statusFilter() === 'ready-for-pickup'"
+                [class.bg-emerald-50]="statusFilter() !== 'ready-for-pickup'"
+                [class.text-emerald-700]="statusFilter() !== 'ready-for-pickup'"
+                [class.hover:bg-emerald-100]="statusFilter() !== 'ready-for-pickup'"
+              >
+                Ready for Pickup
+              </button>
+              <button
+                (click)="setStatusFilter('completed')"
+                class="px-4 py-2 text-xs font-medium rounded-lg transition-all"
+                [class.bg-slate-500]="statusFilter() === 'completed'"
+                [class.text-white]="statusFilter() === 'completed'"
+                [class.bg-slate-100]="statusFilter() !== 'completed'"
+                [class.text-slate-700]="statusFilter() !== 'completed'"
+                [class.hover:bg-slate-200]="statusFilter() !== 'completed'"
+              >
+                Completed
+              </button>
+            </div>
+          </div>
+        </div>
+      }
     </div>
+
+    <!-- Results Count -->
+    @if (!isLoading()) {
+      <div class="flex items-center justify-between mb-4">
+        <p class="text-sm font-medium text-slate-600">
+          {{ sessions().length }} {{ sessions().length === 1 ? 'session' : 'sessions' }}
+        </p>
+      </div>
+    }
 
     <!-- Error Message -->
     @if (errorMessage(); as err) {
-      <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
-        <div class="flex items-start gap-2">
-          <i class="ri-error-warning-line text-base mt-0.5"></i>
+      <div class="mb-5 px-5 py-4 bg-red-50 border border-red-100 rounded-xl text-red-700 text-sm">
+        <div class="flex items-start gap-3">
+          <i class="ri-error-warning-line text-lg mt-0.5"></i>
           <span>{{ err }}</span>
         </div>
       </div>
@@ -29,13 +142,13 @@
 
     <!-- Loading State -->
     @if (isLoading()) {
-      <div class="bg-white rounded-md shadow-sm border border-slate-200 p-12">
-        <div class="flex flex-col items-center justify-center">
-          <div class="relative w-8 h-8 mb-4">
-            <div class="absolute inset-0 rounded-full border-2 border-slate-100"></div>
-            <div class="absolute inset-0 rounded-full border-2 border-t-[#1b75bc] animate-spin"></div>
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm">
+        <div class="py-24 flex flex-col items-center justify-center">
+          <div class="relative w-10 h-10 mb-4">
+            <div class="absolute inset-0 rounded-full border-3 border-slate-100"></div>
+            <div class="absolute inset-0 rounded-full border-3 border-t-[#1b75bc] animate-spin"></div>
           </div>
-          <p class="text-sm text-slate-500">Loading sessions...</p>
+          <p class="text-sm font-medium text-slate-500">Loading sessions...</p>
         </div>
       </div>
     }
@@ -43,79 +156,126 @@
     <!-- Sessions Table -->
     @if (!isLoading()) {
       @if (sessions().length > 0) {
-        <div class="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden">
-          <table class="min-w-full divide-y divide-slate-200">
-            <thead class="bg-slate-50">
-              <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Session
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Vehicle
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  License Plate
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Status
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Date
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-slate-200">
-              @for (session of sessions(); track session.id) {
-                <tr 
-                  (click)="viewSession(session.id)"
-                  class="hover:bg-slate-50 cursor-pointer transition-colors"
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+          <!-- Table Header -->
+          <div class="border-b border-slate-200 bg-slate-50/50 px-8 py-4">
+            <div class="flex items-center gap-6">
+              <div class="flex-1 grid grid-cols-6 gap-6">
+                <button
+                  (click)="toggleSort('sessionNumber')"
+                  class="text-xs font-semibold text-slate-500 uppercase tracking-wider text-left flex items-center gap-1.5 hover:text-[#1b75bc] transition-colors"
                 >
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-slate-900">{{ session.sessionNumber }}</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-slate-900">{{ session.customerName }}</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center gap-2">
+                  Session
+                  @if (sortField() === 'sessionNumber') {
+                    <i class="text-sm" [class.ri-arrow-up-s-line]="sortDirection() === 'asc'" [class.ri-arrow-down-s-line]="sortDirection() === 'desc'"></i>
+                  }
+                </button>
+                <button
+                  (click)="toggleSort('customerName')"
+                  class="text-xs font-semibold text-slate-500 uppercase tracking-wider text-left flex items-center gap-1.5 hover:text-[#1b75bc] transition-colors"
+                >
+                  Customer
+                  @if (sortField() === 'customerName') {
+                    <i class="text-sm" [class.ri-arrow-up-s-line]="sortDirection() === 'asc'" [class.ri-arrow-down-s-line]="sortDirection() === 'desc'"></i>
+                  }
+                </button>
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Vehicle</div>
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">License Plate</div>
+                <button
+                  (click)="toggleSort('status')"
+                  class="text-xs font-semibold text-slate-500 uppercase tracking-wider text-left flex items-center gap-1.5 hover:text-[#1b75bc] transition-colors"
+                >
+                  Status
+                  @if (sortField() === 'status') {
+                    <i class="text-sm" [class.ri-arrow-up-s-line]="sortDirection() === 'asc'" [class.ri-arrow-down-s-line]="sortDirection() === 'desc'"></i>
+                  }
+                </button>
+                <button
+                  (click)="toggleSort('createdAt')"
+                  class="text-xs font-semibold text-slate-500 uppercase tracking-wider text-left flex items-center gap-1.5 hover:text-[#1b75bc] transition-colors"
+                >
+                  Date
+                  @if (sortField() === 'createdAt') {
+                    <i class="text-sm" [class.ri-arrow-up-s-line]="sortDirection() === 'asc'" [class.ri-arrow-down-s-line]="sortDirection() === 'desc'"></i>
+                  }
+                </button>
+              </div>
+              <div class="w-6"></div>
+            </div>
+          </div>
+
+          <!-- Table Body -->
+          <div class="divide-y divide-slate-100">
+            @for (session of sessions(); track session.id) {
+              <button
+                (click)="viewSession(session.id)"
+                class="w-full px-8 py-5 flex items-center gap-6 hover:bg-slate-50/50 active:bg-slate-100/50 transition-all text-left group"
+              >
+                <!-- Info Grid -->
+                <div class="flex-1 grid grid-cols-6 gap-6 min-w-0">
+                  <!-- Session -->
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold text-slate-900">{{ session.sessionNumber }}</p>
+                  </div>
+
+                  <!-- Customer -->
+                  <div class="min-w-0">
+                    <p class="text-sm text-slate-900 truncate">{{ session.customerName }}</p>
+                  </div>
+
+                  <!-- Vehicle -->
+                  <div class="min-w-0">
+                    <p class="text-sm text-slate-600 truncate flex items-center gap-2">
                       <i class="ri-car-line text-slate-400"></i>
-                      <span class="text-sm text-slate-900">{{ session.carInfo }}</span>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-slate-600 font-mono">{{ session.licensePlate }}</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span [class]="'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' + getStatusColor(session.status)">
+                      {{ session.carInfo }}
+                    </p>
+                  </div>
+
+                  <!-- License Plate -->
+                  <div class="min-w-0">
+                    <p class="text-sm text-slate-600 font-mono truncate">{{ session.licensePlate }}</p>
+                  </div>
+
+                  <!-- Status -->
+                  <div class="min-w-0">
+                    <span [class]="'inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-xs font-semibold w-fit ' + getStatusColor(session.status)">
                       {{ formatStatus(session.status) }}
                     </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                    {{ session.formattedDate }}
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
+                  </div>
+
+                  <!-- Date -->
+                  <div class="min-w-0">
+                    <p class="text-sm text-slate-900 font-medium">{{ session.formattedDate }}</p>
+                  </div>
+                </div>
+
+                <!-- Arrow -->
+                <div class="flex-shrink-0">
+                  <i class="ri-arrow-right-s-line text-slate-300 text-xl group-hover:text-[#1b75bc] group-hover:translate-x-1 transition-all"></i>
+                </div>
+              </button>
+            }
+          </div>
         </div>
       } @else {
-        <div class="bg-white rounded-md shadow-sm border border-slate-200 p-12">
-          <div class="text-center">
-            <div class="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
-              <i class="ri-calendar-check-line text-2xl text-slate-400"></i>
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm">
+          <div class="px-8 py-20 text-center">
+            <div class="w-20 h-20 mx-auto mb-5 bg-slate-100 rounded-2xl flex items-center justify-center">
+              <i class="ri-calendar-check-line text-3xl text-slate-400"></i>
             </div>
-            <h3 class="text-base font-semibold text-slate-900 mb-2">No sessions</h3>
-            <p class="text-sm text-slate-500 mb-4">Create your first session to get started</p>
-            <button
-              (click)="createNewSession()"
-              class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1b75bc] text-white text-sm font-medium rounded-md hover:bg-[#155a92] transition-colors"
-            >
-              <i class="ri-add-line"></i>
-              New Session
-            </button>
+            <h3 class="text-base font-semibold text-slate-900 mb-2">No sessions found</h3>
+            @if (searchQuery()) {
+              <p class="text-sm text-slate-500">Try adjusting your search criteria</p>
+            } @else {
+              <p class="text-sm text-slate-500 mb-5">Create your first session to get started</p>
+              <button
+                (click)="createNewSession()"
+                class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1b75bc] text-white text-sm font-medium rounded-xl hover:bg-[#155a92] transition-all"
+              >
+                <i class="ri-add-line"></i>
+                New Session
+              </button>
+            }
           </div>
         </div>
       }

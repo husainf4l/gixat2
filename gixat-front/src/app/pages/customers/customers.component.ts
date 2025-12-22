@@ -3,7 +3,7 @@ import { Component, OnInit, computed, effect, inject, signal } from '@angular/co
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { catchError, debounceTime, distinctUntilChanged, map, of, Subject, switchMap } from 'rxjs';
-import { Customer, CustomerService, CustomerStatistics } from '../../services/customer.service';
+import { Customer, CustomerService } from '../../services/customer.service';
 import { FormsModule } from '@angular/forms';
 import { AddCustomerModalComponent } from '../../components/add-customer-modal/add-customer-modal.component';
 import { AddCarModalComponent } from '../../components/add-car-modal/add-car-modal.component';
@@ -11,7 +11,6 @@ import { AddCarModalComponent } from '../../components/add-car-modal/add-car-mod
 type CustomerRowVM = {
   id: string;
   name: string;
-  email: string;
   phone: string;
   city: string;
   carsLabel: string;
@@ -21,6 +20,10 @@ type CustomerRowVM = {
   activeJobCards: number;
   status: string;
 };
+
+type SortField = 'name' | 'lastVisit' | 'totalVisits' | 'totalSpent' | 'city';
+type SortDirection = 'asc' | 'desc';
+type StatusFilter = 'all' | 'active-job' | 'recent' | 'active' | 'inactive' | 'new';
 
 @Component({
   selector: 'app-customers',
@@ -42,16 +45,19 @@ export class CustomersComponent implements OnInit {
   newCustomerId = signal<string | null>(null);
   newCustomerName = signal<string | null>(null);
 
-  // Statistics
-  statistics = signal<CustomerStatistics | null>(null);
-
   // Pagination
   totalCount = signal<number>(0);
   hasNextPage = signal<boolean>(false);
   endCursor = signal<string | null>(null);
   currentPage = signal<number>(1);
 
-  customers = toSignal(
+  // Sort & Filter
+  sortField = signal<SortField>('name');
+  sortDirection = signal<SortDirection>('asc');
+  statusFilter = signal<StatusFilter>('all');
+  showFilters = signal<boolean>(false);
+
+  private allCustomers = toSignal(
     this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -89,8 +95,42 @@ export class CustomersComponent implements OnInit {
     { initialValue: [] as CustomerRowVM[] }
   );
 
+  customers = computed(() => {
+    let result = this.allCustomers() || [];
+
+    // Apply status filter
+    const filter = this.statusFilter();
+    if (filter !== 'all') {
+      result = result.filter(c => {
+        const status = c.status.toLowerCase().replace(' ', '-');
+        return status === filter;
+      });
+    }
+
+    // Apply sorting
+    const field = this.sortField();
+    const direction = this.sortDirection();
+    result = [...result].sort((a, b) => {
+      let aVal: any = a[field];
+      let bVal: any = b[field];
+
+      if (field === 'lastVisit') {
+        aVal = a.lastVisit === 'Never' ? 0 : new Date(a.lastVisit).getTime();
+        bVal = b.lastVisit === 'Never' ? 0 : new Date(b.lastVisit).getTime();
+      } else if (field === 'name') {
+        aVal = (aVal || '').toLowerCase();
+        bVal = (bVal || '').toLowerCase();
+      }
+
+      if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+  });
+
   ngOnInit() {
-    this.loadStatistics();
     this.searchSubject.next('');
   }
 
@@ -99,7 +139,6 @@ export class CustomersComponent implements OnInit {
     return {
       id: c.id,
       name: `${c.firstName} ${c.lastName}`.trim(),
-      email: c.email || '-',
       phone: c.phoneNumber,
       city: c.address?.city || '-',
       carsLabel: c.totalCars ? `${c.totalCars}` : '0',
@@ -122,18 +161,6 @@ export class CustomersComponent implements OnInit {
     if (daysSince < 30) return 'Recent';
     if (daysSince < 90) return 'Active';
     return 'Inactive';
-  }
-
-  private loadStatistics() {
-    this.customerService.getCustomerStatistics().subscribe({
-      next: (stats) => {
-        this.statistics.set(stats);
-      },
-      error: (err) => {
-        console.error('Failed to load statistics:', err);
-        this.errorMessage.set('Failed to load dashboard statistics. Please check backend logs.');
-      }
-    });
   }
 
   onSearchChange(query: string) {
@@ -187,6 +214,23 @@ export class CustomersComponent implements OnInit {
     alert('Session creation page will be implemented. CarID: ' + data.carId);
     // Refresh the list
     this.searchSubject.next(this.searchQuery());
+  }
+
+  toggleSort(field: SortField) {
+    if (this.sortField() === field) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortField.set(field);
+      this.sortDirection.set('asc');
+    }
+  }
+
+  setStatusFilter(filter: StatusFilter) {
+    this.statusFilter.set(filter);
+  }
+
+  toggleFilters() {
+    this.showFilters.update(v => !v);
   }
 
   exportToCsv() {

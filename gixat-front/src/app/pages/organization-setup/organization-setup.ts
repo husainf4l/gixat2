@@ -8,7 +8,7 @@ import { Apollo, gql } from 'apollo-angular';
 
 const GET_COUNTRIES_WITH_CITIES = gql`
   query GetCountriesWithCities {
-    lookupItems(where: { category: { eq: "Country" } }) {
+    lookupItems(category: "Country") {
       id
       country: value
       metadata

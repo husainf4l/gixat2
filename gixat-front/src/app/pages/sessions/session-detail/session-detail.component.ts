@@ -21,8 +21,22 @@ interface PendingUpload {
   file: File;
   previewUrl: string;
   stage: string;
-  status: 'uploading' | 'success' | 'error';
+  status: 'pending' | 'uploading' | 'uploaded' | 'error';
   errorMessage?: string;
+}
+
+interface JobCardData {
+  customerFirstName: string;
+  customerLastName: string;
+  customerPhone: string;
+  customerEmail: string;
+  carMake: string;
+  carModel: string;
+  carYear: string;
+  licensePlate: string;
+  vin: string;
+  mileage: number;
+  requests: string[];
 }
 
 @Component({
@@ -46,6 +60,23 @@ export class SessionDetailComponent implements OnInit {
   stepNotes = signal<string>('');
   stepRequests = signal<string[]>([]);
   isSavingStep = signal<boolean>(false);
+  
+  // Job Card Modal
+  showJobCardModal = signal<boolean>(false);
+  isCreatingJobCard = signal<boolean>(false);
+  jobCardData = signal<JobCardData>({
+    customerFirstName: '',
+    customerLastName: '',
+    customerPhone: '',
+    customerEmail: '',
+    carMake: '',
+    carModel: '',
+    carYear: '',
+    licensePlate: '',
+    vin: '',
+    mileage: 0,
+    requests: []
+  });
   
   // Media upload
   selectedStage = signal<string>('intake');
@@ -192,17 +223,27 @@ export class SessionDetailComponent implements OnInit {
   }
 
   openStepModal(step: WorkflowStep) {
+    const session = this.sessionDetail();
+    if (!session) return;
+
+    // For request-enabled steps, navigate to full-page widget
+    if (['intake', 'customerRequests', 'inspection', 'testDrive'].includes(step.id)) {
+      this.router.navigate(['/dashboard/sessions', session.id, 'request-widget'], {
+        queryParams: { stepId: step.id }
+      });
+      return;
+    }
+
+    // For other steps, use the modal
     this.selectedStep.set(step);
     this.stepNotes.set(step.notes || '');
-    
-    // Split requests by newline if they exist, otherwise start with one empty request if it's a request-enabled step
+
     const requestsStr = step.requests || '';
     const requestsArray = requestsStr ? requestsStr.split('\n').filter(r => r.trim()) : [];
     this.stepRequests.set(requestsArray.length > 0 ? requestsArray : ['']);
-    
+
     this.showStepModal.set(true);
 
-    // Trigger auto-resize for all textareas after modal opens
     setTimeout(() => {
       const textareas = document.querySelectorAll('.request-input');
       textareas.forEach((textarea: any) => {
@@ -308,9 +349,20 @@ export class SessionDetailComponent implements OnInit {
       // Reload session data
       this.loadSessionDetail(session.id);
       this.closeStepModal();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save step:', error);
-      alert('Failed to save step notes. Please try again.');
+      
+      // Check for specific error types
+      const errorMessage = error?.message || '';
+      if (errorMessage.includes('concurrency') || errorMessage.includes('modified or deleted')) {
+        alert('The session has been modified by another user. Please refresh and try again.');
+        this.loadSessionDetail(session.id);
+      } else if (errorMessage.includes('not found') || errorMessage.includes('does not exist')) {
+        alert('Session not found. It may have been deleted.');
+        this.router.navigate(['/dashboard/sessions']);
+      } else {
+        alert('Failed to save step notes. Please try again.');
+      }
     } finally {
       this.isSavingStep.set(false);
     }
@@ -329,6 +381,89 @@ export class SessionDetailComponent implements OnInit {
     } catch (error) {
       console.error('Failed to generate job card:', error);
       alert('Failed to generate job card. Please try again.');
+    }
+  }
+
+  openJobCardModal() {
+    const session = this.sessionDetail();
+    if (!session) return;
+
+    // Populate job card data from session
+    const requests: string[] = [];
+    
+    if (session.intakeRequests) {
+      requests.push(...session.intakeRequests.split('\n').filter(r => r.trim()));
+    }
+    if (session.customerRequests) {
+      requests.push(...session.customerRequests.split('\n').filter(r => r.trim()));
+    }
+    if (session.inspectionRequests) {
+      requests.push(...session.inspectionRequests.split('\n').filter(r => r.trim()));
+    }
+    if (session.testDriveRequests) {
+      requests.push(...session.testDriveRequests.split('\n').filter(r => r.trim()));
+    }
+
+    this.jobCardData.set({
+      customerFirstName: session.customer?.firstName || '',
+      customerLastName: session.customer?.lastName || '',
+      customerPhone: session.customer?.phoneNumber || '',
+      customerEmail: session.customer?.email || '',
+      carMake: session.car?.make || '',
+      carModel: session.car?.model || '',
+      carYear: session.car?.year?.toString() || '',
+      licensePlate: session.car?.licensePlate || '',
+      vin: session.car?.vin || '',
+      mileage: session.car?.mileage || 0,
+      requests: requests
+    });
+
+    this.showJobCardModal.set(true);
+  }
+
+  closeJobCardModal() {
+    this.showJobCardModal.set(false);
+  }
+
+  addJobCardRequest() {
+    const current = this.jobCardData();
+    this.jobCardData.set({
+      ...current,
+      requests: [...current.requests, '']
+    });
+  }
+
+  removeJobCardRequest(index: number) {
+    const current = this.jobCardData();
+    this.jobCardData.set({
+      ...current,
+      requests: current.requests.filter((_, i) => i !== index)
+    });
+  }
+
+  async submitJobCard() {
+    const session = this.sessionDetail();
+    if (!session) return;
+
+    this.isCreatingJobCard.set(true);
+
+    try {
+      // TODO: Call backend mutation to create job card with the edited data
+      // For now, just call the existing generateJobCard method
+      await this.sessionService.generateJobCard(session.id).toPromise();
+      
+      this.closeJobCardModal();
+      alert('Job card created successfully! Redirecting to job cards page...');
+      
+      // TODO: Navigate to job cards page when it's ready
+      // this.router.navigate(['/dashboard/job-cards']);
+      
+      this.loadSessionDetail(session.id);
+    } catch (error) {
+      console.error('Failed to create job card:', error);
+      alert('Failed to create job card. Please try again.');
+    } finally {
+      this.isCreatingJobCard.set(false);
     }
   }
 
@@ -438,9 +573,9 @@ export class SessionDetailComponent implements OnInit {
         }
       }
 
-      // Update status to success and then remove after a delay
-      this.pendingUploads.update(prev => 
-        prev.map(p => pendingItems.find(item => item.id === p.id) ? { ...p, status: 'success' } : p)
+      // Update status to uploaded and then remove after a delay
+      this.pendingUploads.update(prev =>
+        prev.map(p => pendingItems.find(item => item.id === p.id) ? { ...p, status: 'uploaded' as const } : p)
       );
 
       // Reload session to show real media

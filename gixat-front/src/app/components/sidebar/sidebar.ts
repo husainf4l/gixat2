@@ -19,6 +19,7 @@ export class SidebarComponent {
     { path: '/dashboard', label: 'Dashboard', icon: 'ri-dashboard-line' },
     { path: '/dashboard/customers', label: 'Customers', icon: 'ri-user-3-line' },
     { path: '/dashboard/sessions', label: 'Sessions', icon: 'ri-car-line' },
+    { path: '/dashboard/job-cards', label: 'Job Cards', icon: 'ri-file-list-3-line' },
     { path: '/dashboard/projects', label: 'Projects', icon: 'ri-folder-line' },
     { path: '/dashboard/tasks', label: 'Tasks', icon: 'ri-checkbox-line' },
     { path: '/dashboard/team', label: 'Team', icon: 'ri-group-line' },

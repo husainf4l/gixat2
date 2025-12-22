@@ -11,6 +11,8 @@ import { CustomersComponent } from './pages/customers/customers.component';
 import { CustomerDetail } from './pages/customers/customer-detail/customer-detail';
 import { SessionsComponent } from './pages/sessions/sessions.component';
 import { SessionDetailComponent } from './pages/sessions/session-detail/session-detail.component';
+import { RequestWidgetComponent } from './pages/sessions/request-widget/request-widget.component';
+import { JobCardsComponent } from './pages/job-cards/job-cards.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -27,7 +29,9 @@ export const routes: Routes = [
       { path: 'customers', component: CustomersComponent },
       { path: 'customers/:id', component: CustomerDetail },
       { path: 'sessions', component: SessionsComponent },
-      { path: 'sessions/:id', component: SessionDetailComponent }
+      { path: 'sessions/:sessionId/request-widget', component: RequestWidgetComponent },
+      { path: 'sessions/:id', component: SessionDetailComponent },
+      { path: 'job-cards', component: JobCardsComponent }
     ]
   }
 ];

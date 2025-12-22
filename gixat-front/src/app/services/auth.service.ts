@@ -47,17 +47,13 @@ const ME_QUERY = gql`
 const CREATE_ORGANIZATION_MUTATION = gql`
   mutation CreateOrganization($input: CreateOrganizationInput!) {
     createOrganization(input: $input) {
-      id
-      name
-      address {
+      user {
         id
-        country
-        city
-        street
-        phoneCountryCode
+        email
+        fullName
+        organizationId
       }
-      createdAt
-      isActive
+      error
     }
   }
 `;

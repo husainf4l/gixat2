@@ -18,6 +18,7 @@ export interface SessionCar {
   licensePlate: string;
   color?: string | null;
   vin?: string | null;
+  mileage?: number | null;
 }
 
 export interface SessionLog {
@@ -42,7 +43,7 @@ export interface SessionMedia {
   media: AppMedia;
   createdAt?: string;
   isPending?: boolean;
-  status?: 'uploading' | 'success' | 'error';
+  status?: 'pending' | 'uploading' | 'uploaded' | 'error';
 }
 
 export interface Session {
@@ -278,6 +279,12 @@ const PROCESS_BULK_SESSION_UPLOADS_MUTATION = gql`
   }
 `;
 
+const DELETE_SESSION_MEDIA_MUTATION = gql`
+  mutation DeleteSessionMedia($mediaId: UUID!) {
+    deleteSessionMedia(mediaId: $mediaId)
+  }
+`;
+
 @Injectable({ providedIn: 'root' })
 export class SessionService {
   private apollo = inject(Apollo);
@@ -449,7 +456,7 @@ export class SessionService {
   }
 
   processBulkSessionUploads(
-    sessionId: string, 
+    sessionId: string,
     files: { fileKey: string; stage: string; alt?: string }[]
   ): Observable<{ fileKey: string; success: boolean; sessionMedia?: SessionMedia; errorMessage?: string }[]> {
     return this.apollo.mutate<{ processBulkSessionUploads: { fileKey: string; success: boolean; sessionMedia?: SessionMedia; errorMessage?: string }[] }>({
@@ -461,6 +468,20 @@ export class SessionService {
           throw new Error('Failed to process bulk session uploads');
         }
         return result.data.processBulkSessionUploads;
+      }),
+    );
+  }
+
+  deleteSessionMedia(mediaId: string): Observable<boolean> {
+    return this.apollo.mutate<{ deleteSessionMedia: boolean }>({
+      mutation: DELETE_SESSION_MEDIA_MUTATION,
+      variables: { mediaId }
+    }).pipe(
+      map(result => {
+        if (result.data?.deleteSessionMedia === undefined) {
+          throw new Error('Failed to delete media');
+        }
+        return result.data.deleteSessionMedia;
       }),
     );
   }

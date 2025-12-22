@@ -36,13 +36,6 @@ export interface Customer {
   totalCars?: number;
 }
 
-export interface CustomerStatistics {
-  totalCustomers: number;
-  customersThisMonth: number;
-  activeCustomers: number;
-  totalRevenue: number;
-}
-
 export interface CustomerDetail {
   customer: (Omit<Customer, 'cars'> & { cars: Car[] }) | null;
   jobCards: JobCardSummary[];
@@ -132,9 +125,6 @@ const CUSTOMERS_QUERY = gql`
           address {
             city
           }
-          cars {
-            id
-          }
           lastSessionDate
           totalVisits
           totalSpent
@@ -142,17 +132,6 @@ const CUSTOMERS_QUERY = gql`
           totalCars
         }
       }
-    }
-  }
-`;
-
-const CUSTOMER_STATISTICS_QUERY = gql`
-  query CustomerStatistics {
-    customerStatistics {
-      totalCustomers
-      customersThisMonth
-      activeCustomers
-      totalRevenue
     }
   }
 `;
@@ -334,20 +313,6 @@ export class CustomerService {
           throw new Error('Failed to create car');
         }
         return result.data.createCar;
-      }),
-    );
-  }
-
-  getCustomerStatistics(): Observable<CustomerStatistics> {
-    return this.apollo.query<{ customerStatistics: CustomerStatistics }>({
-      query: CUSTOMER_STATISTICS_QUERY,
-      fetchPolicy: 'network-only',
-    }).pipe(
-      map(({ data }) => {
-        if (!data?.customerStatistics) {
-          throw new Error('Failed to load customer statistics');
-        }
-        return data.customerStatistics;
       }),
     );
   }
