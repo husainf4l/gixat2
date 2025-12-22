@@ -17,7 +17,68 @@ export interface UpdateProfileInput {
   fullName?: string;
   bio?: string;
   phoneNumber?: string;
-  avatarUrl?: string;
+  // Note: avatarUrl is NOT supported - use upload methods instead
+}
+
+export interface Address {
+  country: string;
+  city: string;
+  street: string;
+  phoneCountryCode: string;
+}
+
+export interface AddressInput {
+  country: string;
+  city: string;
+  street: string;
+  phoneCountryCode: string;
+}
+
+export interface Media {
+  url: string;
+  alt?: string | null;
+}
+
+export interface Organization {
+  id: string;
+  name: string;
+  address: Address;
+  logo: Media | null;
+  createdAt: string;
+}
+
+export interface UpdateOrganizationInput {
+  name?: string;
+  address?: AddressInput;
+}
+
+export interface OrganizationUser {
+  id: string;
+  fullName: string;
+  email: string;
+  phoneNumber?: string | null;
+  avatarUrl?: string | null;
+  userType?: string | null;
+  roles?: string[];
+  createdAt: string;
+}
+
+export interface CreateUserInput {
+  fullName: string;
+  email: string;
+  password: string;
+  phoneNumber?: string;
+  userType?: string;
+  roles?: string[];
+}
+
+export interface UpdateUserInput {
+  fullName?: string;
+  email?: string;
+  phoneNumber?: string;
+  bio?: string;
+  userType?: string;
+  roles?: string[];
 }
 
 const ME_QUERY = gql`
@@ -53,6 +114,7 @@ const GENERATE_AVATAR_UPLOAD_URL_MUTATION = gql`
   }
 `;
 
+
 const UPLOAD_AVATAR_MUTATION = gql`
   mutation UploadAvatar($file: Upload!) {
     uploadMyAvatar(file: $file) {
@@ -65,6 +127,123 @@ const UPLOAD_AVATAR_MUTATION = gql`
 const DELETE_AVATAR_MUTATION = gql`
   mutation DeleteAvatar {
     deleteMyAvatar
+  }
+`;
+
+const GET_MY_ORGANIZATION_QUERY = gql`
+  query GetMyOrganization {
+    myOrganization {
+      id
+      name
+      address {
+        country
+        city
+        street
+        phoneCountryCode
+      }
+      logo {
+        url
+        alt
+      }
+      createdAt
+    }
+  }
+`;
+
+const UPDATE_ORGANIZATION_MUTATION = gql`
+  mutation UpdateOrganization($input: UpdateOrganizationInput!) {
+    updateMyOrganization(input: $input) {
+      id
+      name
+      address {
+        country
+        city
+        street
+        phoneCountryCode
+      }
+      logo {
+        url
+        alt
+      }
+      createdAt
+    }
+  }
+`;
+
+const UPLOAD_ORGANIZATION_LOGO_MUTATION = gql`
+  mutation UploadOrganizationLogo($file: Upload!) {
+    uploadMyOrganizationLogo(file: $file) {
+      logoUrl
+      message
+    }
+  }
+`;
+
+const DELETE_ORGANIZATION_LOGO_MUTATION = gql`
+  mutation DeleteOrganizationLogo {
+    deleteMyOrganizationLogo
+  }
+`;
+
+const GET_ORGANIZATION_USERS_QUERY = gql`
+  query GetOrganizationUsers {
+    myOrganization {
+      id
+      users {
+        id
+        fullName
+        email
+        phoneNumber
+        avatarUrl
+        userType
+        roles
+        createdAt
+      }
+    }
+  }
+`;
+
+const CREATE_USER_MUTATION = gql`
+  mutation CreateUser($input: CreateUserInput!) {
+    createUser(input: $input) {
+      id
+      fullName
+      email
+      phoneNumber
+      userType
+      roles
+    }
+  }
+`;
+
+const GET_USER_BY_ID_QUERY = gql`
+  query GetUserById($id: UUID!) {
+    userById(id: $id) {
+      id
+      fullName
+      email
+      phoneNumber
+      avatarUrl
+      bio
+      userType
+      roles
+      createdAt
+    }
+  }
+`;
+
+const UPDATE_USER_MUTATION = gql`
+  mutation UpdateUser($id: UUID!, $input: UpdateUserInput!) {
+    updateUser(id: $id, input: $input) {
+      id
+      fullName
+      email
+      phoneNumber
+      bio
+      avatarUrl
+      userType
+      roles
+    }
   }
 `;
 
@@ -109,7 +288,8 @@ export class ProfileService {
   }
 
   /**
-   * Generate presigned URL for direct S3 upload (recommended for production)
+   * Generate presigned URL for direct S3 upload
+   * After upload, reload profile to get the permanent avatar URL
    */
   generateAvatarUploadUrl(fileName: string, contentType: string): Observable<string> {
     return this.apollo.mutate<{ generateAvatarUploadUrl: string }>({
@@ -150,23 +330,10 @@ export class ProfileService {
     });
   }
 
-  /**
-   * Extract base URL from presigned S3 URL (removes query parameters)
-   * Example: https://bucket.s3.region.amazonaws.com/path/to/file.jpg?X-Amz-Expires=... 
-   *       -> https://bucket.s3.region.amazonaws.com/path/to/file.jpg
-   */
-  extractBaseUrlFromPresignedUrl(presignedUrl: string): string {
-    try {
-      const url = new URL(presignedUrl);
-      // Return the base URL without query parameters
-      return `${url.protocol}//${url.host}${url.pathname}`;
-    } catch (error) {
-      throw new Error('Invalid presigned URL format');
-    }
-  }
 
   /**
-   * Upload avatar via GraphQL (alternative method for smaller files)
+   * Upload avatar via GraphQL (recommended for smaller files < 5MB)
+   * Returns permanent avatar URL: https://api.gixat.com/api/media/avatars/{userId}/{fileName}
    */
   uploadAvatar(file: File): Observable<{ avatarUrl: string; message?: string }> {
     return this.apollo.mutate<{ uploadMyAvatar: { avatarUrl: string; message?: string } }>({
@@ -194,6 +361,142 @@ export class ProfileService {
     }).pipe(
       map(result => {
         return result.data?.deleteMyAvatar ?? false;
+      })
+    );
+  }
+
+  /**
+   * Get current user's organization
+   */
+  getMyOrganization(): Observable<Organization> {
+    return this.apollo.query<{ myOrganization: Organization }>({
+      query: GET_MY_ORGANIZATION_QUERY,
+      fetchPolicy: 'network-only'
+    }).pipe(
+      map(result => {
+        if (!result.data?.myOrganization) {
+          throw new Error('Failed to load organization');
+        }
+        return result.data.myOrganization;
+      })
+    );
+  }
+
+  /**
+   * Update organization information
+   */
+  updateOrganization(input: UpdateOrganizationInput): Observable<Organization> {
+    return this.apollo.mutate<{ updateMyOrganization: Organization }>({
+      mutation: UPDATE_ORGANIZATION_MUTATION,
+      variables: { input }
+    }).pipe(
+      map(result => {
+        if (!result.data?.updateMyOrganization) {
+          throw new Error('Failed to update organization');
+        }
+        return result.data.updateMyOrganization;
+      })
+    );
+  }
+
+  /**
+   * Upload organization logo via GraphQL
+   */
+  uploadOrganizationLogo(file: File): Observable<{ logoUrl: string; message?: string }> {
+    return this.apollo.mutate<{ uploadMyOrganizationLogo: { logoUrl: string; message?: string } }>({
+      mutation: UPLOAD_ORGANIZATION_LOGO_MUTATION,
+      variables: { file },
+      context: {
+        useMultipart: true
+      }
+    }).pipe(
+      map(result => {
+        if (!result.data?.uploadMyOrganizationLogo) {
+          throw new Error('Failed to upload logo');
+        }
+        return result.data.uploadMyOrganizationLogo;
+      })
+    );
+  }
+
+  /**
+   * Delete organization logo
+   */
+  deleteOrganizationLogo(): Observable<boolean> {
+    return this.apollo.mutate<{ deleteMyOrganizationLogo: boolean }>({
+      mutation: DELETE_ORGANIZATION_LOGO_MUTATION
+    }).pipe(
+      map(result => {
+        return result.data?.deleteMyOrganizationLogo ?? false;
+      })
+    );
+  }
+
+  /**
+   * Get all users in the organization
+   */
+  getOrganizationUsers(): Observable<OrganizationUser[]> {
+    return this.apollo.query<{ myOrganization: { users: OrganizationUser[] } }>({
+      query: GET_ORGANIZATION_USERS_QUERY,
+      fetchPolicy: 'network-only'
+    }).pipe(
+      map(result => {
+        if (!result.data?.myOrganization?.users) {
+          return [];
+        }
+        return result.data.myOrganization.users;
+      })
+    );
+  }
+
+  /**
+   * Create a new user in the organization
+   */
+  createUser(input: CreateUserInput): Observable<OrganizationUser> {
+    return this.apollo.mutate<{ createUser: OrganizationUser }>({
+      mutation: CREATE_USER_MUTATION,
+      variables: { input }
+    }).pipe(
+      map(result => {
+        if (!result.data?.createUser) {
+          throw new Error('Failed to create user');
+        }
+        return result.data.createUser;
+      })
+    );
+  }
+
+  /**
+   * Get user by ID
+   */
+  getUserById(id: string): Observable<UserProfile> {
+    return this.apollo.query<{ userById: UserProfile }>({
+      query: GET_USER_BY_ID_QUERY,
+      variables: { id },
+      fetchPolicy: 'network-only'
+    }).pipe(
+      map(result => {
+        if (!result.data?.userById) {
+          throw new Error('User not found');
+        }
+        return result.data.userById;
+      })
+    );
+  }
+
+  /**
+   * Update user information
+   */
+  updateUser(id: string, input: UpdateUserInput): Observable<UserProfile> {
+    return this.apollo.mutate<{ updateUser: UserProfile }>({
+      mutation: UPDATE_USER_MUTATION,
+      variables: { id, input }
+    }).pipe(
+      map(result => {
+        if (!result.data?.updateUser) {
+          throw new Error('Failed to update user');
+        }
+        return result.data.updateUser;
       })
     );
   }

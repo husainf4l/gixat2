@@ -15,6 +15,7 @@ import { RequestWidgetComponent } from './pages/sessions/request-widget/request-
 import { JobCardsComponent } from './pages/job-cards/job-cards.component';
 import { JobCardDetailComponent } from './pages/job-cards/job-card-detail/job-card-detail.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { UserDetailComponent } from './pages/profile/user-detail/user-detail.component';
 import { VehicleDetailComponent } from './pages/vehicles/vehicle-detail/vehicle-detail';
 import { VehiclesComponent } from './pages/vehicles/vehicles.component';
 
@@ -39,7 +40,8 @@ export const routes: Routes = [
       { path: 'sessions/:id', component: SessionDetailComponent },
       { path: 'job-cards', component: JobCardsComponent },
       { path: 'job-cards/:id', component: JobCardDetailComponent },
-      { path: 'profile', component: ProfileComponent }
+      { path: 'profile', component: ProfileComponent },
+      { path: 'organization/:userId', component: UserDetailComponent }
     ]
   }
 ];

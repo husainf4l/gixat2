@@ -34,6 +34,7 @@ const ME_QUERY = gql`
       id
       email
       fullName
+      avatarUrl
       roles
       organizationId
       organization {

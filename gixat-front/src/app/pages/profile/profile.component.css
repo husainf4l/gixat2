@@ -1,6 +1,6 @@
-/* Profile Component Styles */
+/* Profile Component Styles - Enhanced */
 
-/* Custom scrollbar for better UX */
+/* Custom scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
@@ -21,14 +21,15 @@
 
 /* Smooth transitions */
 * {
-  transition-property: color, background-color, border-color, opacity, transform;
+  transition-property: color, background-color, border-color, opacity, transform, box-shadow;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
 
 /* Focus styles for accessibility */
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   outline: none;
 }
 
@@ -43,10 +44,18 @@ textarea:focus {
   animation: spin 1s linear infinite;
 }
 
-/* Avatar upload hover effect */
-label[for="avatar-input"]:hover {
+/* Button hover effects */
+button:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+button:not(:disabled):active {
+  transform: translateY(0);
+}
+
+/* Card hover effects */
+.group:hover {
+  transform: translateY(-2px);
 }
 
 /* Form input focus ring */
@@ -91,11 +100,50 @@ textarea.border-red-300 {
   animation: fadeIn 0.3s ease-out;
 }
 
+/* Modal backdrop blur */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+/* Gradient backgrounds */
+.bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+}
+
+/* Card shadows */
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
 /* Responsive adjustments */
 @media (max-width: 640px) {
-  .max-w-4xl {
+  .max-w-6xl {
     padding-left: 1rem;
     padding-right: 1rem;
   }
 }
 
+/* User card hover effect */
+.group:hover .group-hover-text-primary {
+  color: #1b75bc;
+}
+
+/* Smooth modal animation */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.bg-white.rounded-2xl.shadow-2xl {
+  animation: modalFadeIn 0.2s ease-out;
+}

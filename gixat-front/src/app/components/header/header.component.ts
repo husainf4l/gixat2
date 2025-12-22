@@ -1,8 +1,11 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { filter } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
+import { SearchService, SearchResult } from '../../services/search.service';
+import { filter, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -13,15 +16,72 @@ import { filter } from 'rxjs';
 })
 export class HeaderComponent implements OnInit {
   private router = inject(Router);
+  private authService = inject(AuthService);
+  private searchService = inject(SearchService);
   
   pageTitle = signal<string>('Dashboard');
   searchQuery = signal<string>('');
+  searchResults = signal<SearchResult[]>([]);
+  showSearchResults = signal<boolean>(false);
+  isSearching = signal<boolean>(false);
   showUserMenu = signal<boolean>(false);
-  userInitials = signal<string>('JD');
-  userName = signal<string>('John Doe');
-  userEmail = signal<string>('john@example.com');
+  userInitials = signal<string>('');
+  userName = signal<string>('');
+  userEmail = signal<string>('');
+  avatarUrl = signal<string | null>(null);
+
+  private searchSubject = new Subject<string>();
 
   ngOnInit() {
+    // Load user data
+    this.authService.me().subscribe({
+      next: (data) => {
+        const user = data.me;
+        if (user) {
+          this.userName.set(user.fullName || '');
+          this.userEmail.set(user.email || '');
+          this.avatarUrl.set(user.avatarUrl || null);
+          
+          // Generate initials from full name
+          const names = user.fullName?.split(' ') || [];
+          const initials = names
+            .slice(0, 2)
+            .map((n: string) => n.charAt(0).toUpperCase())
+            .join('');
+          this.userInitials.set(initials || user.email?.charAt(0).toUpperCase() || '?');
+        }
+      },
+      error: (err) => {
+        console.error('Error loading user data:', err);
+      }
+    });
+
+    // Setup search with debounce
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(query => {
+        if (!query || query.trim().length < 2) {
+          this.searchResults.set([]);
+          this.showSearchResults.set(false);
+          this.isSearching.set(false);
+          return [];
+        }
+        this.isSearching.set(true);
+        return this.searchService.globalSearch(query);
+      })
+    ).subscribe({
+      next: (results) => {
+        this.searchResults.set(results);
+        this.showSearchResults.set(results.length > 0);
+        this.isSearching.set(false);
+      },
+      error: (err) => {
+        console.error('Search error:', err);
+        this.isSearching.set(false);
+      }
+    });
+
     // Update page title based on route
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
@@ -68,9 +128,49 @@ export class HeaderComponent implements OnInit {
     this.showUserMenu.set(false);
   }
 
+  onSearchInput(value: string) {
+    this.searchQuery.set(value);
+    this.searchSubject.next(value);
+  }
+
   onSearch() {
-    // Implement global search functionality
-    console.log('Searching for:', this.searchQuery());
+    const query = this.searchQuery();
+    if (query && query.trim().length >= 2) {
+      this.searchSubject.next(query);
+    }
+  }
+
+  selectSearchResult(result: SearchResult) {
+    this.router.navigate([result.url]);
+    this.clearSearch();
+  }
+
+  clearSearch() {
+    this.searchQuery.set('');
+    this.searchResults.set([]);
+    this.showSearchResults.set(false);
+  }
+
+  closeSearchResults() {
+    this.showSearchResults.set(false);
+  }
+
+  getSearchResultIcon(type: string): string {
+    switch (type) {
+      case 'customer': return 'ri-user-line';
+      case 'vehicle': return 'ri-car-line';
+      case 'session': return 'ri-calendar-check-line';
+      default: return 'ri-file-line';
+    }
+  }
+
+  getSearchResultColor(type: string): string {
+    switch (type) {
+      case 'customer': return 'text-blue-600 bg-blue-50';
+      case 'vehicle': return 'text-green-600 bg-green-50';
+      case 'session': return 'text-purple-600 bg-purple-50';
+      default: return 'text-slate-600 bg-slate-50';
+    }
   }
 
   navigateToProfile() {
