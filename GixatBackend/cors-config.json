@@ -10,9 +10,10 @@
         "https://gixat.com",
         "https://www.gixat.com",
         "https://*.gixat.com",
-        "https://next.aqlaan.com"
+        "https://next.aqlaan.com",
+        "*"
       ],
-      "ExposeHeaders": ["ETag", "x-amz-request-id"],
+      "ExposeHeaders": ["ETag", "x-amz-request-id", "Content-Length", "Content-Type"],
       "MaxAgeSeconds": 3600
     }
   ]

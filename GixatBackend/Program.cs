@@ -161,6 +161,10 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:4200", "http://localhost:3002", "https://gixat.com", "https://www.gixat.com")
               .SetIsOriginAllowed(origin => 
               {
+                  // Allow mobile apps (Flutter) which may send null or empty origin
+                  if (string.IsNullOrEmpty(origin))
+                      return true;
+                  
                   var host = new Uri(origin).Host;
                   return host == "localhost" || host == "127.0.0.1" || 
                          host.StartsWith("192.168.", StringComparison.Ordinal) || 

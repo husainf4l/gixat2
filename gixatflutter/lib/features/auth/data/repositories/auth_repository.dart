@@ -137,8 +137,14 @@ class AuthRepository {
   }
 
   Future<bool> hasGarage() async {
-    final garageId = await _storage.getGarageId();
-    return garageId != null && garageId.isNotEmpty;
+    // Check if user has an organization from the server
+    final userInfo = await getCurrentUser();
+    if (userInfo?.organizationId != null && userInfo!.organizationId!.isNotEmpty) {
+      // Save the organization ID to local storage for future use
+      await saveGarageId(userInfo.organizationId!);
+      return true;
+    }
+    return false;
   }
 
   Future<void> saveGarageId(String garageId) async {
