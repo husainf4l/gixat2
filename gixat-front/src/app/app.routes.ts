@@ -40,7 +40,7 @@ export const routes: Routes = [
       { path: 'sessions/:id', component: SessionDetailComponent },
       { path: 'job-cards', component: JobCardsComponent },
       { path: 'job-cards/:id', component: JobCardDetailComponent },
-      { path: 'profile', component: ProfileComponent },
+      { path: 'organization', component: ProfileComponent },
       { path: 'organization/:userId', component: UserDetailComponent }
     ]
   }

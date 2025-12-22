@@ -1,39 +1,73 @@
-/* Profile Component Styles - Enhanced */
+/* Apple Corporate Style - Minimal & Clean */
 
-/* Custom scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+:host {
+  display: block;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --apple-blue: #0071e3;
+  --apple-gray: #86868b;
+  --apple-bg: #f5f5f7;
+  --apple-border: #d2d2d7;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 3px;
+/* Clean white background */
+.bg-white {
+  background-color: #ffffff;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+/* Subtle shadows - Apple style */
+.shadow-apple {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+.shadow-apple-sm {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* Rounded corners - Apple style */
+.rounded-apple {
+  border-radius: 20px;
+}
+
+.rounded-apple-lg {
+  border-radius: 28px;
+}
+
+/* Borders - subtle */
+.border-apple {
+  border: 1px solid var(--apple-border);
+}
+
+/* Input focus - Apple blue with subtle ring */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+  border-color: var(--apple-blue);
+}
+
+/* Buttons - minimal Apple style */
+button {
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+button:not(:disabled):active {
+  transform: translateY(0);
 }
 
 /* Smooth transitions */
 * {
   transition-property: color, background-color, border-color, opacity, transform, box-shadow;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
+  transition-duration: 200ms;
 }
 
-/* Focus styles for accessibility */
-input:focus,
-textarea:focus,
-select:focus {
-  outline: none;
-}
-
-/* Loading spinner animation */
+/* Loading spinner */
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -44,35 +78,47 @@ select:focus {
   animation: spin 1s linear infinite;
 }
 
-/* Button hover effects */
-button:not(:disabled):hover {
-  transform: translateY(-1px);
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-button:not(:disabled):active {
-  transform: translateY(0);
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
 }
 
-/* Card hover effects */
-.group:hover {
-  transform: translateY(-2px);
+/* Modal backdrop */
+.backdrop-blur-sm {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-/* Form input focus ring */
-input:focus,
-textarea:focus {
-  box-shadow: 0 0 0 3px rgba(27, 117, 188, 0.1);
+/* Custom scrollbar - minimal */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
 }
 
-/* Disabled state */
-input:disabled,
-textarea:disabled,
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-/* Error state animation */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--apple-border);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--apple-gray);
+}
+
+/* Error state */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-4px); }
@@ -84,66 +130,43 @@ textarea.border-red-300 {
   animation: shake 0.3s ease-in-out;
 }
 
-/* Success message fade in */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Disabled state */
+input:disabled,
+textarea:disabled,
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
-.bg-green-50 {
-  animation: fadeIn 0.3s ease-out;
+/* Card hover effect - subtle */
+.group:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
 }
 
-/* Modal backdrop blur */
-.backdrop-blur-sm {
-  backdrop-filter: blur(4px);
+/* Typography - Apple style */
+h1, h2, h3 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
-/* Gradient backgrounds */
-.bg-gradient-to-br {
-  background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+/* Input styling - clean */
+input,
+textarea {
+  font-size: 15px;
+  line-height: 1.47;
 }
 
-/* Card shadows */
-.shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+/* Button styling - minimal */
+button {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
-.shadow-2xl {
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
-
-/* Responsive adjustments */
+/* Responsive */
 @media (max-width: 640px) {
-  .max-w-6xl {
-    padding-left: 1rem;
-    padding-right: 1rem;
+  .rounded-apple-lg {
+    border-radius: 20px;
   }
-}
-
-/* User card hover effect */
-.group:hover .group-hover-text-primary {
-  color: #1b75bc;
-}
-
-/* Smooth modal animation */
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.bg-white.rounded-2xl.shadow-2xl {
-  animation: modalFadeIn 0.2s ease-out;
 }

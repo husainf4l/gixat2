@@ -1,27 +1,27 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="min-h-screen bg-[#f5f5f7] font-sans">
+  <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
     <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-4xl font-bold text-slate-900 mb-2">Organization & Profile</h1>
-      <p class="text-slate-600 text-lg">Manage your organization settings and user profiles</p>
+    <div class="mb-10 animate-fade-in">
+      <h1 class="text-[32px] font-semibold text-slate-900 mb-2 tracking-tight">Organization</h1>
+      <p class="text-[17px] text-[#86868b]">Manage your organization settings and team members</p>
     </div>
 
     <!-- Loading State -->
     @if (isLoading()) {
-      <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-12">
+      <div class="bg-white rounded-apple-lg shadow-apple border-apple p-16">
         <div class="flex flex-col items-center justify-center">
-          <div class="relative w-12 h-12 mb-4">
-            <div class="absolute inset-0 rounded-full border-4 border-slate-100"></div>
-            <div class="absolute inset-0 rounded-full border-4 border-t-[#1b75bc] animate-spin"></div>
+          <div class="relative w-10 h-10 mb-4">
+            <div class="absolute inset-0 rounded-full border-2 border-[#f5f5f7]"></div>
+            <div class="absolute inset-0 rounded-full border-2 border-t-[#0071e3] border-r-transparent animate-spin"></div>
           </div>
-          <p class="text-sm text-slate-500">Loading...</p>
+          <p class="text-[15px] text-[#86868b]">Loading...</p>
         </div>
       </div>
     }
 
     <!-- Error Message -->
     @if (errorMessage(); as error) {
-      <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700 text-sm shadow-sm">
+      <div class="mb-6 p-4 bg-red-50/50 border border-red-200/50 rounded-apple text-red-700 text-[15px] animate-fade-in">
         <div class="flex items-center gap-2">
           <i class="ri-error-warning-line text-lg"></i>
           <span>{{ error }}</span>
@@ -31,7 +31,7 @@
 
     <!-- Success Message -->
     @if (successMessage(); as success) {
-      <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg text-green-700 text-sm shadow-sm">
+      <div class="mb-6 p-4 bg-green-50/50 border border-green-200/50 rounded-apple text-green-700 text-[15px] animate-fade-in">
         <div class="flex items-center gap-2">
           <i class="ri-checkbox-circle-line text-lg"></i>
           <span>{{ success }}</span>
@@ -41,47 +41,41 @@
 
     <!-- Main Content -->
     @if (!isLoading() && profile(); as userProfile) {
-      <div class="space-y-8">
+      <div class="space-y-6">
         <!-- Organization Section -->
         @if (organization(); as org) {
-          <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+          <div class="bg-white rounded-apple-lg shadow-apple border-apple overflow-hidden animate-fade-in">
             <!-- Organization Header -->
-            <div class="bg-gradient-to-r from-[#1b75bc] to-[#155a92] p-6 text-white">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                  @if (logoPreview()) {
-                    <img 
-                      [src]="logoPreview()" 
-                      alt="Organization logo"
-                      class="w-16 h-16 rounded-lg object-cover border-2 border-white/20 shadow-lg bg-white p-1"
-                      (error)="onLogoImageError()"
-                    />
-                  } @else {
-                    <div class="w-16 h-16 rounded-lg bg-white/20 border-2 border-white/30 flex items-center justify-center backdrop-blur-sm">
-                      <i class="ri-building-line text-3xl text-white"></i>
-                    </div>
-                  }
-                  <div>
-                    <h2 class="text-2xl font-bold">{{ org.name }}</h2>
-                    <p class="text-white/80 text-sm mt-1">
-                      <i class="ri-map-pin-line mr-1"></i>
-                      @if (org.address) {
-                        {{ org.address.city }}, {{ org.address.country }}
-                      }
-                    </p>
+            <div class="px-8 py-6 border-b border-[#f5f5f7]">
+              <div class="flex items-center gap-4">
+                @if (logoPreview()) {
+                  <img 
+                    [src]="logoPreview()" 
+                    alt="Organization logo"
+                    class="w-14 h-14 rounded-[12px] object-cover border border-[#d2d2d7] bg-white"
+                    (error)="onLogoImageError()"
+                  />
+                } @else {
+                  <div class="w-14 h-14 rounded-[12px] bg-[#f5f5f7] border border-[#d2d2d7] flex items-center justify-center">
+                    <i class="ri-building-line text-2xl text-[#86868b]"></i>
                   </div>
+                }
+                <div>
+                  <h2 class="text-[24px] font-semibold text-slate-900 tracking-tight">{{ org.name }}</h2>
+                  <p class="text-[15px] text-[#86868b] mt-0.5">
+                    @if (org.address) {
+                      {{ org.address.city }}, {{ org.address.country }}
+                    }
+                  </p>
                 </div>
               </div>
             </div>
 
             <!-- Organization Content -->
-            <div class="p-6">
+            <div class="px-8 py-6">
               <!-- Logo Upload Section -->
-              <div class="mb-6 pb-6 border-b border-slate-200">
-                <h3 class="text-base font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                  <i class="ri-image-line text-[#1b75bc]"></i>
-                  Organization Logo
-                </h3>
+              <div class="mb-8 pb-8 border-b border-[#f5f5f7]">
+                <h3 class="text-[17px] font-semibold text-slate-900 mb-4">Organization Logo</h3>
                 
                 <div class="flex items-start gap-6">
                   <div class="relative">
@@ -89,19 +83,19 @@
                       <img 
                         [src]="logoPreview()" 
                         alt="Organization logo"
-                        class="w-32 h-32 object-contain border-2 border-slate-200 rounded-xl shadow-md bg-white p-3"
+                        class="w-28 h-28 object-contain border border-[#d2d2d7] rounded-[12px] bg-white p-2"
                         (error)="onLogoImageError()"
                         loading="lazy"
                       />
                     } @else {
-                      <div class="w-32 h-32 border-2 border-slate-200 rounded-xl bg-slate-50 flex items-center justify-center">
-                        <i class="ri-building-line text-5xl text-slate-400"></i>
+                      <div class="w-28 h-28 border border-[#d2d2d7] rounded-[12px] bg-[#f5f5f7] flex items-center justify-center">
+                        <i class="ri-building-line text-4xl text-[#86868b]"></i>
                       </div>
                     }
                     
                     @if (isUploadingLogo()) {
-                      <div class="absolute inset-0 rounded-xl bg-black/50 flex items-center justify-center">
-                        <div class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div class="absolute inset-0 rounded-[12px] bg-black/40 flex items-center justify-center backdrop-blur-sm">
+                        <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       </div>
                     }
                   </div>
@@ -110,7 +104,7 @@
                     <div class="flex flex-wrap gap-3">
                       <label 
                         for="logo-input"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#1b75bc] text-white rounded-lg hover:bg-[#155a92] transition-all cursor-pointer text-sm font-medium shadow-sm hover:shadow-md"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0071e3] text-white rounded-[10px] hover:bg-[#0077ed] transition-all cursor-pointer text-[15px] font-medium"
                         [class.opacity-50]="isUploadingLogo()"
                         [class.pointer-events-none]="isUploadingLogo()"
                       >
@@ -129,7 +123,7 @@
                       @if (logoPreview() && !isUploadingLogo()) {
                         <button
                           (click)="uploadLogo()"
-                          class="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-sm font-medium shadow-sm hover:shadow-md"
+                          class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-[10px] hover:bg-green-700 transition-all text-[15px] font-medium"
                         >
                           <i class="ri-check-line"></i>
                           <span>Save</span>
@@ -139,26 +133,26 @@
                       @if (logoPreview() && !isUploadingLogo()) {
                         <button
                           (click)="deleteLogo()"
-                          class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all text-sm font-medium shadow-sm hover:shadow-md"
+                          class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white rounded-[10px] hover:bg-red-700 transition-all text-[15px] font-medium"
                         >
                           <i class="ri-delete-bin-line"></i>
                           <span>Delete</span>
                         </button>
                       }
                     </div>
-                    <p class="text-xs text-slate-500">
-                      JPG, PNG or WebP. Max size 5MB. Recommended: 400x400px square image.
+                    <p class="text-[13px] text-[#86868b]">
+                      JPG, PNG or WebP. Max size 5MB.
                     </p>
                   </div>
                 </div>
               </div>
 
               <!-- Organization Form -->
-              <form (ngSubmit)="saveOrganization()" class="space-y-5">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <form (ngSubmit)="saveOrganization()" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <!-- Organization Name -->
                   <div class="md:col-span-2">
-                    <label for="orgName" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <label for="orgName" class="block text-[15px] font-medium text-slate-900 mb-2">
                       Organization Name <span class="text-red-500">*</span>
                     </label>
                     <input
@@ -166,20 +160,20 @@
                       type="text"
                       [value]="organizationFormData().name || ''"
                       (input)="onOrganizationFieldChange('name', $any($event.target).value)"
-                      class="w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-all"
+                      class="w-full px-4 py-3 border border-[#d2d2d7] rounded-[10px] focus:ring-4 focus:ring-[#0071e3]/10 focus:border-[#0071e3] transition-all text-[15px] bg-white"
                       [class.border-red-300]="organizationErrors()['name']"
-                      [class.bg-red-50]="organizationErrors()['name']"
+                      [class.bg-red-50/50]="organizationErrors()['name']"
                       placeholder="Enter organization name"
                       [disabled]="isSavingOrganization()"
                     />
                     @if (organizationErrors()['name']) {
-                      <p class="mt-1.5 text-sm text-red-600">{{ organizationErrors()['name'] }}</p>
+                      <p class="mt-1.5 text-[13px] text-red-600">{{ organizationErrors()['name'] }}</p>
                     }
                   </div>
 
                   <!-- Country -->
                   <div>
-                    <label for="orgCountry" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <label for="orgCountry" class="block text-[15px] font-medium text-slate-900 mb-2">
                       Country <span class="text-red-500">*</span>
                     </label>
                     <input
@@ -187,20 +181,20 @@
                       type="text"
                       [value]="organizationFormData().address?.country || ''"
                       (input)="onOrganizationAddressFieldChange('country', $any($event.target).value)"
-                      class="w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-all"
+                      class="w-full px-4 py-3 border border-[#d2d2d7] rounded-[10px] focus:ring-4 focus:ring-[#0071e3]/10 focus:border-[#0071e3] transition-all text-[15px] bg-white"
                       [class.border-red-300]="organizationErrors()['country']"
-                      [class.bg-red-50]="organizationErrors()['country']"
+                      [class.bg-red-50/50]="organizationErrors()['country']"
                       placeholder="Jordan"
                       [disabled]="isSavingOrganization()"
                     />
                     @if (organizationErrors()['country']) {
-                      <p class="mt-1.5 text-sm text-red-600">{{ organizationErrors()['country'] }}</p>
+                      <p class="mt-1.5 text-[13px] text-red-600">{{ organizationErrors()['country'] }}</p>
                     }
                   </div>
 
                   <!-- City -->
                   <div>
-                    <label for="orgCity" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <label for="orgCity" class="block text-[15px] font-medium text-slate-900 mb-2">
                       City <span class="text-red-500">*</span>
                     </label>
                     <input
@@ -208,20 +202,20 @@
                       type="text"
                       [value]="organizationFormData().address?.city || ''"
                       (input)="onOrganizationAddressFieldChange('city', $any($event.target).value)"
-                      class="w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-all"
+                      class="w-full px-4 py-3 border border-[#d2d2d7] rounded-[10px] focus:ring-4 focus:ring-[#0071e3]/10 focus:border-[#0071e3] transition-all text-[15px] bg-white"
                       [class.border-red-300]="organizationErrors()['city']"
-                      [class.bg-red-50]="organizationErrors()['city']"
+                      [class.bg-red-50/50]="organizationErrors()['city']"
                       placeholder="Amman"
                       [disabled]="isSavingOrganization()"
                     />
                     @if (organizationErrors()['city']) {
-                      <p class="mt-1.5 text-sm text-red-600">{{ organizationErrors()['city'] }}</p>
+                      <p class="mt-1.5 text-[13px] text-red-600">{{ organizationErrors()['city'] }}</p>
                     }
                   </div>
 
                   <!-- Street Address -->
                   <div class="md:col-span-2">
-                    <label for="orgStreet" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <label for="orgStreet" class="block text-[15px] font-medium text-slate-900 mb-2">
                       Street Address <span class="text-red-500">*</span>
                     </label>
                     <input
@@ -229,20 +223,20 @@
                       type="text"
                       [value]="organizationFormData().address?.street || ''"
                       (input)="onOrganizationAddressFieldChange('street', $any($event.target).value)"
-                      class="w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-all"
+                      class="w-full px-4 py-3 border border-[#d2d2d7] rounded-[10px] focus:ring-4 focus:ring-[#0071e3]/10 focus:border-[#0071e3] transition-all text-[15px] bg-white"
                       [class.border-red-300]="organizationErrors()['street']"
-                      [class.bg-red-50]="organizationErrors()['street']"
+                      [class.bg-red-50/50]="organizationErrors()['street']"
                       placeholder="123 Main Street"
                       [disabled]="isSavingOrganization()"
                     />
                     @if (organizationErrors()['street']) {
-                      <p class="mt-1.5 text-sm text-red-600">{{ organizationErrors()['street'] }}</p>
+                      <p class="mt-1.5 text-[13px] text-red-600">{{ organizationErrors()['street'] }}</p>
                     }
                   </div>
 
                   <!-- Phone Country Code -->
                   <div class="md:col-span-2">
-                    <label for="orgPhoneCode" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <label for="orgPhoneCode" class="block text-[15px] font-medium text-slate-900 mb-2">
                       Phone Country Code <span class="text-red-500">*</span>
                     </label>
                     <input
@@ -250,32 +244,32 @@
                       type="text"
                       [value]="organizationFormData().address?.phoneCountryCode || ''"
                       (input)="onOrganizationAddressFieldChange('phoneCountryCode', $any($event.target).value)"
-                      class="w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-all max-w-xs"
+                      class="w-full px-4 py-3 border border-[#d2d2d7] rounded-[10px] focus:ring-4 focus:ring-[#0071e3]/10 focus:border-[#0071e3] transition-all text-[15px] bg-white max-w-xs"
                       [class.border-red-300]="organizationErrors()['phoneCountryCode']"
-                      [class.bg-red-50]="organizationErrors()['phoneCountryCode']"
+                      [class.bg-red-50/50]="organizationErrors()['phoneCountryCode']"
                       placeholder="+962"
                       [disabled]="isSavingOrganization()"
                     />
                     @if (organizationErrors()['phoneCountryCode']) {
-                      <p class="mt-1.5 text-sm text-red-600">{{ organizationErrors()['phoneCountryCode'] }}</p>
+                      <p class="mt-1.5 text-[13px] text-red-600">{{ organizationErrors()['phoneCountryCode'] }}</p>
                     }
-                    <p class="mt-1.5 text-xs text-slate-500">Include the + sign (e.g., +962, +1)</p>
+                    <p class="mt-1.5 text-[13px] text-[#86868b]">Include the + sign (e.g., +962, +1)</p>
                   </div>
                 </div>
 
                 <!-- Save Button -->
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+                <div class="flex items-center justify-end gap-3 pt-6 border-t border-[#f5f5f7]">
                   <button
                     type="button"
                     (click)="loadOrganization()"
-                    class="px-6 py-2.5 text-slate-700 bg-white border-2 border-slate-300 rounded-xl hover:bg-slate-50 transition-all font-medium"
+                    class="px-6 py-2.5 text-slate-700 bg-white border border-[#d2d2d7] rounded-[10px] hover:bg-[#f5f5f7] transition-all text-[15px] font-medium"
                     [disabled]="isSavingOrganization()"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    class="px-6 py-2.5 bg-[#1b75bc] text-white rounded-xl hover:bg-[#155a92] transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow-md"
+                    class="px-6 py-2.5 bg-[#0071e3] text-white rounded-[10px] hover:bg-[#0077ed] transition-all text-[15px] font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     [disabled]="isSavingOrganization()"
                   >
                     @if (isSavingOrganization()) {
@@ -294,19 +288,16 @@
 
         <!-- Users Section -->
         @if (organization()) {
-          <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-            <div class="bg-gradient-to-r from-slate-50 to-slate-100 p-6 border-b border-slate-200">
+          <div class="bg-white rounded-apple-lg shadow-apple border-apple overflow-hidden animate-fade-in">
+            <div class="px-8 py-6 border-b border-[#f5f5f7]">
               <div class="flex items-center justify-between">
                 <div>
-                  <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-                    <i class="ri-team-line text-[#1b75bc]"></i>
-                    Team Members
-                  </h2>
-                  <p class="text-sm text-slate-600 mt-1">{{ organizationUsers().length }} member{{ organizationUsers().length !== 1 ? 's' : '' }}</p>
+                  <h2 class="text-[24px] font-semibold text-slate-900 tracking-tight">Team Members</h2>
+                  <p class="text-[15px] text-[#86868b] mt-0.5">{{ organizationUsers().length }} member{{ organizationUsers().length !== 1 ? 's' : '' }}</p>
                 </div>
                 <button
                   (click)="openCreateUserModal()"
-                  class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1b75bc] text-white rounded-xl hover:bg-[#155a92] transition-all font-medium shadow-sm hover:shadow-md"
+                  class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0071e3] text-white rounded-[10px] hover:bg-[#0077ed] transition-all text-[15px] font-medium"
                 >
                   <i class="ri-user-add-line"></i>
                   <span>Add User</span>
@@ -314,64 +305,64 @@
               </div>
             </div>
 
-            <div class="p-6">
+            <div class="p-8">
               @if (isLoadingUsers()) {
                 <div class="flex items-center justify-center py-12">
                   <div class="relative w-8 h-8">
-                    <div class="absolute inset-0 rounded-full border-2 border-slate-100"></div>
-                    <div class="absolute inset-0 rounded-full border-2 border-t-[#1b75bc] animate-spin"></div>
+                    <div class="absolute inset-0 rounded-full border-2 border-[#f5f5f7]"></div>
+                    <div class="absolute inset-0 rounded-full border-2 border-t-[#0071e3] border-r-transparent animate-spin"></div>
                   </div>
                 </div>
               } @else if (organizationUsers().length > 0) {
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   @for (user of organizationUsers(); track user.id) {
-                    <div 
-                      (click)="editUser(user.id)"
-                      class="p-4 bg-slate-50 rounded-xl border-2 border-slate-200 hover:border-[#1b75bc] hover:shadow-md transition-all cursor-pointer group"
+                    <a
+                      [routerLink]="['/dashboard/organization', user.id]"
+                      class="p-4 bg-[#f5f5f7] rounded-[12px] border border-[#d2d2d7] hover:border-[#0071e3] hover:shadow-apple-sm transition-all cursor-pointer group"
                     >
                       <div class="flex items-center gap-3">
                         @if (user.avatarUrl) {
-                        <img 
-                          [src]="user.avatarUrl" 
-                          [alt]="user.fullName"
-                          class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
-                          (error)="user.avatarUrl = null"
-                        />
+                          <img 
+                            [src]="user.avatarUrl" 
+                            [alt]="user.fullName"
+                            class="w-12 h-12 rounded-full object-cover border border-[#d2d2d7]"
+                            (error)="user.avatarUrl = null"
+                          />
                         } @else {
-                          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#1b75bc] to-[#155a92] flex items-center justify-center text-white font-semibold text-sm border-2 border-white shadow-sm">
+                          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#0071e3] to-[#0051bb] flex items-center justify-center text-white font-semibold text-sm border border-[#d2d2d7]">
                             {{ getUserInitials(user) }}
                           </div>
                         }
                         <div class="flex-1 min-w-0">
-                          <h3 class="font-semibold text-slate-900 truncate group-hover-text-primary transition-colors">
+                          <h3 class="font-semibold text-slate-900 truncate text-[15px] group-hover:text-[#0071e3] transition-colors">
                             {{ user.fullName }}
                           </h3>
-                          <p class="text-xs text-slate-500 truncate">{{ user.email }}</p>
+                          <p class="text-[13px] text-[#86868b] truncate">{{ user.email }}</p>
                           @if (user.roles && user.roles.length > 0) {
-                            <div class="flex gap-1 mt-1">
+                            <div class="flex gap-1 mt-1.5">
                               @for (role of user.roles; track role) {
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-100 text-blue-800">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-[6px] text-[11px] font-medium bg-[#0071e3]/10 text-[#0071e3]">
                                   {{ role }}
                                 </span>
                               }
                             </div>
                           }
                         </div>
-                        <i class="ri-arrow-right-s-line text-slate-400 group-hover:text-[#1b75bc] transition-colors"></i>
+                        <i class="ri-arrow-right-s-line text-[#86868b] group-hover:text-[#0071e3] transition-colors"></i>
                       </div>
-                    </div>
+                    </a>
                   }
                 </div>
               } @else {
-                <div class="text-center py-12">
-                  <div class="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
-                    <i class="ri-team-line text-3xl text-slate-400"></i>
+                <div class="text-center py-16">
+                  <div class="w-16 h-16 mx-auto mb-4 bg-[#f5f5f7] rounded-full flex items-center justify-center">
+                    <i class="ri-team-line text-3xl text-[#86868b]"></i>
                   </div>
-                  <p class="text-sm font-semibold text-slate-900 mb-1">No team members yet</p>
-                  <p class="text-xs text-slate-500 mb-4">Add your first team member to get started</p>
+                  <p class="text-[15px] font-medium text-slate-900 mb-1">No team members yet</p>
+                  <p class="text-[13px] text-[#86868b] mb-6">Add your first team member to get started</p>
                   <button
                     (click)="openCreateUserModal()"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-[#1b75bc] text-white rounded-lg hover:bg-[#155a92] transition-all text-sm font-medium"
+                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0071e3] text-white rounded-[10px] hover:bg-[#0077ed] transition-all text-[15px] font-medium"
                   >
                     <i class="ri-user-add-line"></i>
                     <span>Add User</span>
@@ -383,19 +374,27 @@
         }
 
         <!-- My Profile Section -->
-        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-          <div class="bg-gradient-to-r from-slate-50 to-slate-100 p-6 border-b border-slate-200">
-            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <i class="ri-user-line text-[#1b75bc]"></i>
-              My Profile
-            </h2>
-            <p class="text-sm text-slate-600 mt-1">Manage your personal account information</p>
+        <div class="bg-white rounded-apple-lg shadow-apple border-apple overflow-hidden animate-fade-in">
+          <div class="px-8 py-6 border-b border-[#f5f5f7]">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-[24px] font-semibold text-slate-900 tracking-tight">My Profile</h2>
+                <p class="text-[15px] text-[#86868b] mt-0.5">Manage your personal account information</p>
+              </div>
+              <a
+                [routerLink]="['/dashboard/organization', userProfile.id]"
+                class="inline-flex items-center gap-2 px-5 py-2.5 text-[#0071e3] bg-[#0071e3]/10 rounded-[10px] hover:bg-[#0071e3]/20 transition-all text-[15px] font-medium"
+              >
+                <i class="ri-edit-line"></i>
+                <span>Edit Profile</span>
+              </a>
+            </div>
           </div>
 
-          <div class="p-6">
+          <div class="px-8 py-6">
             <!-- Avatar Section -->
-            <div class="mb-6 pb-6 border-b border-slate-200">
-              <h3 class="text-base font-semibold text-slate-900 mb-4">Profile Picture</h3>
+            <div class="mb-8 pb-8 border-b border-[#f5f5f7]">
+              <h3 class="text-[17px] font-semibold text-slate-900 mb-4">Profile Picture</h3>
               
               <div class="flex items-start gap-6">
                 <div class="relative">
@@ -403,20 +402,20 @@
                     <img 
                       [src]="avatarPreview()" 
                       alt="Profile avatar"
-                      class="w-24 h-24 rounded-full object-cover border-4 border-slate-200 shadow-lg"
+                      class="w-20 h-20 rounded-full object-cover border border-[#d2d2d7]"
                       (error)="onAvatarImageError()"
                       loading="lazy"
                       referrerpolicy="no-referrer"
                     />
                   } @else {
-                    <div class="w-24 h-24 rounded-full bg-gradient-to-br from-[#1b75bc] to-[#155a92] flex items-center justify-center text-white text-2xl font-bold border-4 border-slate-200 shadow-lg">
+                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-[#0071e3] to-[#0051bb] flex items-center justify-center text-white text-xl font-semibold border border-[#d2d2d7]">
                       {{ getInitials() }}
                     </div>
                   }
                   
                   @if (isUploadingAvatar()) {
-                    <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
-                      <div class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div class="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center backdrop-blur-sm">
+                      <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     </div>
                   }
                 </div>
@@ -425,7 +424,7 @@
                   <div class="flex flex-wrap gap-3">
                     <label 
                       for="avatar-input"
-                      class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#1b75bc] text-white rounded-lg hover:bg-[#155a92] transition-all cursor-pointer text-sm font-medium shadow-sm hover:shadow-md"
+                      class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0071e3] text-white rounded-[10px] hover:bg-[#0077ed] transition-all cursor-pointer text-[15px] font-medium"
                       [class.opacity-50]="isUploadingAvatar()"
                       [class.pointer-events-none]="isUploadingAvatar()"
                     >
@@ -444,7 +443,7 @@
                     @if (avatarPreview() && !isUploadingAvatar()) {
                       <button
                         (click)="uploadAvatar()"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-sm font-medium shadow-sm hover:shadow-md"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-[10px] hover:bg-green-700 transition-all text-[15px] font-medium"
                       >
                         <i class="ri-check-line"></i>
                         <span>Save Avatar</span>
@@ -454,148 +453,49 @@
                     @if (avatarPreview() && !isUploadingAvatar()) {
                       <button
                         (click)="deleteAvatar()"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all text-sm font-medium shadow-sm hover:shadow-md"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white rounded-[10px] hover:bg-red-700 transition-all text-[15px] font-medium"
                       >
                         <i class="ri-delete-bin-line"></i>
                         <span>Delete</span>
                       </button>
                     }
                   </div>
-                  <p class="text-xs text-slate-500">
-                    JPG, PNG, GIF or WebP. Max size 5MB. Recommended: 400x400px square image.
+                  <p class="text-[13px] text-[#86868b]">
+                    JPG, PNG, GIF or WebP. Max size 5MB.
                   </p>
                 </div>
               </div>
             </div>
 
-            <!-- Profile Form -->
-            <form (ngSubmit)="saveProfile()" class="space-y-5">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <!-- Full Name -->
-                <div class="md:col-span-2">
-                  <label for="fullName" class="block text-sm font-semibold text-slate-700 mb-2">
-                    Full Name <span class="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="fullName"
-                    type="text"
-                    [value]="formData().fullName"
-                    (input)="onFieldChange('fullName', $any($event.target).value)"
-                    class="w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-all"
-                    [class.border-red-300]="errors()['fullName']"
-                    [class.bg-red-50]="errors()['fullName']"
-                    placeholder="Enter your full name"
-                    [disabled]="isSaving()"
-                  />
-                  @if (errors()['fullName']) {
-                    <p class="mt-1.5 text-sm text-red-600">{{ errors()['fullName'] }}</p>
-                  }
-                </div>
-
-                <!-- Email (Read-only) -->
-                <div class="md:col-span-2">
-                  <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    [value]="userProfile.email"
-                    disabled
-                    class="w-full px-4 py-3 border-2 border-slate-300 rounded-xl bg-slate-50 text-slate-500 cursor-not-allowed"
-                  />
-                  <p class="mt-1.5 text-xs text-slate-500">Email cannot be changed</p>
-                </div>
-
-                <!-- Phone Number -->
+            <!-- Profile Info Display -->
+            <div class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label for="phoneNumber" class="block text-sm font-semibold text-slate-700 mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    id="phoneNumber"
-                    type="tel"
-                    [value]="formData().phoneNumber || ''"
-                    (input)="onFieldChange('phoneNumber', $any($event.target).value)"
-                    class="w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-all"
-                    [class.border-red-300]="errors()['phoneNumber']"
-                    [class.bg-red-50]="errors()['phoneNumber']"
-                    placeholder="+1 (555) 123-4567"
-                    [disabled]="isSaving()"
-                  />
-                  @if (errors()['phoneNumber']) {
-                    <p class="mt-1.5 text-sm text-red-600">{{ errors()['phoneNumber'] }}</p>
-                  }
-                  <p class="mt-1.5 text-xs text-slate-500">Include country code for international numbers</p>
+                  <p class="text-[13px] text-[#86868b] mb-1.5">Full Name</p>
+                  <p class="text-[15px] font-medium text-slate-900">{{ userProfile.fullName }}</p>
                 </div>
-
-                <!-- User Type (Read-only) -->
                 <div>
-                  <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    User Type
-                  </label>
-                  <input
-                    type="text"
-                    [value]="userProfile.userType || 'Standard User'"
-                    disabled
-                    class="w-full px-4 py-3 border-2 border-slate-300 rounded-xl bg-slate-50 text-slate-500 cursor-not-allowed"
-                  />
+                  <p class="text-[13px] text-[#86868b] mb-1.5">Email</p>
+                  <p class="text-[15px] font-medium text-slate-900">{{ userProfile.email }}</p>
                 </div>
-
-                <!-- Bio -->
-                <div class="md:col-span-2">
-                  <label for="bio" class="block text-sm font-semibold text-slate-700 mb-2">
-                    Bio
-                  </label>
-                  <textarea
-                    id="bio"
-                    [value]="formData().bio || ''"
-                    (input)="onFieldChange('bio', $any($event.target).value)"
-                    rows="4"
-                    class="w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-all resize-none"
-                    [class.border-red-300]="errors()['bio']"
-                    [class.bg-red-50]="errors()['bio']"
-                    placeholder="Tell us about yourself..."
-                    [disabled]="isSaving()"
-                  ></textarea>
-                  <div class="flex items-center justify-between mt-1.5">
-                    @if (errors()['bio']) {
-                      <p class="text-sm text-red-600">{{ errors()['bio'] }}</p>
-                    } @else {
-                      <p class="text-xs text-slate-500">Optional. Max 500 characters.</p>
-                    }
-                    <p class="text-xs text-slate-400">
-                      {{ (formData().bio || '').length }}/500
-                    </p>
+                @if (userProfile.phoneNumber) {
+                  <div>
+                    <p class="text-[13px] text-[#86868b] mb-1.5">Phone Number</p>
+                    <p class="text-[15px] font-medium text-slate-900">{{ userProfile.phoneNumber }}</p>
                   </div>
+                }
+                <div>
+                  <p class="text-[13px] text-[#86868b] mb-1.5">User Type</p>
+                  <p class="text-[15px] font-medium text-slate-900">{{ userProfile.userType || 'Standard User' }}</p>
                 </div>
               </div>
-
-              <!-- Save Button -->
-              <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
-                <button
-                  type="button"
-                  (click)="loadProfile()"
-                  class="px-6 py-2.5 text-slate-700 bg-white border-2 border-slate-300 rounded-xl hover:bg-slate-50 transition-all font-medium"
-                  [disabled]="isSaving()"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  class="px-6 py-2.5 bg-[#1b75bc] text-white rounded-xl hover:bg-[#155a92] transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow-md"
-                  [disabled]="isSaving()"
-                >
-                  @if (isSaving()) {
-                    <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Saving...</span>
-                  } @else {
-                    <i class="ri-save-line"></i>
-                    <span>Save Changes</span>
-                  }
-                </button>
-              </div>
-            </form>
+              @if (userProfile.bio) {
+                <div>
+                  <p class="text-[13px] text-[#86868b] mb-1.5">Bio</p>
+                  <p class="text-[15px] text-slate-900">{{ userProfile.bio }}</p>
+                </div>
+              }
+            </div>
           </div>
         </div>
       </div>
@@ -603,14 +503,14 @@
 
     <!-- Create User Modal -->
     @if (showCreateUserModal()) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-          <div class="sticky top-0 bg-gradient-to-r from-[#1b75bc] to-[#155a92] p-6 text-white rounded-t-2xl">
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
+        <div class="bg-white rounded-apple-lg shadow-apple max-w-md w-full max-h-[90vh] overflow-y-auto animate-fade-in">
+          <div class="sticky top-0 bg-white px-8 py-6 border-b border-[#f5f5f7] rounded-t-apple-lg">
             <div class="flex items-center justify-between">
-              <h3 class="text-xl font-bold">Add New User</h3>
+              <h3 class="text-[24px] font-semibold text-slate-900 tracking-tight">Add New User</h3>
               <button
                 (click)="closeCreateUserModal()"
-                class="text-white/80 hover:text-white transition-colors"
+                class="text-[#86868b] hover:text-slate-900 transition-colors"
                 [disabled]="isCreatingUser()"
               >
                 <i class="ri-close-line text-2xl"></i>
@@ -618,10 +518,10 @@
             </div>
           </div>
 
-          <form (ngSubmit)="createUser()" class="p-6 space-y-5">
+          <form (ngSubmit)="createUser()" class="p-8 space-y-5">
             <!-- Full Name -->
             <div>
-              <label for="createFullName" class="block text-sm font-semibold text-slate-700 mb-2">
+              <label for="createFullName" class="block text-[15px] font-medium text-slate-900 mb-2">
                 Full Name <span class="text-red-500">*</span>
               </label>
               <input
@@ -629,20 +529,20 @@
                 type="text"
                 [value]="createUserForm().fullName"
                 (input)="onCreateUserFieldChange('fullName', $any($event.target).value)"
-                class="w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-all"
+                class="w-full px-4 py-3 border border-[#d2d2d7] rounded-[10px] focus:ring-4 focus:ring-[#0071e3]/10 focus:border-[#0071e3] transition-all text-[15px] bg-white"
                 [class.border-red-300]="createUserErrors()['fullName']"
-                [class.bg-red-50]="createUserErrors()['fullName']"
+                [class.bg-red-50/50]="createUserErrors()['fullName']"
                 placeholder="Enter full name"
                 [disabled]="isCreatingUser()"
               />
               @if (createUserErrors()['fullName']) {
-                <p class="mt-1.5 text-sm text-red-600">{{ createUserErrors()['fullName'] }}</p>
+                <p class="mt-1.5 text-[13px] text-red-600">{{ createUserErrors()['fullName'] }}</p>
               }
             </div>
 
             <!-- Email -->
             <div>
-              <label for="createEmail" class="block text-sm font-semibold text-slate-700 mb-2">
+              <label for="createEmail" class="block text-[15px] font-medium text-slate-900 mb-2">
                 Email <span class="text-red-500">*</span>
               </label>
               <input
@@ -650,20 +550,20 @@
                 type="email"
                 [value]="createUserForm().email"
                 (input)="onCreateUserFieldChange('email', $any($event.target).value)"
-                class="w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-all"
+                class="w-full px-4 py-3 border border-[#d2d2d7] rounded-[10px] focus:ring-4 focus:ring-[#0071e3]/10 focus:border-[#0071e3] transition-all text-[15px] bg-white"
                 [class.border-red-300]="createUserErrors()['email']"
-                [class.bg-red-50]="createUserErrors()['email']"
+                [class.bg-red-50/50]="createUserErrors()['email']"
                 placeholder="user@example.com"
                 [disabled]="isCreatingUser()"
               />
               @if (createUserErrors()['email']) {
-                <p class="mt-1.5 text-sm text-red-600">{{ createUserErrors()['email'] }}</p>
+                <p class="mt-1.5 text-[13px] text-red-600">{{ createUserErrors()['email'] }}</p>
               }
             </div>
 
             <!-- Password -->
             <div>
-              <label for="createPassword" class="block text-sm font-semibold text-slate-700 mb-2">
+              <label for="createPassword" class="block text-[15px] font-medium text-slate-900 mb-2">
                 Password <span class="text-red-500">*</span>
               </label>
               <input
@@ -671,21 +571,21 @@
                 type="password"
                 [value]="createUserForm().password"
                 (input)="onCreateUserFieldChange('password', $any($event.target).value)"
-                class="w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-all"
+                class="w-full px-4 py-3 border border-[#d2d2d7] rounded-[10px] focus:ring-4 focus:ring-[#0071e3]/10 focus:border-[#0071e3] transition-all text-[15px] bg-white"
                 [class.border-red-300]="createUserErrors()['password']"
-                [class.bg-red-50]="createUserErrors()['password']"
+                [class.bg-red-50/50]="createUserErrors()['password']"
                 placeholder="Minimum 8 characters"
                 [disabled]="isCreatingUser()"
               />
               @if (createUserErrors()['password']) {
-                <p class="mt-1.5 text-sm text-red-600">{{ createUserErrors()['password'] }}</p>
+                <p class="mt-1.5 text-[13px] text-red-600">{{ createUserErrors()['password'] }}</p>
               }
-              <p class="mt-1.5 text-xs text-slate-500">Password must be at least 8 characters</p>
+              <p class="mt-1.5 text-[13px] text-[#86868b]">Password must be at least 8 characters</p>
             </div>
 
             <!-- Phone Number -->
             <div>
-              <label for="createPhone" class="block text-sm font-semibold text-slate-700 mb-2">
+              <label for="createPhone" class="block text-[15px] font-medium text-slate-900 mb-2">
                 Phone Number
               </label>
               <input
@@ -693,25 +593,25 @@
                 type="tel"
                 [value]="createUserForm().phoneNumber || ''"
                 (input)="onCreateUserFieldChange('phoneNumber', $any($event.target).value)"
-                class="w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-[#1b75bc] focus:border-[#1b75bc] transition-all"
+                class="w-full px-4 py-3 border border-[#d2d2d7] rounded-[10px] focus:ring-4 focus:ring-[#0071e3]/10 focus:border-[#0071e3] transition-all text-[15px] bg-white"
                 placeholder="+1 (555) 123-4567"
                 [disabled]="isCreatingUser()"
               />
             </div>
 
             <!-- Buttons -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+            <div class="flex items-center justify-end gap-3 pt-6 border-t border-[#f5f5f7]">
               <button
                 type="button"
                 (click)="closeCreateUserModal()"
-                class="px-6 py-2.5 text-slate-700 bg-white border-2 border-slate-300 rounded-xl hover:bg-slate-50 transition-all font-medium"
+                class="px-6 py-2.5 text-slate-700 bg-white border border-[#d2d2d7] rounded-[10px] hover:bg-[#f5f5f7] transition-all text-[15px] font-medium"
                 [disabled]="isCreatingUser()"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                class="px-6 py-2.5 bg-[#1b75bc] text-white rounded-xl hover:bg-[#155a92] transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow-md"
+                class="px-6 py-2.5 bg-[#0071e3] text-white rounded-[10px] hover:bg-[#0077ed] transition-all text-[15px] font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 [disabled]="isCreatingUser()"
               >
                 @if (isCreatingUser()) {

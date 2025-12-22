@@ -27,7 +27,7 @@ export class SidebarComponent {
     { path: '/dashboard/settings', label: 'Settings', icon: 'ri-settings-3-line' }
   ];
 
-  profilePath = '/dashboard/profile';
+  organizationPath = '/dashboard/organization';
 
   onNavigate() {
     // Close sidebar on mobile when navigating
