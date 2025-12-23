@@ -42,6 +42,32 @@ const ALL_CARS_QUERY = gql`
   }
 `;
 
+const GET_CAR_BY_ID_QUERY = gql`
+  query GetCarById($id: UUID!) {
+    carById(id: $id) {
+      id
+      make
+      model
+      year
+      licensePlate
+      vin
+      color
+      customer {
+        id
+        firstName
+        lastName
+        email
+        phoneNumber
+      }
+      sessions {
+        id
+        status
+        createdAt
+      }
+    }
+  }
+`;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -54,6 +80,16 @@ export class VehicleService {
       fetchPolicy: 'network-only'
     }).pipe(
       map(result => result.data.cars.edges.map((edge: any) => edge.node))
+    );
+  }
+
+  getVehicleById(id: string): Observable<any> {
+    return this.apollo.query<any>({
+      query: GET_CAR_BY_ID_QUERY,
+      variables: { id },
+      fetchPolicy: 'network-only'
+    }).pipe(
+      map(result => result.data.carById)
     );
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -29,8 +29,28 @@ export class HeaderComponent implements OnInit {
   userName = signal<string>('');
   userEmail = signal<string>('');
   avatarUrl = signal<string | null>(null);
+  userId = signal<string | null>(null);
 
   private searchSubject = new Subject<string>();
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    
+    // Check if click is inside search area
+    const isInsideSearch = target.closest('.max-w-xl.relative');
+    
+    // Close search results if clicking outside search area
+    if (!isInsideSearch && this.showSearchResults()) {
+      this.closeSearchResults();
+    }
+    
+    // Close user menu if clicking outside
+    const isInsideUserMenu = target.closest('.relative');
+    if (!isInsideUserMenu && this.showUserMenu()) {
+      this.closeUserMenu();
+    }
+  }
 
   ngOnInit() {
     // Load user data
@@ -41,6 +61,7 @@ export class HeaderComponent implements OnInit {
           this.userName.set(user.fullName || '');
           this.userEmail.set(user.email || '');
           this.avatarUrl.set(user.avatarUrl || null);
+          this.userId.set(user.id || null);
           
           // Generate initials from full name
           const names = user.fullName?.split(' ') || [];
@@ -87,6 +108,9 @@ export class HeaderComponent implements OnInit {
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.updatePageTitle();
+      this.showSearchResults.set(false);
+      this.searchQuery.set('');
+      this.searchResults.set([]);
     });
     
     this.updatePageTitle();
@@ -113,6 +137,12 @@ export class HeaderComponent implements OnInit {
       this.pageTitle.set('Job Cards');
     } else if (url.match(/\/job-cards\/[^/]+/)) {
       this.pageTitle.set('Job Card Details');
+    } else if (url.includes('/organization')) {
+      if (url.match(/\/organization\/[^/]+/)) {
+        this.pageTitle.set('Edit User');
+      } else {
+        this.pageTitle.set('Organization');
+      }
     } else if (url.includes('/profile')) {
       this.pageTitle.set('Profile');
     } else if (url === '/dashboard' || url === '/dashboard/') {
@@ -140,9 +170,8 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  selectSearchResult(result: SearchResult) {
-    this.router.navigate([result.url]);
-    this.clearSearch();
+  onResultClick(result: SearchResult) {
+    this.router.navigateByUrl(result.url);
   }
 
   clearSearch() {
@@ -173,8 +202,18 @@ export class HeaderComponent implements OnInit {
     }
   }
 
+  navigateToDashboard() {
+    this.router.navigate(['/dashboard']);
+    this.closeUserMenu();
+  }
+
   navigateToProfile() {
-    this.router.navigate(['/dashboard/profile']);
+    const userId = this.userId();
+    if (userId) {
+      this.router.navigate(['/dashboard/organization', userId]);
+    } else {
+      this.router.navigate(['/dashboard/organization']);
+    }
     this.closeUserMenu();
   }
 

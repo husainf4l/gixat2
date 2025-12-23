@@ -1,4 +1,4 @@
-<header class="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/60">
+<header class="sticky top-0 z-[100] bg-white border-b border-slate-200/60">
   <div class="max-w-[1920px] mx-auto px-6 py-4">
     <div class="flex items-center justify-between gap-6">
       
@@ -34,34 +34,34 @@
               <i class="ri-close-line text-base"></i>
             </button>
           }
-        </div>
 
-        <!-- Search Results Dropdown -->
-        @if (showSearchResults() && searchResults().length > 0) {
-          <div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-slate-200/60 overflow-hidden max-h-96 overflow-y-auto z-50 animate-fadeIn">
-            @for (result of searchResults(); track result.id) {
-              <button
-                (click)="selectSearchResult(result)"
-                class="w-full flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-all text-left group"
-              >
-                <div [class]="'w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ' + getSearchResultColor(result.type)">
-                  <i [class]="getSearchResultIcon(result.type) + ' text-lg'"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2 mb-0.5">
-                    <p class="text-sm font-semibold text-slate-900 group-hover:text-[#1b75bc] transition-colors truncate">{{ result.title }}</p>
-                    <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs font-medium rounded capitalize">{{ result.type }}</span>
+          <!-- Search Results Dropdown -->
+          @if (showSearchResults() && searchResults().length > 0) {
+            <div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-slate-200/60 overflow-hidden max-h-96 overflow-y-auto z-[110] pointer-events-auto">
+              @for (result of searchResults(); track result.id) {
+                <div
+                  (click)="onResultClick(result); $event.stopPropagation()"
+                  class="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-all group cursor-pointer border-b border-slate-50 last:border-0 relative z-[120]"
+                >
+                  <div [class]="'w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ' + getSearchResultColor(result.type)">
+                    <i [class]="getSearchResultIcon(result.type) + ' text-lg'"></i>
                   </div>
-                  <p class="text-xs text-slate-600 truncate">{{ result.subtitle }}</p>
-                  @if (result.description) {
-                    <p class="text-xs text-slate-500 truncate mt-0.5">{{ result.description }}</p>
-                  }
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-0.5">
+                      <p class="text-sm font-semibold text-slate-900 group-hover:text-[#1b75bc] transition-colors truncate">{{ result.title }}</p>
+                      <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs font-medium rounded capitalize">{{ result.type }}</span>
+                    </div>
+                    <p class="text-xs text-slate-600 truncate">{{ result.subtitle }}</p>
+                    @if (result.description) {
+                      <p class="text-xs text-slate-500 truncate mt-0.5">{{ result.description }}</p>
+                    }
+                  </div>
+                  <i class="ri-arrow-right-s-line text-slate-400 text-xl group-hover:text-[#1b75bc] group-hover:translate-x-0.5 transition-all flex-shrink-0"></i>
                 </div>
-                <i class="ri-arrow-right-s-line text-slate-400 text-xl group-hover:text-[#1b75bc] group-hover:translate-x-0.5 transition-all flex-shrink-0"></i>
-              </button>
-            }
-          </div>
-        }
+              }
+            </div>
+          }
+        </div>
 
         @if (searchQuery() && searchQuery().length >= 2 && !isSearching() && searchResults().length === 0) {
           <div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-slate-200/60 p-8 text-center z-50 animate-fadeIn">
@@ -130,21 +130,19 @@
               <!-- Menu Items -->
               <div class="p-2">
                 <button
+                  (click)="navigateToDashboard()"
+                  class="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-all group"
+                >
+                  <i class="ri-dashboard-line text-base text-slate-400 group-hover:text-[#1b75bc] transition-colors"></i>
+                  <span class="group-hover:text-slate-900">Dashboard</span>
+                </button>
+                
+                <button
                   (click)="navigateToProfile()"
                   class="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-all group"
                 >
                   <i class="ri-user-line text-base text-slate-400 group-hover:text-[#1b75bc] transition-colors"></i>
-                  <span class="group-hover:text-slate-900">Profile Settings</span>
-                </button>
-                
-                <button class="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-all group">
-                  <i class="ri-settings-3-line text-base text-slate-400 group-hover:text-[#1b75bc] transition-colors"></i>
-                  <span class="group-hover:text-slate-900">Preferences</span>
-                </button>
-                
-                <button class="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-all group">
-                  <i class="ri-question-line text-base text-slate-400 group-hover:text-[#1b75bc] transition-colors"></i>
-                  <span class="group-hover:text-slate-900">Help & Support</span>
+                  <span class="group-hover:text-slate-900">Profile</span>
                 </button>
               </div>
 

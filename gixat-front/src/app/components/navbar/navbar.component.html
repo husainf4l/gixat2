@@ -29,15 +29,93 @@
 
       <!-- Desktop Actions -->
       <div class="flex-1 hidden md:flex items-center justify-end gap-6">
-        <a routerLink="/auth/login" class="text-[12px] font-normal text-slate-600 hover:text-slate-900 transition-colors">
-          Log in
-        </a>
-        <a 
-          routerLink="/auth/register" 
-          class="px-3 py-1 bg-[#1b75bc] text-white text-[12px] font-medium rounded-sm hover:bg-[#155a92] transition-all duration-200"
-        >
-          Get Started
-        </a>
+        @if (isAuthenticated()) {
+          <!-- User Avatar Dropdown -->
+          <div class="relative">
+            <button
+              (click)="toggleUserMenu()"
+              class="relative p-1 hover:bg-slate-100 rounded-full transition-all"
+            >
+              @if (avatarUrl()) {
+                <img 
+                  [src]="avatarUrl()!" 
+                  [alt]="userName()"
+                  class="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm"
+                />
+              } @else {
+                <div class="w-8 h-8 bg-gradient-to-br from-[#1b75bc] to-[#155a92] rounded-full flex items-center justify-center text-white font-medium text-xs ring-2 ring-white shadow-sm">
+                  {{ userInitials() }}
+                </div>
+              }
+            </button>
+
+            <!-- Dropdown Menu -->
+            @if (showUserMenu()) {
+              <div class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200/60 overflow-hidden z-50">
+                <!-- User Info -->
+                <div class="p-3 border-b border-slate-100 bg-slate-50/50">
+                  <div class="flex items-center gap-2">
+                    @if (avatarUrl()) {
+                      <img 
+                        [src]="avatarUrl()!" 
+                        [alt]="userName()"
+                        class="w-10 h-10 rounded-full object-cover"
+                      />
+                    } @else {
+                      <div class="w-10 h-10 bg-gradient-to-br from-[#1b75bc] to-[#155a92] rounded-full flex items-center justify-center text-white font-medium text-sm">
+                        {{ userInitials() }}
+                      </div>
+                    }
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-semibold text-slate-900 truncate">{{ userName() }}</p>
+                      <p class="text-xs text-slate-500 truncate">{{ userEmail() }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Menu Items -->
+                <div class="p-1.5">
+                  <button
+                    (click)="navigateToDashboard()"
+                    class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-all group"
+                  >
+                    <i class="ri-dashboard-line text-base text-slate-400 group-hover:text-[#1b75bc] transition-colors"></i>
+                    <span class="group-hover:text-slate-900">Dashboard</span>
+                  </button>
+                  
+                  <button
+                    (click)="navigateToProfile()"
+                    class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-all group"
+                  >
+                    <i class="ri-user-line text-base text-slate-400 group-hover:text-[#1b75bc] transition-colors"></i>
+                    <span class="group-hover:text-slate-900">Profile</span>
+                  </button>
+                </div>
+
+                <!-- Logout -->
+                <div class="p-1.5 border-t border-slate-100">
+                  <button
+                    (click)="logout()"
+                    class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-all group"
+                  >
+                    <i class="ri-logout-box-line text-base"></i>
+                    <span class="font-medium">Sign Out</span>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <a routerLink="/auth/login" class="text-[12px] font-normal text-slate-600 hover:text-slate-900 transition-colors">
+            Log in
+          </a>
+          <a 
+            routerLink="/auth/register" 
+            class="px-3 py-1 bg-[#1b75bc] text-white text-[12px] font-medium rounded-sm hover:bg-[#155a92] transition-all duration-200"
+          >
+            Get Started
+          </a>
+        }
       </div>
 
       <!-- Mobile Menu Button -->
@@ -81,20 +159,64 @@
             </a>
           }
           <hr class="border-slate-100 my-2" />
-          <a 
-            routerLink="/auth/login" 
-            (click)="closeMenu()"
-            class="text-xl font-medium text-slate-600"
-          >
-            Log in
-          </a>
-          <a 
-            routerLink="/auth/register" 
-            (click)="closeMenu()"
-            class="text-xl font-medium text-[#1b75bc]"
-          >
-            Get Started
-          </a>
+          @if (isAuthenticated()) {
+            <!-- User Info in Mobile Menu -->
+            <div class="flex items-center gap-3 pb-3 mb-3 border-b border-slate-100">
+              @if (avatarUrl()) {
+                <img 
+                  [src]="avatarUrl()!" 
+                  [alt]="userName()"
+                  class="w-12 h-12 rounded-full object-cover"
+                />
+              } @else {
+                <div class="w-12 h-12 bg-gradient-to-br from-[#1b75bc] to-[#155a92] rounded-full flex items-center justify-center text-white font-semibold">
+                  {{ userInitials() }}
+                </div>
+              }
+              <div class="flex-1 min-w-0">
+                <p class="text-base font-semibold text-slate-900 truncate">{{ userName() }}</p>
+                <p class="text-sm text-slate-500 truncate">{{ userEmail() }}</p>
+              </div>
+            </div>
+            
+            <a 
+              routerLink="/dashboard" 
+              (click)="closeMenu()"
+              class="text-xl font-medium text-slate-900 hover:text-[#1b75bc] transition-colors flex items-center gap-3"
+            >
+              <i class="ri-dashboard-line"></i>
+              <span>Dashboard</span>
+            </a>
+            <a 
+              (click)="navigateToProfile(); closeMenu()"
+              class="text-xl font-medium text-slate-900 hover:text-[#1b75bc] transition-colors flex items-center gap-3 cursor-pointer"
+            >
+              <i class="ri-user-line"></i>
+              <span>Profile</span>
+            </a>
+            <a 
+              (click)="logout(); closeMenu()"
+              class="text-xl font-medium text-red-600 hover:text-red-700 transition-colors flex items-center gap-3 cursor-pointer"
+            >
+              <i class="ri-logout-box-line"></i>
+              <span>Sign Out</span>
+            </a>
+          } @else {
+            <a 
+              routerLink="/auth/login" 
+              (click)="closeMenu()"
+              class="text-xl font-medium text-slate-600"
+            >
+              Log in
+            </a>
+            <a 
+              routerLink="/auth/register" 
+              (click)="closeMenu()"
+              class="text-xl font-medium text-[#1b75bc]"
+            >
+              Get Started
+            </a>
+          }
         </div>
       </div>
     }
@@ -102,4 +224,12 @@
 
   <!-- Spacer to prevent content from going under the fixed navbar -->
   <div class="h-12"></div>
+
+  <!-- Backdrop for closing dropdown -->
+  @if (showUserMenu()) {
+    <div 
+      class="fixed inset-0 z-40" 
+      (click)="closeUserMenu()"
+    ></div>
+  }
 }

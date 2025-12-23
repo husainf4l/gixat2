@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { CustomerService } from '../../../services/customer.service';
+import { VehicleService } from '../../../services/vehicle.service';
 import { catchError, of } from 'rxjs';
 
 interface VehicleDetail {
@@ -37,7 +37,7 @@ interface VehicleDetail {
 export class VehicleDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private customerService = inject(CustomerService);
+  private vehicleService = inject(VehicleService);
 
   vehicleDetail = signal<VehicleDetail | null>(null);
   isLoading = signal<boolean>(true);
@@ -58,10 +58,7 @@ export class VehicleDetailComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    // Get customer ID from vehicle data or use a service to fetch vehicle with customer
-    // For now, we'll need to update this to fetch vehicle directly
-    // TODO: Create a getVehicleDetail method in vehicle service
-    this.customerService.getCustomerDetail(vehicleId).pipe(
+    this.vehicleService.getVehicleById(vehicleId).pipe(
       catchError((err: Error) => {
         this.errorMessage.set(err instanceof Error ? err.message : 'Failed to load vehicle details');
         this.isLoading.set(false);
@@ -69,29 +66,9 @@ export class VehicleDetailComponent implements OnInit {
       })
     ).subscribe((data) => {
       if (data) {
-        const car = data.customer?.cars?.find(c => c.id === vehicleId);
-        if (car) {
-          const vehicleData: VehicleDetail = {
-            ...car,
-            customer: {
-              id: data.customer?.id || '',
-              firstName: data.customer?.firstName || '',
-              lastName: data.customer?.lastName || '',
-              email: data.customer?.email || '',
-              phoneNumber: data.customer?.phoneNumber
-            },
-            sessions: data.sessions
-              .filter(s => s.carId === vehicleId)
-              .map(s => ({
-                id: s.id,
-                status: s.status,
-                createdAt: s.createdAt
-              }))
-          };
-          this.vehicleDetail.set(vehicleData);
-        } else {
-          this.errorMessage.set('Vehicle not found');
-        }
+        this.vehicleDetail.set(data);
+      } else {
+        this.errorMessage.set('Vehicle not found');
       }
       this.isLoading.set(false);
     });
