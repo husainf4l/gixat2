@@ -90,6 +90,7 @@ builder.Services.AddScoped<GixatBackend.Modules.Users.Services.UserProfileServic
 // Phase 3: Business logic services
 builder.Services.AddScoped<GixatBackend.Modules.JobCards.Services.IJobCardService, GixatBackend.Modules.JobCards.Services.JobCardService>();
 builder.Services.AddScoped<GixatBackend.Modules.Sessions.Services.ISessionService, GixatBackend.Modules.Sessions.Services.SessionService>();
+builder.Services.AddScoped<GixatBackend.Modules.Appointments.Services.IAppointmentService, GixatBackend.Modules.Appointments.Services.AppointmentService>();
 
 // AWS Configuration
 var awsOptions = builder.Configuration.GetAWSOptions();
@@ -105,9 +106,34 @@ builder.Services.AddScoped<IS3Service, S3Service>();
 var redisConnectionString = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ?? "localhost:6379";
 try
 {
-    var redis = await ConnectionMultiplexer.ConnectAsync(redisConnectionString + ",abortConnect=false").ConfigureAwait(false);
+    // Parse connection string and ensure proper configuration
+    var configOptions = ConfigurationOptions.Parse(redisConnectionString);
+    
+    // Add default options if not specified
+    if (!redisConnectionString.Contains("abortConnect", StringComparison.OrdinalIgnoreCase))
+    {
+        configOptions.AbortOnConnectFail = false;
+    }
+    
+    // Set connection timeout
+    configOptions.ConnectTimeout = 5000; // 5 seconds
+    configOptions.SyncTimeout = 5000;
+    
+    // Allow admin commands if needed
+    configOptions.AllowAdmin = false;
+    
+    var redis = await ConnectionMultiplexer.ConnectAsync(configOptions).ConfigureAwait(false);
+    
+    // Test connection
+    var db = redis.GetDatabase();
+    await db.PingAsync().ConfigureAwait(false);
+    
     builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
     builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
+    
+    using var loggerFactory = LoggerFactory.Create(b => b.AddConsole());
+    var logger = loggerFactory.CreateLogger("Startup");
+    logger.LogInformation("Redis connected successfully to {Endpoint}", configOptions.EndPoints.FirstOrDefault());
 }
 catch (Exception ex) when (ex is StackExchange.Redis.RedisConnectionException || ex is TimeoutException)
 {
@@ -224,7 +250,9 @@ builder.Services
         .AddTypeExtension(typeof(JobCardCommentQueries))
         .AddType(typeof(CustomerQueries))
         .AddType(typeof(CustomerExtensions))
+        .AddTypeExtension(typeof(HealthCheckQueries))
         .AddType(typeof(InviteQueries))
+        .AddType(typeof(GixatBackend.Modules.Appointments.GraphQL.AppointmentQueries))
     .AddMutationType()
         .AddType(typeof(AuthMutations))
         .AddTypeExtension(typeof(UserProfileMutations))
@@ -237,6 +265,7 @@ builder.Services
         .AddTypeExtension(typeof(JobCardCommentMutations))
         .AddType(typeof(CustomerMutations))
         .AddType(typeof(InviteMutations))
+        .AddType(typeof(GixatBackend.Modules.Appointments.GraphQL.AppointmentMutations))
     // DataLoader-based extensions
     .AddType(typeof(GixatBackend.Modules.JobCards.GraphQL.JobCardExtensions))
     .AddType(typeof(GixatBackend.Modules.JobCards.GraphQL.JobItemExtensions))

@@ -8,6 +8,7 @@ using GixatBackend.Modules.Common.Lookup.Models;
 using GixatBackend.Modules.Sessions.Models;
 using GixatBackend.Modules.JobCards.Models;
 using GixatBackend.Modules.Invites.Models;
+using GixatBackend.Modules.Appointments.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -43,6 +44,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<JobCardCommentMention> JobCardCommentMentions { get; set; }
     public DbSet<UserInvite> UserInvites { get; set; }
     public DbSet<Account> Accounts { get; set; }
+    public DbSet<Appointment> Appointments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -234,6 +236,52 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<JobCardCommentMention>()
             .HasIndex(m => m.CommentId);
 
+        // Appointment relationships
+        builder.Entity<Appointment>()
+            .HasOne(a => a.Customer)
+            .WithMany()
+            .HasForeignKey(a => a.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Appointment>()
+            .HasOne(a => a.Car)
+            .WithMany()
+            .HasForeignKey(a => a.CarId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Appointment>()
+            .HasOne(a => a.AssignedTechnician)
+            .WithMany()
+            .HasForeignKey(a => a.AssignedTechnicianId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<Appointment>()
+            .HasOne(a => a.Session)
+            .WithOne()
+            .HasForeignKey<Appointment>(a => a.SessionId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<Appointment>()
+            .HasOne(a => a.CreatedBy)
+            .WithMany()
+            .HasForeignKey(a => a.CreatedById)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // Appointment indexes
+        builder.Entity<Appointment>()
+            .HasIndex(a => new { a.OrganizationId, a.ScheduledStartTime, a.Status });
+
+        builder.Entity<Appointment>()
+            .HasIndex(a => new { a.AssignedTechnicianId, a.ScheduledStartTime })
+            .HasFilter("\"AssignedTechnicianId\" IS NOT NULL");
+
+        builder.Entity<Appointment>()
+            .HasIndex(a => new { a.CustomerId, a.ScheduledStartTime });
+
+        builder.Entity<Appointment>()
+            .HasIndex(a => a.SessionId)
+            .HasFilter("\"SessionId\" IS NOT NULL");
+
         // Global Query Filters for Multi-Tenancy
         // IMPORTANT: Use _tenantService.OrganizationId directly in the lambda expression
         // so it's evaluated at query time, not at model creation time
@@ -245,6 +293,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<JobCard>().HasQueryFilter(j => j.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<ApplicationUser>().HasQueryFilter(u => u.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<UserInvite>().HasQueryFilter(i => i.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<Appointment>().HasQueryFilter(a => a.OrganizationId == _tenantService.OrganizationId);
         
         // Child entities - filter through parent navigation properties
         builder.Entity<SessionMedia>().HasQueryFilter(sm => sm.Session!.OrganizationId == _tenantService.OrganizationId);
