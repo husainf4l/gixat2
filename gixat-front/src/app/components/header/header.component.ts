@@ -12,7 +12,6 @@ import { Subject } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
 })
 export class HeaderComponent implements OnInit {
   private router = inject(Router);
@@ -133,6 +132,10 @@ export class HeaderComponent implements OnInit {
       this.pageTitle.set('Sessions');
     } else if (url.match(/\/sessions\/[^/]+/)) {
       this.pageTitle.set('Session Details');
+    } else if (url.includes('/appointments') && !url.match(/\/appointments\/[^/]+/)) {
+      this.pageTitle.set('Appointments');
+    } else if (url.match(/\/appointments\/[^/]+/)) {
+      this.pageTitle.set('Appointment Details');
     } else if (url.includes('/job-cards') && !url.match(/\/job-cards\/[^/]+/)) {
       this.pageTitle.set('Job Cards');
     } else if (url.match(/\/job-cards\/[^/]+/)) {
@@ -218,7 +221,16 @@ export class HeaderComponent implements OnInit {
   }
 
   logout() {
-    this.router.navigate(['/auth/login']);
-    this.closeUserMenu();
+    this.authService.logout().subscribe({
+      next: () => {
+        this.router.navigate(['/auth/login']);
+        this.closeUserMenu();
+      },
+      error: () => {
+        // Navigate to login even if logout fails
+        this.router.navigate(['/auth/login']);
+        this.closeUserMenu();
+      }
+    });
   }
 }

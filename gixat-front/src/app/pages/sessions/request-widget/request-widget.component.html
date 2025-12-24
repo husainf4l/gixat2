@@ -1,114 +1,111 @@
-<div class="min-h-screen bg-[#fbfbfd]">
-  <div class="max-w-[1400px] mx-auto px-8 py-10">
+<div class="min-h-screen bg-slate-50">
+  <div class="max-w-6xl mx-auto px-6 py-16">
     
-    <!-- Navigation Header -->
-    <div class="flex items-center justify-between mb-10">
-      <div class="flex items-center gap-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-6">
         <button
           (click)="goBack()"
-          class="w-10 h-10 rounded-full bg-white border border-slate-200/60 flex items-center justify-center text-slate-400 hover:text-[#1b75bc] hover:border-[#1b75bc]/30 transition-all shadow-sm active:scale-90"
+          class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-[#1b75bc] transition-colors"
         >
-          <i class="ri-arrow-left-line text-xl"></i>
+          <i class="ri-arrow-left-s-line"></i>
+          <span>Back to Session</span>
         </button>
-        <div>
-          <div class="flex items-center gap-2 mb-0.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#1b75bc]"></span>
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Diagnostic Protocol</span>
-          </div>
-          <h1 class="text-2xl font-black text-slate-900 tracking-tight">{{ stepTitle() }}</h1>
+
+        <div class="flex items-center gap-3">
+          @if (isSaving()) {
+            <div class="inline-flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 rounded-lg">
+              <div class="w-4 h-4 border-2 border-slate-200 border-t-[#1b75bc] rounded-full animate-spin"></div>
+              <span class="text-sm text-slate-600">Saving...</span>
+            </div>
+          }
+          <button
+            (click)="save()"
+            [disabled]="isSaving() || (stepId() !== 'initialReport' && !hasValidRequests())"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <i [class]="stepId() === 'initialReport' ? 'ri-file-list-3-line' : 'ri-save-line'"></i>
+            <span>{{ stepId() === 'initialReport' ? (sessionDetail()?.initialReport ? 'Update Report' : 'Generate Report') : 'Save & Continue' }}</span>
+          </button>
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
-        @if (isSaving()) {
-          <div class="flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-100 rounded-full">
-            <div class="w-3 h-3 border-2 border-slate-200 border-t-[#1b75bc] rounded-full animate-spin"></div>
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Processing Data</span>
-          </div>
-        }
-        <button
-          (click)="save()"
-          [disabled]="isSaving() || (stepId() !== 'initialReport' && !hasValidRequests())"
-          class="px-8 py-2.5 bg-[#1b75bc] text-white text-[11px] font-black uppercase tracking-widest rounded-full hover:bg-[#155a92] active:scale-95 transition-all shadow-lg shadow-blue-200 disabled:opacity-30 disabled:shadow-none"
-        >
-          {{ stepId() === 'initialReport' ? (sessionDetail()?.initialReport ? 'Update Cycle' : 'Initialize Report') : 'Log Entry & Continue' }}
-        </button>
+      <!-- Title Section -->
+      <div>
+        <h1 class="text-4xl font-semibold text-slate-900 tracking-tight mb-2">{{ stepTitle() }}</h1>
+        <p class="text-base text-slate-500">Document service protocols and findings</p>
       </div>
     </div>
 
     <!-- Main Workspace -->
-    <div class="grid grid-cols-12 gap-10">
+    <div class="grid grid-cols-12 gap-6">
       
       <!-- Entry Column -->
-      <div class="col-span-8 space-y-10">
+      <div class="col-span-8 space-y-6">
         
         <!-- Context Banner -->
-        <div class="p-6 bg-[#1b75bc] rounded-[2rem] text-white flex items-center justify-between shadow-xl shadow-blue-100">
-          <div class="flex items-center gap-5">
-            <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-sm">
-              <i class="ri-information-line text-2xl"></i>
+        <div class="p-6 bg-[#1b75bc] rounded-xl text-white shadow-sm">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
+              <i class="ri-information-line text-lg"></i>
             </div>
             <div>
-              <p class="text-[10px] font-black uppercase tracking-widest opacity-70">Security Protocol</p>
-              <p class="text-sm font-bold tracking-tight">Systematic documentation ensures operational transparency and liability protection.</p>
+              <p class="text-xs font-medium opacity-90 mb-1">Documentation Guidelines</p>
+              <p class="text-sm text-white/90">Systematic documentation ensures operational transparency and liability protection.</p>
             </div>
           </div>
         </div>
 
         @if (stepId() === 'initialReport') {
           <!-- Report Display View -->
-          <div class="bg-white border border-slate-200/60 rounded-[2.5rem] p-10 shadow-sm">
-            <div class="flex items-center justify-between mb-8 border-b border-slate-50 pb-6">
+          <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
               <div class="flex items-center gap-3">
-                <i class="ri-file-text-line text-2xl text-[#1b75bc]"></i>
-                <h3 class="text-lg font-black text-slate-900 tracking-tight">Finalized Diagnostic Overview</h3>
+                <i class="ri-file-text-line text-xl text-[#1b75bc]"></i>
+                <h3 class="text-lg font-semibold text-slate-900">Diagnostic Report</h3>
               </div>
-              <span class="px-3 py-1 bg-blue-50 text-[#1b75bc] text-[9px] font-black uppercase tracking-widest rounded-full border border-blue-100">Compiled Intelligence</span>
+              <span class="inline-flex px-2.5 py-1 bg-blue-50 text-[#1b75bc] rounded text-xs font-semibold border border-blue-200">Compiled</span>
             </div>
 
             @if (sessionDetail()?.initialReport; as report) {
-              <div class="p-10 bg-[#fbfbfd] border border-slate-100 rounded-3xl">
-                <pre class="text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">{{ report }}</pre>
+              <div class="p-6 bg-slate-50 border border-slate-200 rounded-lg">
+                <pre class="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap font-normal">{{ report }}</pre>
               </div>
             } @else {
-              <div class="py-20 text-center">
-                <div class="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <i class="ri-file-search-line text-4xl text-slate-200"></i>
+              <div class="py-12 text-center">
+                <div class="w-16 h-16 bg-slate-50 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <i class="ri-file-search-line text-3xl text-slate-300"></i>
                 </div>
-                <p class="text-sm text-slate-500 font-medium tracking-tight">Ready for system compilation. Click the button to initialize the diagnostic report.</p>
+                <p class="text-sm text-slate-500">Ready for compilation. Click the button to generate the diagnostic report.</p>
               </div>
             }
           </div>
         } @else {
           <!-- Entry Form View -->
-          <div class="space-y-10">
+          <div class="space-y-6">
             <!-- Mileage Input for Inspection -->
             @if (stepId() === 'inspection') {
-              <div class="bg-white border border-slate-200/60 rounded-[2.5rem] p-8 shadow-sm">
-                <div class="flex items-center gap-3 mb-6">
-                  <div class="w-1.5 h-1.5 rounded-full bg-[#1b75bc]"></div>
-                  <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Odometer Reading</h3>
-                </div>
-                <div class="relative max-w-xs">
-                  <input
-                    type="number"
-                    [(ngModel)]="mileage"
-                    placeholder="0"
-                    class="w-full pl-6 pr-16 py-4 bg-[#fbfbfd] border border-slate-200/60 rounded-2xl text-2xl font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 transition-all placeholder:text-slate-200"
-                  />
-                  <span class="absolute right-6 top-1/2 -translate-y-1/2 text-xs font-black text-[#1b75bc] uppercase tracking-widest">KM</span>
+              <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                <div class="mb-4">
+                  <label class="text-xs font-medium text-slate-600 mb-2 block">Odometer Reading</label>
+                  <div class="relative max-w-xs">
+                    <input
+                      type="number"
+                      [(ngModel)]="mileage"
+                      placeholder="Enter mileage"
+                      class="w-full pl-4 pr-12 py-2.5 bg-white border border-slate-200 rounded-lg text-base font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent transition-all placeholder:text-slate-400"
+                    />
+                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-[#1b75bc]">km</span>
+                  </div>
                 </div>
               </div>
             }
 
             <!-- Targets/Requests Section -->
-            <div class="bg-white border border-slate-200/60 rounded-[2.5rem] p-10 shadow-sm">
-              <div class="flex items-center justify-between mb-8">
-                <div class="flex items-center gap-3">
-                  <div class="w-1.5 h-1.5 rounded-full bg-[#1b75bc]"></div>
-                  <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Service Targets</h3>
-                </div>
-                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded border border-slate-100">Document line by line</span>
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-slate-900">Service Targets</h3>
+                <span class="text-xs text-slate-500">Add one per line</span>
               </div>
 
               <div class="space-y-3">
@@ -119,41 +116,41 @@
                       [value]="req"
                       (input)="updateRequest($index, $any($event.target).value)"
                       (keydown)="handleRequestKeydown($event, $index)"
-                      placeholder="Input service target protocol..."
-                      class="request-input w-full pl-12 pr-12 py-4 bg-[#fbfbfd] border border-slate-200/60 rounded-2xl text-[13px] font-bold text-slate-700 tracking-tight focus:outline-none focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 transition-all placeholder:text-slate-300 resize-none overflow-hidden min-h-[56px]"
+                      placeholder="Enter service target..."
+                      class="request-input w-full pl-10 pr-10 py-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent transition-all placeholder:text-slate-400 resize-none overflow-hidden min-h-[48px]"
                     ></textarea>
-                    <div class="absolute left-4 top-4 w-6 h-6 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-[10px] font-black text-slate-300 group-hover:text-[#1b75bc] group-hover:border-[#1b75bc]/20 transition-all">
+                    <div class="absolute left-3 top-3 w-6 h-6 rounded bg-slate-100 flex items-center justify-center text-xs font-semibold text-slate-500">
                       {{ $index + 1 }}
                     </div>
                     <button
                       (click)="removeRequest($index)"
-                      class="absolute right-4 top-4 w-6 h-6 rounded-lg bg-red-50 text-red-300 opacity-0 group-hover:opacity-100 hover:text-red-500 hover:bg-red-100 transition-all flex items-center justify-center"
+                      class="absolute right-3 top-3 w-6 h-6 rounded bg-red-50 text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 hover:bg-red-100 transition-all flex items-center justify-center"
                     >
-                      <i class="ri-close-line text-lg"></i>
+                      <i class="ri-close-line text-sm"></i>
                     </button>
                   </div>
                 }
                 
                 <button
                   (click)="addRequest()"
-                  class="w-full py-4 border-2 border-dashed border-slate-100 rounded-2xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:border-[#1b75bc]/30 hover:text-[#1b75bc] hover:bg-blue-50/20 transition-all flex items-center justify-center gap-2 mt-4"
+                  class="w-full py-3 border-2 border-dashed border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:border-[#1b75bc] hover:text-[#1b75bc] hover:bg-blue-50 transition-all flex items-center justify-center gap-2"
                 >
-                  <i class="ri-add-line text-base"></i>
-                  Add Next Entry
+                  <i class="ri-add-line"></i>
+                  <span>Add Another Target</span>
                 </button>
               </div>
             </div>
 
             <!-- Observations Section -->
-            <div class="bg-white border border-slate-200/60 rounded-[2.5rem] p-10 shadow-sm">
-              <div class="flex items-center gap-3 mb-6">
-                <div class="w-1.5 h-1.5 rounded-full bg-[#1b75bc]"></div>
-                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Summary Findings</h3>
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+              <div class="mb-4">
+                <h3 class="text-sm font-semibold text-slate-900 mb-2">Technician Observations</h3>
+                <p class="text-xs text-slate-500">Add comprehensive notes and findings</p>
               </div>
               <textarea
                 [(ngModel)]="notes"
-                placeholder="Comprehensive technician observations and summary..."
-                class="w-full px-6 py-6 bg-[#fbfbfd] border border-slate-200/60 rounded-2xl text-[13px] font-bold text-slate-700 tracking-tight focus:outline-none focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 transition-all placeholder:text-slate-300 min-h-[120px] leading-relaxed"
+                placeholder="Enter technician observations and summary..."
+                class="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent transition-all placeholder:text-slate-400 min-h-[120px] leading-relaxed resize-none"
               ></textarea>
             </div>
           </div>
@@ -161,88 +158,112 @@
       </div>
 
       <!-- Assets Sideboard -->
-      <div class="col-span-4 space-y-10">
+      <div class="col-span-4 space-y-6">
         
         <!-- Media Management -->
-        <div class="bg-white border border-slate-200/60 rounded-[2.5rem] overflow-hidden shadow-sm">
-          <div class="p-8 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
-            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Visual Assets</h3>
-            <span class="text-[9px] font-black text-[#1b75bc] px-2 py-0.5 bg-blue-50 rounded-full border border-blue-100 uppercase tracking-tighter">{{ getMediaByStage().length }} Logged</span>
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-slate-900">Media Gallery</h3>
+            <span class="inline-flex px-2 py-0.5 bg-blue-50 text-[#1b75bc] rounded text-xs font-medium border border-blue-200">{{ getMediaByStage().length }} Files</span>
           </div>
 
-          <div class="p-8">
+          <div class="p-6">
             <!-- Upload Control -->
-            <div class="mb-8">
+            <div class="mb-6">
               <label class="relative block group cursor-pointer">
                 <input type="file" (change)="onMediaUpload($event)" multiple accept="image/*,video/*" class="hidden">
-                <div class="w-full py-8 border-2 border-dashed border-slate-100 rounded-[2rem] flex flex-col items-center justify-center transition-all group-hover:border-[#1b75bc]/30 group-hover:bg-blue-50/30">
-                  <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mb-3 group-hover:bg-[#1b75bc]/10 group-hover:scale-110 transition-all shadow-inner">
-                    <i class="ri-camera-lens-line text-2xl text-slate-200 group-hover:text-[#1b75bc]"></i>
+                <div class="w-full py-6 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center transition-all group-hover:border-[#1b75bc] group-hover:bg-blue-50">
+                  <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center mb-2 group-hover:bg-[#1b75bc]/10 transition-all">
+                    <i class="ri-camera-line text-xl text-slate-400 group-hover:text-[#1b75bc]"></i>
                   </div>
-                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#1b75bc]">Acquire New Assets</p>
+                  <p class="text-sm font-medium text-slate-600 group-hover:text-[#1b75bc]">Upload Media</p>
+                  <p class="text-xs text-slate-400 mt-1">Images or videos</p>
                 </div>
               </label>
             </div>
 
             <!-- Asset Grid -->
-            <div class="grid grid-cols-2 gap-3">
-              @for (m of getMediaByStage(); track m.id) {
-                <div class="relative aspect-square rounded-[1.5rem] overflow-hidden border border-slate-100 shadow-sm group/media animate-zoomIn">
-                  <img [src]="m.media.url" class="w-full h-full object-cover">
-                  
-                  <!-- Meta Overlay -->
-                  <div class="absolute inset-0 bg-slate-900/60 opacity-0 group-hover/media:opacity-100 backdrop-blur-[2px] transition-all flex flex-col items-center justify-center p-4">
-                    <button
-                      (click)="deleteMedia(m)"
-                      class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg active:scale-90 transition-all mb-2"
-                    >
-                      <i class="ri-delete-bin-line font-bold"></i>
-                    </button>
-                    <span class="text-[8px] font-black text-white uppercase tracking-widest text-center">{{ m.media.alt || 'Asset' }}</span>
-                  </div>
-
-                  @if (m.isPending) {
-                    <div class="absolute inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center p-4">
-                      <div class="w-full text-center">
-                        <div class="w-6 h-6 border-2 border-slate-100 border-t-[#1b75bc] rounded-full animate-spin mx-auto mb-2"></div>
-                        <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Uploading</p>
-                      </div>
+            @if (getMediaByStage().length > 0) {
+              <div class="grid grid-cols-2 gap-2">
+                @for (m of getMediaByStage(); track m.id) {
+                  <div class="relative aspect-square rounded-lg overflow-hidden border border-slate-200 group cursor-pointer">
+                    <img [src]="m.media.url" [alt]="m.media.alt || ''" class="w-full h-full object-cover">
+                    
+                    <!-- Hover Overlay -->
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all flex items-center justify-center">
+                      <button
+                        (click)="deleteMedia(m); $event.stopPropagation()"
+                        class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                      >
+                        <i class="ri-delete-bin-line text-sm"></i>
+                      </button>
                     </div>
-                  }
-                </div>
-              }
-            </div>
 
-            @if (getMediaByStage().length === 0) {
-              <div class="py-12 text-center">
-                <i class="ri-image-2-line text-4xl text-slate-100 mb-3 block"></i>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No assets prioritized</p>
+                    @if (m.status === 'uploading' || m.status === 'pending') {
+                      <div class="absolute inset-0 bg-white/90 flex items-center justify-center">
+                        <div class="text-center">
+                          <div class="w-6 h-6 border-2 border-slate-200 border-t-[#1b75bc] rounded-full animate-spin mx-auto mb-2"></div>
+                          <p class="text-xs text-slate-500">Uploading...</p>
+                        </div>
+                      </div>
+                    }
+                    
+                    @if (m.status === 'error') {
+                      <div class="absolute inset-0 bg-red-50/90 flex items-center justify-center">
+                        <div class="text-center">
+                          <i class="ri-error-warning-line text-red-500 text-xl mb-1"></i>
+                          <p class="text-xs text-red-600">Failed</p>
+                          <button
+                            (click)="retryUpload(m); $event.stopPropagation()"
+                            class="mt-1 text-xs text-[#1b75bc] hover:underline"
+                          >
+                            Retry
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="py-8 text-center">
+                <i class="ri-image-2-line text-3xl text-slate-300 mb-2 block"></i>
+                <p class="text-sm text-slate-500">No media uploaded</p>
               </div>
             }
           </div>
         </div>
 
-        <!-- Identity Recall -->
-        <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-xl shadow-slate-200">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-sm">
-              <i class="ri-user-line text-xl"></i>
+        <!-- Session Info -->
+        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+          <h3 class="text-sm font-semibold text-slate-900 mb-4">Session Details</h3>
+          
+          @if (sessionDetail()?.customer) {
+            <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-100">
+              <div class="w-10 h-10 rounded-lg bg-[#1b75bc] flex items-center justify-center text-white font-semibold text-sm">
+                {{ sessionDetail()!.customer!.firstName[0] }}{{ sessionDetail()!.customer!.lastName[0] }}
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-slate-900 truncate">{{ sessionDetail()!.customer!.firstName }} {{ sessionDetail()!.customer!.lastName }}</p>
+                <p class="text-xs text-slate-500 truncate">{{ sessionDetail()!.customer!.phoneNumber }}</p>
+              </div>
             </div>
-            <div>
-              <p class="text-[9px] font-black uppercase tracking-widest opacity-50">Operational Identity</p>
-              <p class="text-sm font-bold tracking-tight">{{ sessionDetail()?.customer?.firstName }} {{ sessionDetail()?.customer?.lastName }}</p>
+          }
+          
+          @if (sessionDetail()?.car) {
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
+                <i class="ri-car-line text-lg"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-slate-900 truncate">{{ sessionDetail()!.car!.make }} {{ sessionDetail()!.car!.model }}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="px-2 py-0.5 bg-slate-100 rounded text-xs font-mono text-slate-600 border border-slate-200">{{ sessionDetail()!.car!.licensePlate }}</span>
+                  <span class="text-xs text-slate-500">{{ sessionDetail()!.car!.year }}</span>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="h-px bg-white/10 mb-6"></div>
-          <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-sm">
-              <i class="ri-car-line text-xl"></i>
-            </div>
-            <div>
-              <p class="text-[9px] font-black uppercase tracking-widest opacity-50">Operational Target</p>
-              <p class="text-sm font-bold tracking-tight">{{ sessionDetail()?.car?.make }} {{ sessionDetail()?.car?.model }}</p>
-            </div>
-          </div>
+          }
         </div>
 
       </div>

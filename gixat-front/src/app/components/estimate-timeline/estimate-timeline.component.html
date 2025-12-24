@@ -1,0 +1,53 @@
+<div class="bg-white border border-slate-200 rounded-xl shadow-sm">
+  <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+    <h3 class="text-lg font-semibold text-slate-900">Approval History</h3>
+  </div>
+  <div class="p-6">
+    <div class="space-y-6">
+      <!-- Full Estimate Approval -->
+      @if (approvedAt()) {
+        <div class="flex items-start gap-4">
+          <div class="flex flex-col items-center">
+            <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+              <i class="ri-checkbox-circle-line text-emerald-600 text-xl"></i>
+            </div>
+            <div class="w-0.5 h-full bg-slate-200 mt-2"></div>
+          </div>
+          <div class="flex-1 pb-6">
+            <div class="flex items-center justify-between mb-1">
+              <p class="text-sm font-semibold text-slate-900">Estimate Approved</p>
+              <p class="text-xs text-slate-500">{{ formatDate(approvedAt()) }}</p>
+            </div>
+            <p class="text-sm text-slate-600">
+              Customer approved the complete estimate
+            </p>
+          </div>
+        </div>
+      }
+
+      <!-- Individual Item Approvals -->
+      @for (item of approvedItems(); track item.id) {
+        <div class="flex items-start gap-4">
+          <div class="flex flex-col items-center">
+            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+              <i class="ri-check-line text-blue-600 text-lg font-bold"></i>
+            </div>
+            @if (!$last) {
+              <div class="w-0.5 h-full bg-slate-200 mt-2"></div>
+            }
+          </div>
+          <div class="flex-1 pb-6">
+            <div class="flex items-center justify-between mb-1">
+              <p class="text-sm font-semibold text-slate-900">{{ item.description }}</p>
+              <p class="text-xs text-slate-500">{{ formatDate(item.approvedAt) }}</p>
+            </div>
+            <p class="text-sm text-slate-600">
+              Service item approved by customer
+            </p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+

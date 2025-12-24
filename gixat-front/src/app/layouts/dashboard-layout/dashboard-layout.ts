@@ -11,7 +11,6 @@ import { LayoutService } from '../../services/layout.service';
   standalone: true,
   imports: [CommonModule, RouterOutlet, SidebarComponent, LogoComponent, HeaderComponent],
   templateUrl: './dashboard-layout.html',
-  styleUrl: './dashboard-layout.css'
 })
 export class DashboardLayoutComponent {
   layoutService = inject(LayoutService);

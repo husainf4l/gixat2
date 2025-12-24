@@ -12,7 +12,6 @@ type SortDirection = 'asc' | 'desc';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './vehicles.component.html',
-  styleUrl: './vehicles.component.css'
 })
 export class VehiclesComponent implements OnInit {
   private vehicleService = inject(VehicleService);

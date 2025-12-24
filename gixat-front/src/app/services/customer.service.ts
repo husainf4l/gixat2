@@ -80,6 +80,19 @@ export interface CreateCarInput {
   color?: string | null;
 }
 
+export interface UpdateCustomerInput {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
+  address?: {
+    country?: string;
+    city?: string;
+    street?: string;
+    phoneCountryCode?: string;
+  };
+}
+
 const SEARCH_CUSTOMERS_QUERY = gql`
   query SearchCustomers($query: String!, $first: Int) {
     searchCustomers(query: $query, first: $first) {
@@ -237,6 +250,23 @@ const CREATE_SESSION_MUTATION = gql`
   }
 `;
 
+const UPDATE_CUSTOMER_MUTATION = gql`
+  mutation UpdateCustomer($id: UUID!, $input: UpdateCustomerInput!) {
+    updateCustomer(id: $id, input: $input) {
+      id
+      firstName
+      lastName
+      email
+      phoneNumber
+      address {
+        country
+        city
+        street
+      }
+    }
+  }
+`;
+
 @Injectable({ providedIn: 'root' })
 export class CustomerService {
   private apollo = inject(Apollo);
@@ -346,6 +376,21 @@ export class CustomerService {
           throw new Error('Failed to create session');
         }
         return result.data.createSession;
+      }),
+    );
+  }
+
+  updateCustomer(id: string, input: UpdateCustomerInput): Observable<Customer> {
+    return this.apollo.mutate<{ updateCustomer: Customer }>({
+      mutation: UPDATE_CUSTOMER_MUTATION,
+      variables: { id, input },
+      refetchQueries: [{ query: CUSTOMER_DETAIL_QUERY, variables: { id } }],
+    }).pipe(
+      map(result => {
+        if (!result.data?.updateCustomer) {
+          throw new Error('Failed to update customer');
+        }
+        return result.data.updateCustomer;
       }),
     );
   }

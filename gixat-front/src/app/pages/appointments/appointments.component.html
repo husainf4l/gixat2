@@ -1,0 +1,679 @@
+<div class="min-h-screen bg-[#fbfbfd]">
+  <!-- Main Content -->
+  <div class="max-w-[1800px] mx-auto px-8 py-8">
+    <!-- Action Bar -->
+    <div class="mb-6 flex justify-end">
+      <button 
+        (click)="openCreateModal()"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-[#1b75bc] text-white text-sm font-semibold rounded-xl hover:bg-[#155a92] transition-all shadow-sm"
+      >
+        <i class="ri-add-line text-lg"></i>
+        <span>New Appointment</span>
+      </button>
+    </div>
+
+  <!-- View Toggle & Filters -->
+  <div class="mb-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+      <!-- View Mode Toggle -->
+      <div class="flex items-center gap-2 bg-slate-100 p-1.5 rounded-xl">
+        <button 
+          (click)="viewMode.set('calendar')"
+          [class]="viewMode() === 'calendar' ? 'px-4 py-2 bg-white text-[#1b75bc] font-semibold rounded-lg shadow-sm' : 'px-4 py-2 text-slate-600 hover:text-slate-900'"
+        >
+          <i class="ri-calendar-line mr-2"></i>Calendar
+        </button>
+        <button 
+          (click)="viewMode.set('list')"
+          [class]="viewMode() === 'list' ? 'px-4 py-2 bg-white text-[#1b75bc] font-semibold rounded-lg shadow-sm' : 'px-4 py-2 text-slate-600 hover:text-slate-900'"
+        >
+          <i class="ri-list-check mr-2"></i>List
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="flex items-center gap-4 flex-1 max-w-2xl">
+        <!-- Search -->
+        <div class="flex-1 relative">
+          <i class="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input 
+            type="text"
+            [value]="searchQuery()"
+            (input)="onSearchChange($any($event.target).value)"
+            placeholder="Search appointments..."
+            class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] outline-none transition-all"
+          />
+        </div>
+
+        <!-- Status Filter -->
+        <select 
+          [value]="selectedStatus()"
+          (change)="onStatusFilterChange($any($event.target).value)"
+          class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] outline-none"
+        >
+          <option value="ALL">All Status</option>
+          @for (status of statuses; track status) {
+            <option [value]="status">{{ formatStatus(status) }}</option>
+          }
+        </select>
+
+        <!-- Technician Filter -->
+        <select 
+          [value]="selectedTechnician()"
+          (change)="onTechnicianFilterChange($any($event.target).value)"
+          class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] outline-none"
+        >
+          <option value="ALL">All Technicians</option>
+          @for (tech of technicians(); track tech.id) {
+            <option [value]="tech.id">{{ tech.fullName }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar View -->
+  @if (viewMode() === 'calendar') {
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <!-- Calendar Header -->
+      <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <button 
+            (click)="previousMonth()"
+            class="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            <i class="ri-arrow-left-s-line text-xl text-slate-600"></i>
+          </button>
+          <h2 class="text-lg font-bold text-slate-900">{{ getMonthName() }}</h2>
+          <button 
+            (click)="nextMonth()"
+            class="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            <i class="ri-arrow-right-s-line text-xl text-slate-600"></i>
+          </button>
+        </div>
+        <button 
+          (click)="goToToday()"
+          class="px-4 py-2 bg-slate-100 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-200 transition-colors"
+        >
+          Today
+        </button>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div class="p-6">
+        <!-- Day Headers -->
+        <div class="grid grid-cols-7 gap-2 mb-2">
+          @for (day of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; track day) {
+            <div class="text-center text-xs font-bold text-slate-500 uppercase tracking-wider py-2">
+              {{ day }}
+            </div>
+          }
+        </div>
+
+        <!-- Calendar Days -->
+        <div class="grid grid-cols-7 gap-2">
+          @for (day of calendarDays(); track day.date.getTime()) {
+            <button
+              (click)="selectDate(day)"
+              [class]="[
+                'min-h-[100px] p-2 rounded-xl border-2 transition-all text-left relative',
+                day.isCurrentMonth ? 'bg-white border-slate-200 hover:border-[#1b75bc]/50 hover:shadow-md' : 'bg-slate-50 border-slate-100',
+                day.isToday ? 'border-[#1b75bc] ring-2 ring-[#1b75bc]/20' : ''
+              ]"
+            >
+              <div [class]="[
+                'text-sm font-bold mb-2',
+                day.isCurrentMonth ? 'text-slate-900' : 'text-slate-400',
+                day.isToday ? 'text-[#1b75bc]' : ''
+              ]">
+                {{ day.date.getDate() }}
+              </div>
+              
+              @if (day.appointments.length > 0) {
+                <div class="space-y-1">
+                  @for (appointment of day.appointments.slice(0, 2); track appointment.id) {
+                    <div 
+                      [class]="'text-xs px-2 py-1 rounded-md font-medium truncate border ' + getStatusColor(appointment.status)"
+                    >
+                      {{ formatTime(appointment.scheduledTime) }}
+                    </div>
+                  }
+                  @if (day.appointments.length > 2) {
+                    <div class="text-xs text-slate-500 font-medium px-2">
+                      +{{ day.appointments.length - 2 }} more
+                    </div>
+                  }
+                </div>
+              }
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- List View -->
+  @if (viewMode() === 'list') {
+    <div class="space-y-6">
+      <!-- Today's Appointments -->
+      @if (getTodayAppointments().length > 0) {
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="p-6 border-b border-slate-200">
+            <h3 class="text-lg font-bold text-slate-900">Today's Appointments</h3>
+          </div>
+          <div class="divide-y divide-slate-100">
+            @for (appointment of getTodayAppointments(); track appointment.id) {
+              <button
+                (click)="viewAppointment(appointment)"
+                class="w-full p-6 hover:bg-slate-50 transition-all text-left group"
+              >
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-3 mb-3">
+                      <span class="text-base font-bold text-slate-900 group-hover:text-[#1b75bc] transition-colors">
+                        {{ formatTime(appointment.scheduledTime) }}
+                      </span>
+                      <span [class]="'px-3 py-1 rounded-lg text-xs font-bold border ' + getStatusColor(appointment.status)">
+                        {{ formatStatus(appointment.status) }}
+                      </span>
+                      <span class="text-xs text-slate-500 font-medium">
+                        {{ formatDuration(appointment.duration) }}
+                      </span>
+                    </div>
+
+                    <div class="flex items-center gap-6 text-sm">
+                      <div class="flex items-center gap-2">
+                        <i class="ri-user-3-line text-slate-400"></i>
+                        <span class="font-medium text-slate-700">{{ appointment.customer.firstName }} {{ appointment.customer.lastName }}</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <i class="ri-car-line text-slate-400"></i>
+                        <span class="text-slate-600">{{ appointment.car.make }} {{ appointment.car.model }}</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <i class="ri-tools-line text-slate-400"></i>
+                        <span class="text-slate-600">{{ appointment.serviceType }}</span>
+                      </div>
+                    </div>
+
+                    @if (appointment.technician) {
+                      <div class="mt-2 flex items-center gap-2 text-xs text-slate-500">
+                        <i class="ri-user-settings-line"></i>
+                        <span>Assigned to {{ appointment.technician.fullName }}</span>
+                      </div>
+                    }
+                  </div>
+
+                  <i class="ri-arrow-right-s-line text-slate-400 text-xl group-hover:text-[#1b75bc] group-hover:translate-x-0.5 transition-all mt-1"></i>
+                </div>
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Upcoming Appointments -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-6 border-b border-slate-200">
+          <h3 class="text-lg font-bold text-slate-900">Upcoming Appointments</h3>
+        </div>
+        
+        @if (loading()) {
+          <div class="p-16 text-center">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#1b75bc]"></div>
+          </div>
+        } @else if (getUpcomingAppointments().length === 0) {
+          <div class="p-16 text-center">
+            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="ri-calendar-line text-3xl text-slate-400"></i>
+            </div>
+            <p class="text-slate-600 font-medium">No upcoming appointments</p>
+            <p class="text-sm text-slate-500 mt-1">Create your first appointment to get started</p>
+          </div>
+        } @else {
+          <div class="divide-y divide-slate-100">
+            @for (appointment of getUpcomingAppointments(); track appointment.id) {
+              <button
+                (click)="viewAppointment(appointment)"
+                class="w-full p-6 hover:bg-slate-50 transition-all text-left group"
+              >
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-3 mb-3">
+                      <span class="text-sm font-bold text-slate-900">
+                        {{ formatDate(appointment.scheduledDate) }}
+                      </span>
+                      <span class="text-base font-bold text-[#1b75bc]">
+                        {{ formatTime(appointment.scheduledTime) }}
+                      </span>
+                      <span [class]="'px-3 py-1 rounded-lg text-xs font-bold border ' + getStatusColor(appointment.status)">
+                        {{ formatStatus(appointment.status) }}
+                      </span>
+                    </div>
+
+                    <div class="flex items-center gap-6 text-sm">
+                      <div class="flex items-center gap-2">
+                        <i class="ri-user-3-line text-slate-400"></i>
+                        <span class="font-medium text-slate-700">{{ appointment.customer.firstName }} {{ appointment.customer.lastName }}</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <i class="ri-car-line text-slate-400"></i>
+                        <span class="text-slate-600">{{ appointment.car.make }} {{ appointment.car.model }}</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <i class="ri-tools-line text-slate-400"></i>
+                        <span class="text-slate-600">{{ appointment.serviceType }}</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-slate-500">
+                        <i class="ri-time-line"></i>
+                        <span>{{ formatDuration(appointment.duration) }}</span>
+                      </div>
+                    </div>
+
+                    @if (appointment.technician) {
+                      <div class="mt-2 flex items-center gap-2 text-xs text-slate-500">
+                        <i class="ri-user-settings-line"></i>
+                        <span>Assigned to {{ appointment.technician.fullName }}</span>
+                      </div>
+                    }
+                  </div>
+
+                  <i class="ri-arrow-right-s-line text-slate-400 text-xl group-hover:text-[#1b75bc] group-hover:translate-x-0.5 transition-all mt-1"></i>
+                </div>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Create Appointment Modal -->
+@if (showCreateModal()) {
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-8 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white z-10">
+        <h2 class="text-2xl font-bold text-slate-900">New Appointment</h2>
+        <button (click)="closeCreateModal()" class="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+          <i class="ri-close-line text-2xl text-slate-600"></i>
+        </button>
+      </div>
+
+      <div class="p-8 space-y-6">
+        <!-- Customer Selection -->
+        <div>
+          <label class="text-sm font-bold text-slate-700 mb-2 block">Customer *</label>
+          <select 
+            [value]="createForm().customerId"
+            (change)="onCustomerSelect($any($event.target).value)"
+            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] outline-none"
+          >
+            <option value="">Select customer</option>
+            @for (customer of customers(); track customer.id) {
+              <option [value]="customer.id">{{ customer.firstName }} {{ customer.lastName }} - {{ customer.phoneNumber }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Vehicle Selection -->
+        @if (customerCars().length > 0) {
+          <div>
+            <label class="text-sm font-bold text-slate-700 mb-2 block">Vehicle *</label>
+            <select 
+              [value]="createForm().carId"
+              (change)="updateCarId($event)"
+              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] outline-none"
+            >
+              <option value="">Select vehicle</option>
+              @for (car of customerCars(); track car.id) {
+                <option [value]="car.id">{{ car.make }} {{ car.model }} {{ car.year }} - {{ car.licensePlate }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- Date & Time -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm font-bold text-slate-700 mb-2 block">Date *</label>
+            <input 
+              type="date"
+              [value]="createForm().scheduledDate"
+              (change)="onDateSelect($any($event.target).value)"
+              [min]="getTodayDate()"
+              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] outline-none"
+            />
+          </div>
+          <div>
+            <label class="text-sm font-bold text-slate-700 mb-2 block">Duration</label>
+            <select 
+              [value]="createForm().duration"
+              (change)="updateDuration($event)"
+              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] outline-none"
+            >
+              <option [value]="30">30 minutes</option>
+              <option [value]="60">1 hour</option>
+              <option [value]="90">1.5 hours</option>
+              <option [value]="120">2 hours</option>
+              <option [value]="180">3 hours</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Available Time Slots -->
+        @if (availableSlots().length > 0) {
+          <div>
+            <label class="text-sm font-bold text-slate-700 mb-2 block">Available Time Slots *</label>
+            <div class="grid grid-cols-4 gap-2">
+              @for (slot of availableSlots(); track slot.id) {
+                <button
+                  (click)="updateScheduledTime(slot.startTime)"
+                  [class]="[
+                    'px-4 py-3 rounded-xl text-sm font-semibold border-2 transition-all',
+                    createForm().scheduledTime === slot.startTime 
+                      ? 'bg-[#1b75bc] text-white border-[#1b75bc]' 
+                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-[#1b75bc]'
+                  ]"
+                  [disabled]="!slot.isAvailable"
+                >
+                  {{ formatTime(slot.startTime) }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Service Type -->
+        <div>
+          <label class="text-sm font-bold text-slate-700 mb-2 block">Service Type *</label>
+          <select 
+            [value]="createForm().serviceType"
+            (change)="updateServiceType($event)"
+            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] outline-none"
+          >
+            <option value="">Select service type</option>
+            <option value="Oil Change">Oil Change</option>
+            <option value="Tire Rotation">Tire Rotation</option>
+            <option value="Brake Service">Brake Service</option>
+            <option value="General Inspection">General Inspection</option>
+            <option value="Transmission Service">Transmission Service</option>
+            <option value="Engine Repair">Engine Repair</option>
+            <option value="AC Service">AC Service</option>
+            <option value="Alignment">Alignment</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Service Description -->
+        <div>
+          <label class="text-sm font-bold text-slate-700 mb-2 block">Service Description</label>
+          <textarea 
+            [value]="createForm().serviceDescription || ''"
+            (input)="updateServiceDescription($event)"
+            rows="3"
+            placeholder="Additional details about the service..."
+            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] outline-none resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Technician -->
+        <div>
+          <label class="text-sm font-bold text-slate-700 mb-2 block">Assign Technician</label>
+          <select 
+            [value]="createForm().technicianId || ''"
+            (change)="updateTechnicianId($event)"
+            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] outline-none"
+          >
+            <option value="">Any available technician</option>
+            @for (tech of technicians(); track tech.id) {
+              <option [value]="tech.id">{{ tech.fullName }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label class="text-sm font-bold text-slate-700 mb-2 block">Internal Notes</label>
+          <textarea 
+            [value]="createForm().notes || ''"
+            (input)="updateNotes($event)"
+            rows="3"
+            placeholder="Internal notes (not visible to customer)..."
+            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] outline-none resize-none"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="p-8 border-t border-slate-200 flex items-center justify-end gap-3 sticky bottom-0 bg-white">
+        <button 
+          (click)="closeCreateModal()"
+          class="px-6 py-3 bg-slate-100 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-200 transition-colors"
+        >
+          Cancel
+        </button>
+        <button 
+          (click)="createAppointment()"
+          [disabled]="loading()"
+          class="px-6 py-3 bg-[#1b75bc] text-white text-sm font-semibold rounded-xl hover:bg-[#155a92] transition-all shadow-lg shadow-[#1b75bc]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ loading() ? 'Creating...' : 'Create Appointment' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Appointment Details Modal -->
+@if (showDetailsModal() && selectedAppointment()) {
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-8 border-b border-slate-200">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <h2 class="text-2xl font-bold text-slate-900">Appointment Details</h2>
+              <span [class]="'px-3 py-1 rounded-lg text-xs font-bold border ' + getStatusColor(selectedAppointment()!.status)">
+                {{ formatStatus(selectedAppointment()!.status) }}
+              </span>
+            </div>
+            <p class="text-sm text-slate-600">
+              {{ formatDate(selectedAppointment()!.scheduledDate) }} at {{ formatTime(selectedAppointment()!.scheduledTime) }}
+            </p>
+          </div>
+          <button (click)="closeDetailsModal()" class="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+            <i class="ri-close-line text-2xl text-slate-600"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-8 space-y-6">
+        <!-- Customer Info -->
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Customer</p>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-[#1b75bc]/10 flex items-center justify-center">
+              <i class="ri-user-3-line text-xl text-[#1b75bc]"></i>
+            </div>
+            <div>
+              <p class="font-bold text-slate-900">{{ selectedAppointment()!.customer.firstName }} {{ selectedAppointment()!.customer.lastName }}</p>
+              <p class="text-sm text-slate-600">{{ selectedAppointment()!.customer.phoneNumber }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle Info -->
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Vehicle</p>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
+              <i class="ri-car-line text-xl text-slate-600"></i>
+            </div>
+            <div>
+              <p class="font-bold text-slate-900">{{ selectedAppointment()!.car.make }} {{ selectedAppointment()!.car.model }}</p>
+              <p class="text-sm text-slate-600">{{ selectedAppointment()!.car.year }} - {{ selectedAppointment()!.car.licensePlate }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service Info -->
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Service</p>
+          <p class="font-bold text-slate-900 mb-1">{{ selectedAppointment()!.serviceType }}</p>
+          @if (selectedAppointment()!.serviceDescription) {
+            <p class="text-sm text-slate-600">{{ selectedAppointment()!.serviceDescription }}</p>
+          }
+          <p class="text-sm text-slate-500 mt-2">Duration: {{ formatDuration(selectedAppointment()!.duration) }}</p>
+        </div>
+
+        <!-- Technician -->
+        @if (selectedAppointment()!.technician) {
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Assigned Technician</p>
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                <i class="ri-user-settings-line text-xl text-amber-600"></i>
+              </div>
+              <div>
+                <p class="font-bold text-slate-900">{{ selectedAppointment()!.technician?.fullName }}</p>
+                <p class="text-sm text-slate-600">{{ selectedAppointment()!.technician?.email }}</p>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Notes -->
+        @if (selectedAppointment()!.notes) {
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Notes</p>
+            <p class="text-sm text-slate-600 bg-slate-50 p-4 rounded-xl">{{ selectedAppointment()!.notes }}</p>
+          </div>
+        }
+      </div>
+
+      <!-- Actions -->
+      <div class="p-8 border-t border-slate-200 space-y-3">
+        <div class="flex items-center gap-3">
+          @if (canConfirm(selectedAppointment()!)) {
+            <button 
+              (click)="confirmAppointment(selectedAppointment()!)"
+              class="flex-1 px-6 py-3 bg-emerald-500 text-white text-sm font-semibold rounded-xl hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2"
+            >
+              <i class="ri-checkbox-circle-line"></i>
+              <span>Confirm</span>
+            </button>
+          }
+          @if (canStart(selectedAppointment()!)) {
+            <button 
+              (click)="startAppointment(selectedAppointment()!)"
+              class="flex-1 px-6 py-3 bg-[#1b75bc] text-white text-sm font-semibold rounded-xl hover:bg-[#155a92] transition-colors flex items-center justify-center gap-2"
+            >
+              <i class="ri-play-circle-line"></i>
+              <span>Start Service</span>
+            </button>
+          }
+          @if (canComplete(selectedAppointment()!)) {
+            <button 
+              (click)="completeAppointment(selectedAppointment()!)"
+              class="flex-1 px-6 py-3 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+            >
+              <i class="ri-check-double-line"></i>
+              <span>Complete</span>
+            </button>
+          }
+        </div>
+
+        <div class="flex items-center gap-3">
+          @if (canReschedule(selectedAppointment()!)) {
+            <button 
+              (click)="openRescheduleModal(selectedAppointment()!)"
+              class="flex-1 px-6 py-3 bg-amber-100 text-amber-700 text-sm font-semibold rounded-xl hover:bg-amber-200 transition-colors flex items-center justify-center gap-2"
+            >
+              <i class="ri-calendar-event-line"></i>
+              <span>Reschedule</span>
+            </button>
+          }
+          @if (canCancel(selectedAppointment()!)) {
+            <button 
+              (click)="cancelAppointment(selectedAppointment()!)"
+              class="flex-1 px-6 py-3 bg-red-100 text-red-700 text-sm font-semibold rounded-xl hover:bg-red-200 transition-colors flex items-center justify-center gap-2"
+            >
+              <i class="ri-close-circle-line"></i>
+              <span>Cancel</span>
+            </button>
+          }
+        </div>
+
+        @if (selectedAppointment()!.status === AppointmentStatus.SCHEDULED || selectedAppointment()!.status === AppointmentStatus.CONFIRMED) {
+          <div class="pt-3 border-t border-slate-200">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Send Reminder</p>
+            <div class="flex items-center gap-2">
+              <button 
+                (click)="sendReminder(selectedAppointment()!, 'SMS')"
+                class="flex-1 px-4 py-2 bg-slate-100 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-200 transition-colors"
+              >
+                <i class="ri-message-3-line mr-2"></i>SMS
+              </button>
+              <button 
+                (click)="sendReminder(selectedAppointment()!, 'EMAIL')"
+                class="flex-1 px-4 py-2 bg-slate-100 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-200 transition-colors"
+              >
+                <i class="ri-mail-line mr-2"></i>Email
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Reschedule Modal -->
+@if (showRescheduleModal() && selectedAppointment()) {
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full">
+      <div class="p-8 border-b border-slate-200">
+        <h2 class="text-2xl font-bold text-slate-900">Reschedule Appointment</h2>
+      </div>
+
+      <div class="p-8 space-y-4">
+        <div>
+          <label class="text-sm font-bold text-slate-700 mb-2 block">New Date</label>
+          <input 
+            type="date"
+            [value]="rescheduleDate()"
+            (input)="rescheduleDate.set($any($event.target).value)"
+            [min]="getTodayDate()"
+            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] outline-none"
+          />
+        </div>
+
+        <div>
+          <label class="text-sm font-bold text-slate-700 mb-2 block">New Time</label>
+          <input 
+            type="time"
+            [value]="rescheduleTime()"
+            (input)="rescheduleTime.set($any($event.target).value)"
+            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#1b75bc]/20 focus:border-[#1b75bc] outline-none"
+          />
+        </div>
+      </div>
+
+      <div class="p-8 border-t border-slate-200 flex items-center justify-end gap-3">
+        <button 
+          (click)="closeRescheduleModal()"
+          class="px-6 py-3 bg-slate-100 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-200 transition-colors"
+        >
+          Cancel
+        </button>
+        <button 
+          (click)="rescheduleAppointment()"
+          class="px-6 py-3 bg-[#1b75bc] text-white text-sm font-semibold rounded-xl hover:bg-[#155a92] transition-all shadow-lg shadow-[#1b75bc]/20"
+        >
+          Confirm Reschedule
+        </button>
+      </div>
+    </div>
+  </div>
+}

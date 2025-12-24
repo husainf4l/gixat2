@@ -2,7 +2,6 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { LogoComponent } from '../../components/logo/logo.component';
 import { AuthService } from '../../services/auth.service';
 import { Apollo, gql } from 'apollo-angular';
 
@@ -23,7 +22,7 @@ const GET_COUNTRIES_WITH_CITIES = gql`
 @Component({
   selector: 'app-organization-setup',
   standalone: true,
-  imports: [CommonModule, LogoComponent, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './organization-setup.html',
   styleUrl: './organization-setup.css'
 })

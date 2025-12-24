@@ -109,6 +109,15 @@ const GET_ORGANIZATION_USERS_QUERY = gql`
   }
 `;
 
+const LOGOUT_MUTATION = gql`
+  mutation LogoutAsync {
+    logoutAsync {
+      success
+      message
+    }
+  }
+`;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -199,6 +208,19 @@ export class AuthService {
         if (data?.loginWithGoogle?.success && data?.loginWithGoogle?.user) {
           this.currentUser.set(data.loginWithGoogle.user);
         }
+      })
+    );
+  }
+
+  logout(): Observable<any> {
+    return this.apollo.mutate({
+      mutation: LOGOUT_MUTATION
+    }).pipe(
+      map(result => result.data),
+      tap(() => {
+        this.currentUser.set(null);
+        // Clear Apollo cache
+        this.apollo.client.clearStore();
       })
     );
   }

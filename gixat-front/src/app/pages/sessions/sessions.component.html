@@ -1,23 +1,9 @@
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-  <div class="max-w-7xl mx-auto px-6 py-12">
-    <!-- Header -->
-    <div class="mb-12">
-      <div class="flex items-center justify-between mb-8">
-        <div>
-          <h1 class="text-4xl font-semibold text-slate-900 tracking-tight mb-2">Sessions</h1>
-          <p class="text-base text-slate-500">Manage active service sessions</p>
-        </div>
-        <button
-          (click)="createNewSession()"
-          class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all shadow-sm"
-        >
-          <i class="ri-add-line text-base"></i>
-          <span>New Session</span>
-        </button>
-      </div>
-
+  <div class="max-w-7xl mx-auto px-6 py-8">
+    <!-- Action Bar -->
+    <div class="mb-6 flex items-center justify-between">
       <!-- Search & Filter Bar -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 flex-1 max-w-3xl">
         <div class="relative flex-1">
           <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <i class="ri-search-line text-slate-400"></i>
@@ -30,23 +16,34 @@
             class="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1b75bc] focus:border-transparent text-sm text-slate-900 placeholder:text-slate-400 transition-all"
           />
         </div>
-        <button
-          (click)="toggleFilters()"
-          class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-all"
-          [class.border-[#1b75bc]]="showFilters()"
-          [class.bg-blue-50]="showFilters()"
-          [class.border-slate-200]="!showFilters()"
-        >
-          <i class="ri-filter-3-line"></i>
-          <span>Filters</span>
-          @if (statusFilter() !== 'all') {
-            <span class="flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-[#1b75bc] opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-[#1b75bc]"></span>
-            </span>
-          }
-        </button>
       </div>
+      <button
+        (click)="createNewSession()"
+        class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all shadow-sm"
+      >
+        <i class="ri-add-line text-base"></i>
+        <span>New Session</span>
+      </button>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="mb-6">
+      <button
+        (click)="toggleFilters()"
+        class="inline-flex items-center gap-2 px-3.5 py-2 bg-white border text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-all"
+        [class.border-[#1b75bc]]="showFilters()"
+        [class.bg-blue-50]="showFilters()"
+        [class.border-slate-200]="!showFilters()"
+      >
+        <i class="ri-filter-3-line"></i>
+        <span>Filters</span>
+        @if (statusFilter() !== 'all') {
+          <span class="flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-[#1b75bc] opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-[#1b75bc]"></span>
+          </span>
+        }
+      </button>
 
       <!-- Filters Panel -->
       @if (showFilters()) {

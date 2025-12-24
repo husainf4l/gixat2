@@ -7,7 +7,6 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css',
 })
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);

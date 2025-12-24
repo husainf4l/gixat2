@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ProfileService, UserProfile, UpdateProfileInput, Organization, UpdateOrganizationInput, AddressInput, OrganizationUser, CreateUserInput } from '../../services/profile.service';
 import { catchError, of, firstValueFrom } from 'rxjs';
+import { InviteManagementComponent } from '../../components/invite-management/invite-management.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, InviteManagementComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
@@ -73,6 +74,9 @@ export class ProfileComponent implements OnInit {
   // Validation
   errors = signal<{ [key: string]: string }>({});
   organizationErrors = signal<{ [key: string]: string }>({});
+
+  // Active tab
+  activeTab = signal<'organization' | 'team' | 'profile' | 'invites' | 'roles'>('organization');
 
   ngOnInit() {
     this.loadProfile();

@@ -7,7 +7,6 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterLink, NgOptimizedImage],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit, OnDestroy {
   isSignedIn = signal(false);

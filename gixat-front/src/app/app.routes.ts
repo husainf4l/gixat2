@@ -18,6 +18,12 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { UserDetailComponent } from './pages/profile/user-detail/user-detail.component';
 import { VehicleDetailComponent } from './pages/vehicles/vehicle-detail/vehicle-detail';
 import { VehiclesComponent } from './pages/vehicles/vehicles.component';
+import { AppointmentsComponent } from './pages/appointments/appointments.component';
+import { EstimateViewComponent } from './pages/estimates/estimate-view/estimate-view.component';
+import { PublicEstimateComponent } from './pages/estimates/public-estimate/public-estimate.component';
+import { PrivacyPolicyComponent } from './pages/legal/privacy-policy/privacy-policy.component';
+import { TermsOfServiceComponent } from './pages/legal/terms-of-service/terms-of-service.component';
+import { DataDeletionComponent } from './pages/legal/data-deletion/data-deletion.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -25,6 +31,12 @@ export const routes: Routes = [
   { path: 'auth/register', component: SignupComponent },
   { path: 'auth/callback', component: CallbackComponent },
   { path: 'organization-setup', component: OrganizationSetupComponent, canActivate: [authGuard] },
+  // Public estimate route (no auth required)
+  { path: 'e/:token', component: PublicEstimateComponent },
+  // Legal pages (public, no auth required)
+  { path: 'privacy-policy', component: PrivacyPolicyComponent },
+  { path: 'terms-of-service', component: TermsOfServiceComponent },
+  { path: 'data-deletion', component: DataDeletionComponent },
   {
     path: 'dashboard',
     component: DashboardLayoutComponent,
@@ -35,11 +47,13 @@ export const routes: Routes = [
       { path: 'customers/:id', component: CustomerDetail },
       { path: 'vehicles', component: VehiclesComponent },
       { path: 'vehicles/:vehicleId', component: VehicleDetailComponent },
+      { path: 'appointments', component: AppointmentsComponent },
       { path: 'sessions', component: SessionsComponent },
       { path: 'sessions/:sessionId/request-widget', component: RequestWidgetComponent },
       { path: 'sessions/:id', component: SessionDetailComponent },
       { path: 'job-cards', component: JobCardsComponent },
       { path: 'job-cards/:id', component: JobCardDetailComponent },
+      { path: 'estimates/:id', component: EstimateViewComponent },
       { path: 'organization', component: ProfileComponent },
       { path: 'organization/:userId', component: UserDetailComponent }
     ]

@@ -1,16 +1,16 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { CustomerService, CustomerDetail as CustomerDetailData } from '../../../services/customer.service';
+import { CustomerService, CustomerDetail as CustomerDetailData, Customer } from '../../../services/customer.service';
 import { catchError, of } from 'rxjs';
 import { AddCarModalComponent } from '../../../components/add-car-modal/add-car-modal.component';
+import { EditCustomerModalComponent } from '../../../components/edit-customer-modal/edit-customer-modal.component';
 
 @Component({
   selector: 'app-customer-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, AddCarModalComponent],
+  imports: [CommonModule, RouterModule, AddCarModalComponent, EditCustomerModalComponent],
   templateUrl: './customer-detail.html',
-  styleUrl: './customer-detail.css',
 })
 export class CustomerDetail implements OnInit {
   private route = inject(ActivatedRoute);
@@ -21,6 +21,7 @@ export class CustomerDetail implements OnInit {
   isLoading = signal<boolean>(true);
   errorMessage = signal<string | null>(null);
   showAddCarModal = signal<boolean>(false);
+  showEditCustomerModal = signal<boolean>(false);
 
   ngOnInit() {
     const customerId = this.route.snapshot.paramMap.get('id');
@@ -192,5 +193,36 @@ export class CustomerDetail implements OnInit {
 
   navigateToVehicle(vehicleId: string) {
     this.router.navigate(['/dashboard/vehicles', vehicleId]);
+  }
+
+  openEditCustomerModal() {
+    this.showEditCustomerModal.set(true);
+  }
+
+  closeEditCustomerModal() {
+    this.showEditCustomerModal.set(false);
+  }
+
+  onCustomerUpdated(updatedCustomer: Customer) {
+    // Reload customer details to show updated information
+    const customerId = this.route.snapshot.paramMap.get('id');
+    if (customerId) {
+      this.loadCustomerDetail(customerId);
+    }
+    this.showEditCustomerModal.set(false);
+  }
+
+  getCustomer(): Customer | null {
+    const detail = this.customerDetail();
+    if (!detail?.customer) return null;
+    return {
+      id: detail.customer.id,
+      firstName: detail.customer.firstName,
+      lastName: detail.customer.lastName,
+      email: detail.customer.email,
+      phoneNumber: detail.customer.phoneNumber,
+      address: detail.customer.address,
+      cars: detail.customer.cars,
+    };
   }
 }

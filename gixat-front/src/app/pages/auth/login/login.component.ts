@@ -13,7 +13,6 @@ declare const google: any;
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule, ReactiveFormsModule, LogoComponent, NgOptimizedImage],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
 })
 export class LoginComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -30,6 +29,19 @@ export class LoginComponent implements OnInit {
   });
 
   ngOnInit() {
+    // Check if user is already logged in and redirect to dashboard
+    this.authService.me().subscribe({
+      next: (userData) => {
+        if (userData.me?.id) {
+          // User is already logged in, redirect to dashboard
+          this.router.navigate(['/dashboard']);
+        }
+      },
+      error: () => {
+        // User is not logged in, stay on login page
+      }
+    });
+
     if (isPlatformBrowser(this.platformId)) {
       this.initializeGoogleSignIn();
     }

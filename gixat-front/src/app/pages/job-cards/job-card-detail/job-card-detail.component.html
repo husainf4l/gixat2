@@ -30,6 +30,13 @@
 
       @if (jobCard()) {
         <div class="flex items-center gap-3">
+          <button
+            (click)="openShareLinkModal()"
+            class="inline-flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-all"
+          >
+            <i class="ri-share-line"></i>
+            <span>Share Estimate</span>
+          </button>
           @if (!jobCard()?.isApprovedByCustomer) {
             <button
               (click)="approveJobCard()"
@@ -124,11 +131,15 @@
                     </div>
                     
                     <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                      <label class="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#1b75bc] hover:bg-blue-50 transition-all cursor-pointer shadow-sm">
+                      @if (!item.isApprovedByCustomer) {
+                        <button (click)="approveJobItem(item.id)" class="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 hover:bg-emerald-100 transition-all shadow-sm" title="Approve Item">
+                          <i class="ri-check-double-line text-lg"></i>
+                        </button>
+                      }
+                      <button (click)="openMediaUploadModal('item', item.id)" class="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#1b75bc] hover:bg-blue-50 transition-all shadow-sm" title="Upload Media">
                         <i class="ri-camera-fill text-lg"></i>
-                        <input type="file" class="hidden" (change)="onMediaUpload($event, item.id)" accept="image/*,video/*">
-                      </label>
-                      <button (click)="openUpdateItemModal(item)" class="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#1b75bc] hover:bg-blue-50 transition-all shadow-sm">
+                      </button>
+                      <button (click)="openUpdateItemModal(item)" class="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#1b75bc] hover:bg-blue-50 transition-all shadow-sm" title="Edit Item">
                         <i class="ri-edit-2-fill text-lg"></i>
                       </button>
                     </div>
@@ -164,11 +175,29 @@
                     }
 
                     @if (item.media && item.media.length > 0) {
-                      <div class="flex flex-wrap gap-2">
-                        @for (m of item.media; track m.id) {
-                          <div (click)="openMedia(m.media.url)" class="relative w-14 h-14 rounded-xl overflow-hidden border border-slate-200 cursor-pointer hover:scale-105 transition-all shadow-xs">
-                            <img [src]="m.media.url" class="w-full h-full object-cover">
-                          </div>
+                      <div class="space-y-3">
+                        @for (mediaType of mediaTypes; track mediaType) {
+                          @if (getMediaByType(item.media, mediaType).length > 0) {
+                            <div>
+                              <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">{{ formatStatus(mediaType) }}</p>
+                              <div class="flex flex-wrap gap-2">
+                                @for (m of getMediaByType(item.media, mediaType); track m.id) {
+                                  <div (click)="openMedia(m.media.url)" class="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-200 cursor-pointer hover:scale-105 transition-all shadow-xs group">
+                                    @if (m.media.type === 'Image' || !m.media.type) {
+                                      <img [src]="m.media.url" [alt]="m.media.alt || ''" class="w-full h-full object-cover">
+                                    } @else {
+                                      <div class="w-full h-full bg-slate-100 flex items-center justify-center">
+                                        <i class="ri-video-fill text-2xl text-slate-400"></i>
+                                      </div>
+                                    }
+                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all flex items-center justify-center">
+                                      <i class="ri-zoom-in-line text-white opacity-0 group-hover:opacity-100 transition-all text-lg"></i>
+                                    </div>
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                          }
                         }
                       </div>
                     }
@@ -186,6 +215,17 @@
             </div>
             <div class="p-10">
               <pre class="text-sm text-slate-600 leading-relaxed font-medium whitespace-pre-wrap font-sans">{{ jc.internalNotes || 'Initial state protocol finalized.' }}</pre>
+            </div>
+          </div>
+
+          <!-- Team Chat Section -->
+          <div class="bg-white border border-slate-200/60 rounded-[2.5rem] overflow-hidden shadow-sm">
+            <div class="p-8 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3">
+              <i class="ri-chat-3-fill text-brand text-xl opacity-40"></i>
+              <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Team Collaboration & Discussion</h3>
+            </div>
+            <div class="p-6">
+              <app-chat-panel [jobCardId]="jc.id" />
             </div>
           </div>
         </div>
@@ -237,6 +277,21 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Variance -->
+              @if (getCostVariance(jc).amount !== 0) {
+                <div class="p-6 rounded-3xl border" [class.bg-red-500/10]="getCostVariance(jc).amount > 0" [class.border-red-500/20]="getCostVariance(jc).amount > 0" [class.bg-emerald-500/10]="getCostVariance(jc).amount < 0" [class.border-emerald-500/20]="getCostVariance(jc).amount < 0">
+                  <p class="text-[9px] font-black uppercase tracking-widest mb-4" [class.text-red-400]="getCostVariance(jc).amount > 0" [class.text-emerald-400]="getCostVariance(jc).amount < 0">Variance</p>
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold" [class.text-red-300]="getCostVariance(jc).amount > 0" [class.text-emerald-300]="getCostVariance(jc).amount < 0">
+                      {{ getCostVariance(jc).amount > 0 ? '+' : '' }}{{ formatCurrency(getCostVariance(jc).amount) }}
+                    </span>
+                    <span class="text-[10px] font-black uppercase tracking-widest opacity-80" [class.text-red-400]="getCostVariance(jc).amount > 0" [class.text-emerald-400]="getCostVariance(jc).amount < 0">
+                      {{ getCostVariance(jc).percentage > 0 ? '+' : '' }}{{ getCostVariance(jc).percentage.toFixed(1) }}%
+                    </span>
+                  </div>
+                </div>
+              }
             </div>
           </div>
 
@@ -280,8 +335,76 @@
                   </div>
                 </div>
               }
+
+              <!-- Assigned Technician -->
+              <div>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Lead Technician</p>
+                @if (jc.assignedTechnician) {
+                  <div (click)="openAssignTechModal('job', jc.id, jc.assignedTechnicianId)" class="flex items-center gap-3 cursor-pointer group">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#1b75bc] font-black text-sm group-hover:scale-110 transition-all">
+                      {{ jc.assignedTechnician.fullName[0] }}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <p class="text-sm font-black text-slate-900 tracking-tight truncate">{{ jc.assignedTechnician.fullName }}</p>
+                      <p class="text-[10px] text-slate-400 font-bold truncate">Click to change</p>
+                    </div>
+                  </div>
+                } @else {
+                  <button (click)="openAssignTechModal('job', jc.id)" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-100 transition-all">
+                    Assign Technician
+                  </button>
+                }
+              </div>
             </div>
           </div>
+
+          <!-- Job Card Media -->
+          @if (jc.media && jc.media.length > 0) {
+            <div class="bg-white border border-slate-200/60 rounded-[2.5rem] overflow-hidden shadow-sm">
+              <div class="p-8 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Job Card Media</h3>
+                <button (click)="openMediaUploadModal('job', jc.id)" class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#1b75bc] hover:bg-blue-50 transition-all">
+                  <i class="ri-add-line text-lg"></i>
+                </button>
+              </div>
+              <div class="p-8">
+                <div class="space-y-4">
+                  @for (mediaType of mediaTypes; track mediaType) {
+                    @if (getMediaByType(jc.media, mediaType).length > 0) {
+                      <div>
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">{{ formatStatus(mediaType) }}</p>
+                        <div class="flex flex-wrap gap-2">
+                          @for (m of getMediaByType(jc.media, mediaType); track m.id) {
+                            <div (click)="openMedia(m.media.url)" class="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-200 cursor-pointer hover:scale-105 transition-all shadow-xs group">
+                              @if (m.media.type === 'Image' || !m.media.type) {
+                                <img [src]="m.media.url" [alt]="m.media.alt || ''" class="w-full h-full object-cover">
+                              } @else {
+                                <div class="w-full h-full bg-slate-100 flex items-center justify-center">
+                                  <i class="ri-video-fill text-2xl text-slate-400"></i>
+                                </div>
+                              }
+                              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all flex items-center justify-center">
+                                <i class="ri-zoom-in-line text-white opacity-0 group-hover:opacity-100 transition-all text-lg"></i>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  }
+                </div>
+              </div>
+            </div>
+          } @else {
+            <div class="bg-white border border-slate-200/60 rounded-[2.5rem] overflow-hidden shadow-sm">
+              <div class="p-8 text-center">
+                <button (click)="openMediaUploadModal('job', jc.id)" class="w-full px-4 py-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl text-[11px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-100 hover:border-[#1b75bc] transition-all">
+                  <i class="ri-camera-add-line text-xl mb-2 block"></i>
+                  Upload Job Card Media
+                </button>
+              </div>
+            </div>
+          }
 
         </div>
       </div>
@@ -317,6 +440,219 @@
       <div class="px-10 py-8 bg-slate-50 flex gap-3">
         <button (click)="showAddItemModal.set(false)" class="flex-1 py-4 bg-white border border-slate-200 text-[11px] font-black uppercase tracking-widest rounded-2xl active:scale-95 transition-all">Cancel</button>
         <button (click)="addItem()" class="flex-1 py-4 bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest rounded-2xl active:scale-95 transition-all shadow-lg shadow-slate-200">Initialize</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Update Item Modal -->
+@if (showUpdateItemModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/70 backdrop-blur-md transition-all">
+    <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden border border-white/20 max-h-[90vh] overflow-y-auto">
+      <div class="px-10 py-8 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between sticky top-0 bg-white z-10">
+        <h3 class="text-xl font-black text-slate-900 tracking-tight">Update Protocol Item</h3>
+        <button (click)="showUpdateItemModal.set(false)" class="text-slate-400 hover:text-slate-900 transition-all"><i class="ri-close-line text-2xl"></i></button>
+      </div>
+      <div class="p-10 space-y-6">
+        @if (selectedItem(); as item) {
+          <div class="space-y-2">
+            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Status</label>
+            <select [(ngModel)]="updateData.status" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+              @for (status of jobItemStatuses; track status) {
+                <option [value]="status">{{ formatStatus(status) }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Actual Labor Cost</label>
+              <input type="number" step="0.01" [(ngModel)]="updateData.actualLaborCost" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-black focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+            </div>
+            <div class="space-y-2">
+              <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Actual Parts Cost</label>
+              <input type="number" step="0.01" [(ngModel)]="updateData.actualPartsCost" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-black focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Technician Notes</label>
+            <textarea [(ngModel)]="updateData.technicianNotes" rows="4" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all resize-none"></textarea>
+          </div>
+
+          @if (!item.isApprovedByCustomer && updateData.status === JobItemStatus.IN_PROGRESS) {
+            <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+              <p class="text-xs text-amber-800 font-medium">⚠️ This item must be approved by the customer before work can begin.</p>
+            </div>
+          }
+
+          @if (updateData.status === JobItemStatus.COMPLETED && !canCompleteItemWithUpdateData(item)) {
+            <div class="p-4 bg-red-50 border border-red-200 rounded-xl">
+              <p class="text-xs text-red-800 font-medium">⚠️ Cannot complete without actual labor or parts cost.</p>
+            </div>
+          }
+        }
+      </div>
+      <div class="px-10 py-8 bg-slate-50 flex gap-3 sticky bottom-0 bg-white border-t border-slate-100">
+        <button (click)="showUpdateItemModal.set(false)" class="flex-1 py-4 bg-white border border-slate-200 text-[11px] font-black uppercase tracking-widest rounded-2xl active:scale-95 transition-all">Cancel</button>
+        <button (click)="updateItem()" class="flex-1 py-4 bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest rounded-2xl active:scale-95 transition-all shadow-lg shadow-slate-200">Update</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Assign Technician Modal -->
+@if (showAssignTechModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/70 backdrop-blur-md transition-all">
+    <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden border border-white/20">
+      <div class="px-10 py-8 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+        <h3 class="text-xl font-black text-slate-900 tracking-tight">Assign Technician</h3>
+        <button (click)="showAssignTechModal.set(false)" class="text-slate-400 hover:text-slate-900 transition-all"><i class="ri-close-line text-2xl"></i></button>
+      </div>
+      <div class="p-10 space-y-6">
+        <div class="space-y-2">
+          <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Select Technician</label>
+          <select [(ngModel)]="selectedTechId" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+            <option value="">Unassigned</option>
+            @for (tech of technicians(); track tech.id) {
+              <option [value]="tech.id">{{ tech.fullName }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="px-10 py-8 bg-slate-50 flex gap-3">
+        <button (click)="showAssignTechModal.set(false)" class="flex-1 py-4 bg-white border border-slate-200 text-[11px] font-black uppercase tracking-widest rounded-2xl active:scale-95 transition-all">Cancel</button>
+        <button (click)="assignTechnician()" class="flex-1 py-4 bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest rounded-2xl active:scale-95 transition-all shadow-lg shadow-slate-200">Assign</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Media Upload Modal -->
+@if (showMediaUploadModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/70 backdrop-blur-md transition-all">
+    <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden border border-white/20">
+      <div class="px-10 py-8 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+        <h3 class="text-xl font-black text-slate-900 tracking-tight">Upload Media</h3>
+        <button (click)="showMediaUploadModal.set(false)" class="text-slate-400 hover:text-slate-900 transition-all"><i class="ri-close-line text-2xl"></i></button>
+      </div>
+      <div class="p-10 space-y-6">
+        <div class="space-y-2">
+          <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Media Type</label>
+          <select [(ngModel)]="selectedMediaType" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+            @for (type of mediaTypes; track type) {
+              <option [value]="type">{{ formatStatus(type) }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Select File</label>
+          <input type="file" (change)="onFileSelected($event)" accept="image/*,video/*" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+          @if (selectedFile()) {
+            <p class="text-xs text-slate-600 mt-2">{{ selectedFile()?.name }}</p>
+          }
+        </div>
+      </div>
+      <div class="px-10 py-8 bg-slate-50 flex gap-3">
+        <button (click)="showMediaUploadModal.set(false)" class="flex-1 py-4 bg-white border border-slate-200 text-[11px] font-black uppercase tracking-widest rounded-2xl active:scale-95 transition-all">Cancel</button>
+        <button (click)="uploadMedia()" [disabled]="!selectedFile() || isUploadingMedia()" class="flex-1 py-4 bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest rounded-2xl active:scale-95 transition-all shadow-lg shadow-slate-200 disabled:opacity-50 disabled:cursor-not-allowed">
+          @if (isUploadingMedia()) {
+            <span class="flex items-center justify-center gap-2">
+              <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              Uploading...
+            </span>
+          } @else {
+            Upload
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Share Link Modal -->
+@if (showShareLinkModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/70 backdrop-blur-md transition-all">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-white/20">
+      <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-slate-900">Share Estimate Link</h3>
+        <button (click)="showShareLinkModal.set(false)" class="text-slate-400 hover:text-slate-900 transition-all">
+          <i class="ri-close-line text-xl"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        @if (!shareLink()) {
+          <div class="text-center space-y-4">
+            <p class="text-sm text-slate-600">
+              Generate a shareable link that allows customers to view and approve this estimate online.
+            </p>
+            <p class="text-xs text-slate-500">
+              The link will expire in 72 hours.
+            </p>
+            <button
+              (click)="generateShareLink()"
+              [disabled]="isGeneratingLink()"
+              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              @if (isGeneratingLink()) {
+                <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <span>Generating...</span>
+              } @else {
+                <i class="ri-link"></i>
+                <span>Generate Link</span>
+              }
+            </button>
+          </div>
+        } @else {
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs font-medium text-slate-600 mb-2 block">Share Link</label>
+              <div class="flex items-center gap-2">
+                <input
+                  type="text"
+                  [value]="shareLink()!"
+                  readonly
+                  class="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900"
+                />
+                <button
+                  (click)="copyShareLink()"
+                  class="inline-flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-all"
+                >
+                  <i class="ri-file-copy-line"></i>
+                  <span>Copy</span>
+                </button>
+              </div>
+            </div>
+            @if (shareLinkExpiresAt()) {
+              <p class="text-xs text-slate-500">
+                Expires: {{ formatDate(shareLinkExpiresAt()!) }}
+              </p>
+            }
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p class="text-xs text-blue-800">
+                Send this link to your customer via SMS or email. They can view and approve the estimate without logging in.
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="px-6 py-4 bg-slate-50 flex gap-3">
+        <button
+          (click)="showShareLinkModal.set(false)"
+          class="flex-1 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-all"
+        >
+          Close
+        </button>
+        @if (shareLink()) {
+          <button
+            (click)="generateShareLink()"
+            [disabled]="isGeneratingLink()"
+            class="flex-1 px-4 py-2 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Generate New Link
+          </button>
+        }
       </div>
     </div>
   </div>

@@ -13,7 +13,6 @@ declare const google: any;
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule, ReactiveFormsModule, LogoComponent, NgOptimizedImage],
   templateUrl: './signup.component.html',
-  styleUrl: './signup.component.css'
 })
 export class SignupComponent implements OnInit {
   private fb = inject(FormBuilder);

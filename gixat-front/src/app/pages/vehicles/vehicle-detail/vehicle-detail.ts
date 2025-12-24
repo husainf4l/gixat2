@@ -32,7 +32,6 @@ interface VehicleDetail {
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './vehicle-detail.html',
-  styleUrl: './vehicle-detail.css',
 })
 export class VehicleDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);

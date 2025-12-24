@@ -2,13 +2,15 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { JobCardService, JobCard, JobCardStatus, JobItemStatus, JobItem, JobCardMediaType, Technician } from '../../../services/job-card.service';
 import { AuthService } from '../../../services/auth.service';
+import { ChatPanelComponent } from '../../../components/job-card-chat/chat-panel.component';
 
 @Component({
   selector: 'app-job-card-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ChatPanelComponent],
   templateUrl: './job-card-detail.component.html',
 })
 export class JobCardDetailComponent implements OnInit {
@@ -47,13 +49,84 @@ export class JobCardDetailComponent implements OnInit {
   assignTarget = signal<{ type: 'job' | 'item', id: string } | null>(null);
   selectedTechId = signal<string>('');
 
-  jobCardStatuses = Object.values(JobCardStatus);
+  // Media Upload Modal
+  showMediaUploadModal = signal<boolean>(false);
+  mediaUploadTarget = signal<{ type: 'job' | 'item', id: string } | null>(null);
+  selectedMediaType = signal<JobCardMediaType>(JobCardMediaType.DURING_WORK);
+  selectedFile = signal<File | null>(null);
+  isUploadingMedia = signal<boolean>(false);
 
-  openMedia(url: string) {
-    window.open(url, '_blank');
-  }
+  // Share Link Modal
+  showShareLinkModal = signal<boolean>(false);
+  shareLink = signal<string | null>(null);
+  shareLinkExpiresAt = signal<string | null>(null);
+  isGeneratingLink = signal<boolean>(false);
+
+  jobCardStatuses = Object.values(JobCardStatus);
   jobItemStatuses = Object.values(JobItemStatus);
   mediaTypes = Object.values(JobCardMediaType);
+
+  // Make enums available to template
+  JobCardStatus = JobCardStatus;
+  JobItemStatus = JobItemStatus;
+  JobCardMediaType = JobCardMediaType;
+
+  // Active Tab
+  activeTab = signal<'items' | 'media' | 'costs' | 'chat'>('items');
+
+  getMediaByType(media: any[], type: JobCardMediaType) {
+    return media.filter(m => m.type === type);
+  }
+
+  openShareLinkModal() {
+    this.showShareLinkModal.set(true);
+    this.shareLink.set(null);
+    this.shareLinkExpiresAt.set(null);
+  }
+
+  async generateShareLink() {
+    const current = this.jobCard();
+    if (!current) return;
+
+    this.isGeneratingLink.set(true);
+    try {
+      // Generate link that expires in 72 hours (3 days)
+      const result = await firstValueFrom(
+        this.jobCardService.generateEstimateShareLink(current.id, 72)
+      );
+      
+      // Construct the full URL
+      const baseUrl = window.location.origin;
+      const fullUrl = `${baseUrl}/e/${result.shareToken}`;
+      
+      this.shareLink.set(fullUrl);
+      this.shareLinkExpiresAt.set(result.expiresAt);
+    } catch (err) {
+      console.error('Error generating share link:', err);
+      alert('Failed to generate share link. Please try again.');
+    } finally {
+      this.isGeneratingLink.set(false);
+    }
+  }
+
+  copyShareLink() {
+    const link = this.shareLink();
+    if (!link) return;
+
+    navigator.clipboard.writeText(link).then(() => {
+      alert('Share link copied to clipboard!');
+    }).catch(() => {
+      alert('Failed to copy link. Please copy manually.');
+    });
+  }
+
+  canCompleteItemWithUpdateData(item: JobItem | null): boolean {
+    if (!item) return false;
+    return this.jobCardService.canCompleteJobItem({ 
+      ...item, 
+      ...this.updateData 
+    } as JobItem);
+  }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -96,6 +169,12 @@ export class JobCardDetailComponent implements OnInit {
   updateJobCardStatus(status: JobCardStatus) {
     const current = this.jobCard();
     if (!current) return;
+
+    // Business rule: Cannot complete if items are not all completed/cancelled
+    if (status === JobCardStatus.COMPLETED && !this.jobCardService.canCompleteJobCard(current)) {
+      alert('Cannot complete job card. All items must be completed or cancelled first.');
+      return;
+    }
 
     this.jobCardService.updateJobCardStatus(current.id, status).subscribe({
       next: (updated) => {
@@ -173,6 +252,20 @@ export class JobCardDetailComponent implements OnInit {
     const current = this.jobCard();
     if (!item || !current) return;
 
+    // Business rule: Cannot start if not approved
+    if (this.updateData.status === JobItemStatus.IN_PROGRESS && !item.isApprovedByCustomer) {
+      alert('Cannot start work on this item. It must be approved by the customer first.');
+      return;
+    }
+
+    // Business rule: Cannot complete without actual costs
+    if (this.updateData.status === JobItemStatus.COMPLETED) {
+      if (!this.jobCardService.canCompleteJobItem({ ...item, ...this.updateData } as JobItem)) {
+        alert('Cannot complete item. Please enter actual labor or parts cost.');
+        return;
+      }
+    }
+
     this.jobCardService.updateJobItemStatus(
       item.id,
       this.updateData.status,
@@ -187,6 +280,21 @@ export class JobCardDetailComponent implements OnInit {
       error: (err) => {
         console.error('Error updating item:', err);
         alert(err.message || 'Failed to update item');
+      }
+    });
+  }
+
+  approveJobItem(itemId: string) {
+    if (!confirm('Approve this job item for the customer?')) return;
+
+    this.jobCardService.approveJobItem(itemId).subscribe({
+      next: () => {
+        const current = this.jobCard();
+        if (current) this.loadJobCard(current.id);
+      },
+      error: (err) => {
+        console.error('Error approving job item:', err);
+        alert('Failed to approve job item');
       }
     });
   }
@@ -228,26 +336,88 @@ export class JobCardDetailComponent implements OnInit {
     }
   }
 
-  async onMediaUpload(event: Event, itemId: string) {
+  openMediaUploadModal(type: 'job' | 'item', id: string) {
+    this.mediaUploadTarget.set({ type, id });
+    this.selectedMediaType.set(JobCardMediaType.DURING_WORK);
+    this.selectedFile.set(null);
+    this.showMediaUploadModal.set(true);
+  }
+
+  onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
 
-    const type = prompt('Select media type:\n0: BEFORE_WORK\n1: DURING_WORK\n2: AFTER_WORK\n3: DOCUMENTATION', '1');
-    if (type === null) return;
+    // Validate file
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) {
+      alert('File size exceeds 50MB limit. Please choose a smaller file.');
+      return;
+    }
 
-    const mediaType = Object.values(JobCardMediaType)[parseInt(type)] || JobCardMediaType.DURING_WORK;
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-msvideo', 'video/webm'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('File type not allowed. Please upload images or videos only.');
+      return;
+    }
 
-    this.jobCardService.uploadMediaToJobItem(itemId, file, mediaType).subscribe({
-      next: () => {
-        const current = this.jobCard();
-        if (current) this.loadJobCard(current.id);
-      },
-      error: (err) => {
-        console.error('Error uploading media:', err);
-        alert('Failed to upload media');
+    this.selectedFile.set(file);
+  }
+
+  async uploadMedia() {
+    const target = this.mediaUploadTarget();
+    const file = this.selectedFile();
+    if (!target || !file) return;
+
+    this.isUploadingMedia.set(true);
+
+    try {
+      if (target.type === 'item') {
+        await firstValueFrom(this.jobCardService.uploadMediaToJobItem(
+          target.id,
+          file,
+          this.selectedMediaType(),
+          file.name
+        ));
+      } else {
+        await firstValueFrom(this.jobCardService.uploadMediaToJobCard(
+          target.id,
+          file,
+          this.selectedMediaType(),
+          file.name
+        ));
       }
-    });
+
+      const current = this.jobCard();
+      if (current) this.loadJobCard(current.id);
+      this.showMediaUploadModal.set(false);
+      this.selectedFile.set(null);
+    } catch (err: any) {
+      console.error('Error uploading media:', err);
+      alert(err.message || 'Failed to upload media');
+    } finally {
+      this.isUploadingMedia.set(false);
+    }
+  }
+
+  openMedia(url: string) {
+    window.open(url, '_blank');
+  }
+
+  getCostVariance(jobCard: JobCard): { amount: number; percentage: number } {
+    const variance = jobCard.totalActualCost - jobCard.totalEstimatedCost;
+    const percentage = jobCard.totalEstimatedCost > 0 
+      ? (variance / jobCard.totalEstimatedCost) * 100 
+      : 0;
+    return { amount: variance, percentage };
+  }
+
+  canStartItem(item: JobItem): boolean {
+    return this.jobCardService.canStartJobItem(item);
+  }
+
+  canCompleteItem(item: JobItem): boolean {
+    return this.jobCardService.canCompleteJobItem(item);
   }
 
   getStatusColor(status: string): string {

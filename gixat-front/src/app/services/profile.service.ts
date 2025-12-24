@@ -57,7 +57,6 @@ export interface OrganizationUser {
   fullName: string;
   email: string;
   phoneNumber?: string | null;
-  avatarUrl?: string | null;
   userType?: string | null;
   roles?: string[];
   createdAt: string;
@@ -194,7 +193,6 @@ const GET_ORGANIZATION_USERS_QUERY = gql`
         fullName
         email
         phoneNumber
-        avatarUrl
         userType
         roles
         createdAt
@@ -223,7 +221,6 @@ const GET_USER_BY_ID_QUERY = gql`
       fullName
       email
       phoneNumber
-      avatarUrl
       bio
       userType
       roles
@@ -240,7 +237,6 @@ const UPDATE_USER_MUTATION = gql`
       email
       phoneNumber
       bio
-      avatarUrl
       userType
       roles
     }

@@ -1,0 +1,265 @@
+<div class="min-h-screen bg-slate-50">
+  <div class="max-w-4xl mx-auto px-6 py-16">
+    
+    @if (isLoading()) {
+      <!-- Loading State -->
+      <div class="space-y-6">
+        <div class="h-12 bg-slate-200 rounded-lg animate-pulse"></div>
+        <div class="h-32 bg-slate-200 rounded-xl animate-pulse"></div>
+        <div class="h-64 bg-slate-200 rounded-xl animate-pulse"></div>
+      </div>
+    } @else if (errorMessage()) {
+      <!-- Error State -->
+      <div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+        <i class="ri-alert-line text-4xl text-red-600 mb-4"></i>
+        <h2 class="text-xl font-semibold text-red-900 mb-2">Error Loading Estimate</h2>
+        <p class="text-sm text-red-700 mb-4">{{ errorMessage() }}</p>
+        <button
+          (click)="jobCardId() && loadEstimate(jobCardId()!)"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all"
+        >
+          <i class="ri-refresh-line"></i>
+          <span>Try Again</span>
+        </button>
+      </div>
+    } @else if (estimate()) {
+      @let jobCard = estimate()!;
+      
+      <!-- Header -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h1 class="text-4xl font-semibold text-slate-900 tracking-tight mb-2">Repair Estimate</h1>
+            <p class="text-base text-slate-500">
+              {{ jobCard.car?.year }} {{ jobCard.car?.make }} {{ jobCard.car?.model }}
+            </p>
+            <p class="text-sm text-slate-500">
+              License Plate: {{ jobCard.car?.licensePlate }}
+            </p>
+          </div>
+          
+          <!-- Status Badge -->
+          @if (jobCard.isApprovedByCustomer) {
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200">
+              <i class="ri-checkbox-circle-line text-lg"></i>
+              <span class="text-sm font-semibold">Approved</span>
+            </div>
+          } @else {
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 rounded-full border border-amber-200">
+              <i class="ri-time-line text-lg"></i>
+              <span class="text-sm font-semibold">Awaiting Approval</span>
+            </div>
+          }
+        </div>
+
+        <!-- Organization & Technician Info -->
+        @if (jobCard.assignedTechnician) {
+          <div class="flex items-center gap-4 p-4 bg-white border border-slate-200 rounded-xl">
+            <div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center">
+              <i class="ri-user-line text-2xl text-slate-400"></i>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-slate-900">Assigned Technician</p>
+              <p class="text-sm text-slate-600">{{ jobCard.assignedTechnician.fullName }}</p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Cost Summary -->
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm mb-6">
+        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+          <h2 class="text-lg font-semibold text-slate-900">Estimate Summary</h2>
+          @if (selectedItems().size > 0 && selectedItems().size < jobCard.items.length) {
+            <p class="text-xs text-slate-500 mt-1">
+              {{ selectedItems().size }} of {{ jobCard.items.length }} items selected
+            </p>
+          }
+        </div>
+        <div class="p-6 space-y-4">
+          <!-- Labor Cost -->
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-slate-600">Labor</span>
+            <span class="text-sm font-semibold text-slate-900">{{ formatCurrency(selectedCosts().labor) }}</span>
+          </div>
+
+          <!-- Parts Cost -->
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-slate-600">Parts</span>
+            <span class="text-sm font-semibold text-slate-900">{{ formatCurrency(selectedCosts().parts) }}</span>
+          </div>
+
+          <div class="border-t border-slate-200 pt-4">
+            <!-- Total -->
+            <div class="flex justify-between items-center">
+              <span class="text-lg font-semibold text-slate-900">Total</span>
+              <span class="text-2xl font-bold text-[#1b75bc]">{{ formatCurrency(selectedCosts().total) }}</span>
+            </div>
+          </div>
+
+          <!-- Tax Notice -->
+          <p class="text-xs text-slate-500 text-center">
+            * Tax and additional fees may apply
+          </p>
+
+          <!-- Partial Selection Warning -->
+          @if (selectedItems().size > 0 && selectedItems().size < jobCard.items.length) {
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <p class="text-sm text-amber-800">
+                You've selected only some services. The total shown reflects your selection.
+              </p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Selection Controls -->
+      @if (!readOnly() && !jobCard.isApprovedByCustomer) {
+        <div class="flex gap-2 justify-end mb-4">
+          <button
+            (click)="selectAll()"
+            class="text-sm text-[#1b75bc] hover:text-[#155a92] font-medium transition-colors"
+          >
+            Select All
+          </button>
+          <span class="text-slate-300">|</span>
+          <button
+            (click)="deselectAll()"
+            class="text-sm text-[#1b75bc] hover:text-[#155a92] font-medium transition-colors"
+          >
+            Deselect All
+          </button>
+        </div>
+      }
+
+      <!-- Job Items List -->
+      <div class="space-y-4 mb-6">
+        <h2 class="text-xl font-semibold text-slate-900">Services & Repairs</h2>
+        @for (item of jobCard.items; track item.id) {
+          <div
+            class="bg-white border rounded-xl p-6 transition-all cursor-pointer"
+            [class.border-[#1b75bc]]="selectedItems().has(item.id) && !item.isApprovedByCustomer && !readOnly() && !jobCard.isApprovedByCustomer"
+            [class.border-2]="selectedItems().has(item.id) && !item.isApprovedByCustomer && !readOnly() && !jobCard.isApprovedByCustomer"
+            [class.border-emerald-500]="item.isApprovedByCustomer"
+            [class.border-2]="item.isApprovedByCustomer"
+            [class.bg-emerald-50/50]="item.isApprovedByCustomer"
+            [class.border-slate-200]="!selectedItems().has(item.id) && !item.isApprovedByCustomer"
+            [class.hover:shadow-md]="!readOnly() && !item.isApprovedByCustomer && !jobCard.isApprovedByCustomer"
+            (click)="toggleItem(item.id)"
+          >
+            <div class="flex items-start gap-4">
+              <!-- Checkbox or Approved Icon -->
+              @if (!readOnly() && !item.isApprovedByCustomer && !jobCard.isApprovedByCustomer) {
+                <div class="mt-1">
+                  <div
+                    class="w-5 h-5 rounded border-2 flex items-center justify-center transition-all"
+                    [class.bg-[#1b75bc]]="selectedItems().has(item.id)"
+                    [class.border-[#1b75bc]]="selectedItems().has(item.id)"
+                    [class.border-slate-300]="!selectedItems().has(item.id)"
+                  >
+                    @if (selectedItems().has(item.id)) {
+                      <i class="ri-check-line text-white text-sm"></i>
+                    }
+                  </div>
+                </div>
+              }
+              
+              @if (item.isApprovedByCustomer) {
+                <div class="text-emerald-600 mt-1">
+                  <i class="ri-checkbox-circle-line text-2xl"></i>
+                </div>
+              }
+
+              <!-- Content -->
+              <div class="flex-1 space-y-3">
+                <!-- Description -->
+                <div>
+                  <h3 class="font-semibold text-lg text-slate-900">{{ item.description }}</h3>
+                  @if (item.technicianNotes) {
+                    <p class="text-sm text-slate-600 mt-1">
+                      {{ item.technicianNotes }}
+                    </p>
+                  }
+                </div>
+
+                <!-- Cost Breakdown -->
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                  <div class="flex items-center gap-2">
+                    <i class="ri-tools-line text-slate-400"></i>
+                    <span class="text-slate-600">Labor:</span>
+                    <span class="font-medium text-slate-900">{{ formatCurrency(item.estimatedLaborCost) }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <i class="ri-box-3-line text-slate-400"></i>
+                    <span class="text-slate-600">Parts:</span>
+                    <span class="font-medium text-slate-900">{{ formatCurrency(item.estimatedPartsCost) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total Cost -->
+              <div class="text-right">
+                <p class="text-sm text-slate-500 mb-1">Total</p>
+                <p class="text-2xl font-bold text-[#1b75bc]">
+                  {{ formatCurrency(getEstimatedCost(item)) }}
+                </p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Approval Section -->
+      @if (!readOnly() && !jobCard.isApprovedByCustomer) {
+        <div class="sticky bottom-0 bg-white border-t border-slate-200 shadow-lg rounded-t-xl p-6 space-y-4">
+          <!-- Selection Info -->
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-slate-600">
+                {{ selectedItems().size }} of {{ jobCard.items.length }} services selected
+              </p>
+              <p class="text-lg font-semibold text-slate-900">
+                Estimated Total: {{ formatCurrency(selectedCosts().total) }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-4">
+            <button
+              (click)="approveEstimate()"
+              [disabled]="selectedItems().size === 0"
+              class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <i class="ri-checkbox-circle-line"></i>
+              <span>
+                @if (isFullApproval()) {
+                  Approve All Services
+                } @else {
+                  Approve {{ selectedItems().size }} Service{{ selectedItems().size > 1 ? 's' : '' }}
+                }
+              </span>
+            </button>
+
+            <button
+              class="inline-flex items-center gap-2 px-4 py-3 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-all"
+              (click)="requestChanges()"
+            >
+              <i class="ri-close-line"></i>
+              <span>Request Changes</span>
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Timeline -->
+      @if (jobCard.isApprovedByCustomer) {
+        <app-estimate-timeline
+          [approvedAt]="jobCard.approvedAt"
+          [items]="jobCard.items"
+        ></app-estimate-timeline>
+      }
+    }
+  </div>
+</div>
+

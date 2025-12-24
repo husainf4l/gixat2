@@ -1,5 +1,42 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global styles - Tailwind CSS v4 */
 @import "tailwindcss";
+
+/* ============================================================================
+   TAILWIND V4 THEME CONFIGURATION
+   Custom colors, fonts, and design tokens using @theme directive
+   ============================================================================ */
+
+@theme {
+  /* Brand Colors */
+  --color-brand: #1b75bc;
+  --color-brand-50: #eff8ff;
+  --color-brand-100: #dbeefe;
+  --color-brand-200: #b8ddfd;
+  --color-brand-300: #8ac8fb;
+  --color-brand-400: #55aff7;
+  --color-brand-500: #1b75bc;
+  --color-brand-600: #155a92;
+  --color-brand-700: #0f4570;
+  --color-brand-800: #0a2f4d;
+  --color-brand-900: #051a2b;
+  --color-brand-hover: #155a92;
+
+  /* Font Family */
+  --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+
+  /* Custom Border Radius */
+  --radius-apple: 20px;
+  --radius-apple-lg: 28px;
+
+  /* Custom Shadows */
+  --shadow-apple: 0 20px 50px rgba(0, 0, 0, 0.05);
+  --shadow-apple-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* ============================================================================
+   CUSTOM ANIMATIONS
+   Essential animations not available in Tailwind by default
+   ============================================================================ */
 
 @keyframes fade-in {
   from {
@@ -21,14 +58,6 @@
   }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.2s ease-out;
-}
-
-.animate-slide-up {
-  animation: slide-up 0.3s ease-out;
-}
-
 @keyframes slide-in {
   from {
     opacity: 0;
@@ -40,6 +69,63 @@
   }
 }
 
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+/* Animation Classes */
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
 .animate-slide-in {
   animation: slide-in 0.2s ease-out;
+}
+
+.animate-shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+/* ============================================================================
+   GLOBAL RESETS & UTILITIES
+   ============================================================================ */
+
+/* Remove tap highlight on mobile */
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom scrollbar styling */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #d2d2d7;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #86868b;
 }
