@@ -39,6 +39,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<JobItem> JobItems { get; set; }
     public DbSet<JobCardMedia> JobCardMedias { get; set; }
     public DbSet<JobItemMedia> JobItemMedias { get; set; }
+    public DbSet<JobCardComment> JobCardComments { get; set; }
+    public DbSet<JobCardCommentMention> JobCardCommentMentions { get; set; }
     public DbSet<UserInvite> UserInvites { get; set; }
     public DbSet<Account> Accounts { get; set; }
 
@@ -176,6 +178,62 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(ji => ji.AssignedTechnicianId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        // JobCardComment relationships
+        builder.Entity<JobCardComment>()
+            .HasOne(c => c.JobCard)
+            .WithMany(j => j.Comments)
+            .HasForeignKey(c => c.JobCardId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<JobCardComment>()
+            .HasOne(c => c.JobItem)
+            .WithMany(ji => ji.Comments)
+            .HasForeignKey(c => c.JobItemId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<JobCardComment>()
+            .HasOne(c => c.Author)
+            .WithMany()
+            .HasForeignKey(c => c.AuthorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<JobCardComment>()
+            .HasOne(c => c.ParentComment)
+            .WithMany(c => c.Replies)
+            .HasForeignKey(c => c.ParentCommentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // JobCardComment indexes
+        builder.Entity<JobCardComment>()
+            .HasIndex(c => new { c.JobCardId, c.CreatedAt });
+
+        builder.Entity<JobCardComment>()
+            .HasIndex(c => new { c.JobItemId, c.CreatedAt })
+            .HasFilter("\"JobItemId\" IS NOT NULL");
+
+        builder.Entity<JobCardComment>()
+            .HasIndex(c => c.AuthorId);
+
+        // JobCardCommentMention relationships
+        builder.Entity<JobCardCommentMention>()
+            .HasOne(m => m.Comment)
+            .WithMany(c => c.Mentions)
+            .HasForeignKey(m => m.CommentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<JobCardCommentMention>()
+            .HasOne(m => m.MentionedUser)
+            .WithMany()
+            .HasForeignKey(m => m.MentionedUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // JobCardCommentMention indexes
+        builder.Entity<JobCardCommentMention>()
+            .HasIndex(m => new { m.MentionedUserId, m.IsRead });
+
+        builder.Entity<JobCardCommentMention>()
+            .HasIndex(m => m.CommentId);
+
         // Global Query Filters for Multi-Tenancy
         // IMPORTANT: Use _tenantService.OrganizationId directly in the lambda expression
         // so it's evaluated at query time, not at model creation time
@@ -193,6 +251,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<SessionLog>().HasQueryFilter(sl => sl.Session!.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<JobItem>().HasQueryFilter(ji => ji.JobCard!.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<JobCardMedia>().HasQueryFilter(jcm => jcm.JobCard!.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<JobCardComment>().HasQueryFilter(jcc => jcc.JobCard!.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<JobCardCommentMention>().HasQueryFilter(jccm => jccm.Comment!.JobCard!.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<Account>().HasQueryFilter(a => a.User!.OrganizationId == _tenantService.OrganizationId);
     }
 

@@ -19,6 +19,6 @@ internal static class CarExtensions
         ArgumentNullException.ThrowIfNull(car);
         ArgumentNullException.ThrowIfNull(sessionLoader);
         
-        return await sessionLoader.LoadAsync(car.Id).ConfigureAwait(false);
+        return await sessionLoader.LoadAsync(car.Id).ConfigureAwait(false) ?? Enumerable.Empty<GarageSession>();
     }
 }

@@ -212,6 +212,7 @@ public class AuthServiceTests
 
         // Verify invite was marked as accepted
         var updatedInvite = await _context.UserInvites.FindAsync(invite.Id);
+        updatedInvite.Should().NotBeNull();
         updatedInvite!.Status.Should().Be(InviteStatus.Accepted);
     }
 

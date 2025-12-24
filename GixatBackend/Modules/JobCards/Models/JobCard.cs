@@ -48,6 +48,7 @@ public sealed class JobCard : IMustHaveOrganization
     
     public ICollection<JobItem> Items { get; } = new List<JobItem>();
     public ICollection<JobCardMedia> Media { get; } = new List<JobCardMedia>();
+    public ICollection<JobCardComment> Comments { get; } = new List<JobCardComment>();
     
     [Range(0, double.MaxValue)]
     public decimal TotalEstimatedCost { get; set; }

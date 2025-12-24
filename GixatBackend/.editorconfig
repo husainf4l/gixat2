@@ -1,0 +1,19 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# Suppress warnings for EF Core migrations (auto-generated code)
+[Migrations/*.cs]
+
+# CA1515: Make types internal
+dotnet_diagnostic.CA1515.severity = none
+
+# CA1062: Validate parameter is non-null
+dotnet_diagnostic.CA1062.severity = none
+
+# CA1861: Prefer static readonly fields
+dotnet_diagnostic.CA1861.severity = none
+
+# Suppress nullable warnings in test files
+[*Tests/**/*.cs]
+
+# CS8602: Dereference of a possibly null reference
+dotnet_diagnostic.CS8602.severity = suggestion

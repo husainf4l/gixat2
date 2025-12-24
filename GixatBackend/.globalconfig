@@ -1,0 +1,34 @@
+is_global = true
+
+# CA1056: Uri properties should not be strings - suppressed as changing to Uri would break API contracts
+dotnet_diagnostic.CA1056.severity = none
+
+# CA1054: Uri parameters should not be strings - suppressed as changing to Uri would break API contracts
+dotnet_diagnostic.CA1054.severity = none
+
+# CA1002: Do not expose generic lists - suppressed for DTOs
+dotnet_diagnostic.CA1002.severity = none
+
+# CA1031: Do not catch general exception types - suppressed for middleware and media controllers
+dotnet_diagnostic.CA1031.severity = suggestion
+
+# CA1308: Use ToUpperInvariant - suppressed as ToLowerInvariant is correct for file extensions and content types
+dotnet_diagnostic.CA1308.severity = suggestion
+
+# CA1305: Specify IFormatProvider - suppressed for StringBuilder in internal notes
+dotnet_diagnostic.CA1305.severity = suggestion
+
+# CA1725: Parameter names should match base declaration - acceptable for DataLoaders
+dotnet_diagnostic.CA1725.severity = suggestion
+
+# CA1863: Use CompositeFormat - suppressed for simple string formatting
+dotnet_diagnostic.CA1863.severity = suggestion
+
+# CA1869: Cache JsonSerializerOptions - suppressed for middleware exception handling
+dotnet_diagnostic.CA1869.severity = suggestion
+
+# CA1848: Use LoggerMessage delegates - suppressed for simple logging statements
+dotnet_diagnostic.CA1848.severity = suggestion
+
+# CA2007: ConfigureAwait - suppressed for library code that doesn't need synchronization context
+dotnet_diagnostic.CA2007.severity = none

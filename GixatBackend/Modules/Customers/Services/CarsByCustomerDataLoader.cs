@@ -12,7 +12,7 @@ internal sealed class CarsByCustomerDataLoader : GroupedDataLoader<Guid, Car>
         IServiceProvider serviceProvider,
         IBatchScheduler batchScheduler,
         DataLoaderOptions? options = null)
-        : base(batchScheduler, options)
+        : base(batchScheduler, options!)
     {
         _serviceProvider = serviceProvider;
     }

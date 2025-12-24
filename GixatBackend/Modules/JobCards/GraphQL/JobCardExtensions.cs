@@ -20,7 +20,7 @@ internal static class JobCardExtensions
         ArgumentNullException.ThrowIfNull(jobCard);
         ArgumentNullException.ThrowIfNull(dataLoader);
 
-        return await dataLoader.LoadAsync(jobCard.Id, cancellationToken).ConfigureAwait(false);
+        return await dataLoader.LoadAsync(jobCard.Id, cancellationToken).ConfigureAwait(false) ?? Enumerable.Empty<JobItem>();
     }
 
     // Load assigned technician using DataLoader

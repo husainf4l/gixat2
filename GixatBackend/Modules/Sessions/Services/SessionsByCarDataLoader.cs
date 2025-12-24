@@ -8,7 +8,7 @@ namespace GixatBackend.Modules.Sessions.Services;
 /// DataLoader for efficiently loading sessions grouped by car ID.
 /// Prevents N+1 query problems when loading sessions for multiple cars.
 /// </summary>
-public sealed class SessionsByCarDataLoader : GroupedDataLoader<Guid, GarageSession>
+internal sealed class SessionsByCarDataLoader : GroupedDataLoader<Guid, GarageSession>
 {
     private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
 
@@ -16,7 +16,7 @@ public sealed class SessionsByCarDataLoader : GroupedDataLoader<Guid, GarageSess
         IBatchScheduler batchScheduler,
         IDbContextFactory<ApplicationDbContext> contextFactory,
         DataLoaderOptions? options = null)
-        : base(batchScheduler, options)
+        : base(batchScheduler, options!)
     {
         _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
     }

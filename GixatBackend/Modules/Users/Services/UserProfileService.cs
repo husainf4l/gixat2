@@ -76,7 +76,9 @@ public sealed class UserProfileService
     /// </summary>
     public async Task<UserProfile> UpdateProfileAsync(string userId, UpdateProfileInput input, CancellationToken cancellationToken = default)
     {
-        var user = await _userManager.FindByIdAsync(userId)
+        ArgumentNullException.ThrowIfNull(input);
+        
+        var user = await _userManager.FindByIdAsync(userId).ConfigureAwait(false)
             ?? throw new EntityNotFoundException("User", userId);
 
         if (input.FullName != null)
@@ -144,6 +146,9 @@ public sealed class UserProfileService
         long fileSize,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(contentType);
+        ArgumentNullException.ThrowIfNull(fileName);
+        
         // Validate file size
         if (fileSize > MaxAvatarSizeBytes)
         {
@@ -164,7 +169,7 @@ public sealed class UserProfileService
                 });
         }
 
-        var user = await _userManager.FindByIdAsync(userId)
+        var user = await _userManager.FindByIdAsync(userId).ConfigureAwait(false)
             ?? throw new EntityNotFoundException("User", userId);
 
         // Delete old avatar if exists
@@ -224,7 +229,7 @@ public sealed class UserProfileService
     /// </summary>
     public async Task<bool> DeleteAvatarAsync(string userId, CancellationToken cancellationToken = default)
     {
-        var user = await _userManager.FindByIdAsync(userId)
+        var user = await _userManager.FindByIdAsync(userId).ConfigureAwait(false)
             ?? throw new EntityNotFoundException("User", userId);
 
         if (string.IsNullOrEmpty(user.AvatarS3Key))
@@ -256,6 +261,9 @@ public sealed class UserProfileService
         string contentType,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(contentType);
+        ArgumentNullException.ThrowIfNull(fileName);
+        
         // Validate content type
         if (!AllowedImageTypes.Contains(contentType.ToLowerInvariant()))
         {
@@ -266,7 +274,7 @@ public sealed class UserProfileService
                 });
         }
 
-        var user = await _userManager.FindByIdAsync(userId)
+        var user = await _userManager.FindByIdAsync(userId).ConfigureAwait(false)
             ?? throw new EntityNotFoundException("User", userId);
 
         var sanitizedFileName = SanitizeFileName(fileName);

@@ -58,7 +58,8 @@ internal static class UserProfileMutations
             file.Name,
             file.ContentType ?? "image/jpeg",
             file.Length ?? 0,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

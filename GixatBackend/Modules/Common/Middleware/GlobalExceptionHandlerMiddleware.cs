@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
 using GixatBackend.Modules.Common.Exceptions;
@@ -9,6 +10,7 @@ namespace GixatBackend.Modules.Common.Middleware;
 /// Global exception handling middleware that catches all unhandled exceptions
 /// and returns appropriate HTTP responses
 /// </summary>
+[SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Middleware needs to be public")]
 public sealed class GlobalExceptionHandlerMiddleware
 {
     private readonly RequestDelegate _next;
@@ -27,6 +29,8 @@ public sealed class GlobalExceptionHandlerMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
+        ArgumentNullException.ThrowIfNull(context);
+        
         try
         {
             await _next(context).ConfigureAwait(false);
@@ -145,7 +149,8 @@ public sealed class GlobalExceptionHandlerMiddleware
 /// <summary>
 /// Extension method to register the global exception handler middleware
 /// </summary>
-public static class GlobalExceptionHandlerMiddlewareExtensions
+[SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Extension method needs to be public")]
+internal static class GlobalExceptionHandlerMiddlewareExtensions
 {
     public static IApplicationBuilder UseGlobalExceptionHandler(this IApplicationBuilder app)
     {

@@ -7,6 +7,7 @@ namespace GixatBackend.Modules.Users.Models;
 /// User profile information including avatar and bio
 /// </summary>
 [SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "Not used for equality comparisons")]
+[SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Part of public API")]
 public record UserProfile
 {
     public required string Id { get; init; }
@@ -25,6 +26,7 @@ public record UserProfile
 /// <summary>
 /// Input for updating user profile
 /// </summary>
+[SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Part of public API")]
 public record UpdateProfileInput
 {
     public string? FullName { get; init; }
@@ -35,6 +37,7 @@ public record UpdateProfileInput
 /// <summary>
 /// Result of avatar upload operation
 /// </summary>
+[SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Part of public API")]
 public record AvatarUploadResult
 {
     public required string AvatarUrl { get; init; }

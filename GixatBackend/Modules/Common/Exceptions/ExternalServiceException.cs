@@ -3,10 +3,28 @@ namespace GixatBackend.Modules.Common.Exceptions;
 /// <summary>
 /// Exception thrown when external service call fails
 /// </summary>
-public sealed class ExternalServiceException : Exception
+internal sealed class ExternalServiceException : Exception
 {
     public string ServiceName { get; }
     public int? StatusCode { get; }
+
+    public ExternalServiceException()
+        : base("External service failed")
+    {
+        ServiceName = string.Empty;
+    }
+
+    public ExternalServiceException(string message)
+        : base(message)
+    {
+        ServiceName = string.Empty;
+    }
+
+    public ExternalServiceException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+        ServiceName = string.Empty;
+    }
 
     public ExternalServiceException(string serviceName, string message)
         : base($"External service '{serviceName}' failed: {message}")

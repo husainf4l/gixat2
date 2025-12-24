@@ -53,6 +53,7 @@ public sealed class JobItem
     [MaxLength(2000)]
     public string? TechnicianNotes { get; set; }
     public ICollection<JobItemMedia> Media { get; } = new List<JobItemMedia>();
+    public ICollection<JobCardComment> Comments { get; } = new List<JobCardComment>();
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

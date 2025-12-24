@@ -12,7 +12,7 @@ internal sealed class SessionsByCustomerDataLoader : GroupedDataLoader<Guid, Gar
         IServiceProvider serviceProvider,
         IBatchScheduler batchScheduler,
         DataLoaderOptions? options = null)
-        : base(batchScheduler, options)
+        : base(batchScheduler, options!)
     {
         _serviceProvider = serviceProvider;
     }

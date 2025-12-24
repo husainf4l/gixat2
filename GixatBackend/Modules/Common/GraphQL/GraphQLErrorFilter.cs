@@ -6,10 +6,12 @@ namespace GixatBackend.Modules.Common.GraphQL;
 /// <summary>
 /// GraphQL error filter to provide user-friendly error messages
 /// </summary>
-public class GraphQLErrorFilter : IErrorFilter
+internal sealed class GraphQLErrorFilter : IErrorFilter
 {
     public IError OnError(IError error)
     {
+        ArgumentNullException.ThrowIfNull(error);
+        
         // Handle EntityNotFoundException with clear message
         if (error.Exception is EntityNotFoundException entityNotFound)
         {

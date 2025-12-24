@@ -12,7 +12,7 @@ internal sealed class UserByIdDataLoader : BatchDataLoader<string, ApplicationUs
         IServiceProvider serviceProvider,
         IBatchScheduler batchScheduler,
         DataLoaderOptions? options = null)
-        : base(batchScheduler, options)
+        : base(batchScheduler, options!)
     {
         _serviceProvider = serviceProvider;
     }

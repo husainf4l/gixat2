@@ -24,7 +24,7 @@ internal static class CustomerExtensions
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(dataLoader);
 
-        return await dataLoader.LoadAsync(customer.Id, cancellationToken).ConfigureAwait(false);
+        return await dataLoader.LoadAsync(customer.Id, cancellationToken).ConfigureAwait(false) ?? Enumerable.Empty<Car>();
     }
 
     // Load sessions using DataLoader
@@ -37,7 +37,7 @@ internal static class CustomerExtensions
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(dataLoader);
 
-        return await dataLoader.LoadAsync(customer.Id, cancellationToken).ConfigureAwait(false);
+        return await dataLoader.LoadAsync(customer.Id, cancellationToken).ConfigureAwait(false) ?? Enumerable.Empty<GarageSession>();
     }
 
     // Load job cards using DataLoader
@@ -50,6 +50,6 @@ internal static class CustomerExtensions
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(dataLoader);
 
-        return await dataLoader.LoadAsync(customer.Id, cancellationToken).ConfigureAwait(false);
+        return await dataLoader.LoadAsync(customer.Id, cancellationToken).ConfigureAwait(false) ?? Enumerable.Empty<JobCard>();
     }
 }
