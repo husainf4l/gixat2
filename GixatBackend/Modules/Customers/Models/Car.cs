@@ -39,6 +39,9 @@ public sealed class Car : IMustHaveOrganization
     public Guid OrganizationId { get; set; }
     public Organization? Organization { get; set; }
     
+    // Navigation property for sessions associated with this car
+    public ICollection<GixatBackend.Modules.Sessions.Models.GarageSession> Sessions { get; } = new List<GixatBackend.Modules.Sessions.Models.GarageSession>();
+    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

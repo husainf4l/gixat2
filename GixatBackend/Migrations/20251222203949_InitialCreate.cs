@@ -12,6 +12,7 @@ namespace GixatBackend.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            ArgumentNullException.ThrowIfNull(migrationBuilder);
             migrationBuilder.CreateTable(
                 name: "Addresses",
                 columns: table => new

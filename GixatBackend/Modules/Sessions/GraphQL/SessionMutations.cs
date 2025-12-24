@@ -240,20 +240,20 @@ internal static class SessionMutations
         
         // Vehicle Information
         reportBuilder.AppendLine("VEHICLE INFORMATION:");
-        reportBuilder.AppendLine($"Make: {session.Car?.Make}");
-        reportBuilder.AppendLine($"Model: {session.Car?.Model}");
-        reportBuilder.AppendLine($"Year: {session.Car?.Year}");
-        reportBuilder.AppendLine($"License Plate: {session.Car?.LicensePlate}");
+        reportBuilder.AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"Make: {session.Car?.Make}");
+        reportBuilder.AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"Model: {session.Car?.Model}");
+        reportBuilder.AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"Year: {session.Car?.Year}");
+        reportBuilder.AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"License Plate: {session.Car?.LicensePlate}");
         if (session.Mileage.HasValue)
         {
-            reportBuilder.AppendLine($"Mileage: {session.Mileage.Value:N0} km");
+            reportBuilder.AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"Mileage: {session.Mileage.Value:N0} km");
         }
         reportBuilder.AppendLine();
 
         // Customer Information
         reportBuilder.AppendLine("CUSTOMER INFORMATION:");
-        reportBuilder.AppendLine($"Name: {session.Customer?.FirstName} {session.Customer?.LastName}");
-        reportBuilder.AppendLine($"Phone: {session.Customer?.PhoneNumber}");
+        reportBuilder.AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"Name: {session.Customer?.FirstName} {session.Customer?.LastName}");
+        reportBuilder.AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"Phone: {session.Customer?.PhoneNumber}");
         reportBuilder.AppendLine();
 
         // Customer Requests
@@ -303,20 +303,20 @@ internal static class SessionMutations
             .GroupBy(m => m.Stage)
             .OrderBy(g => g.Key);
 
-        if (session.Media.Any())
+        if (session.Media.Count > 0)
         {
             reportBuilder.AppendLine("DOCUMENTATION (Images/Videos):");
             foreach (var stageGroup in mediaByStage)
             {
-                reportBuilder.AppendLine($"\n{stageGroup.Key} Phase:");
+                reportBuilder.AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"\n{stageGroup.Key} Phase:");
                 foreach (var media in stageGroup)
                 {
                     if (media.Media != null)
                     {
-                        reportBuilder.AppendLine($"  - {media.Media.Type}: {media.Media.Url}");
+                        reportBuilder.AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"  - {media.Media.Type}: {media.Media.Url}");
                         if (!string.IsNullOrEmpty(media.Media.Alt))
                         {
-                            reportBuilder.AppendLine($"    Description: {media.Media.Alt}");
+                            reportBuilder.AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"    Description: {media.Media.Alt}");
                         }
                     }
                 }
@@ -324,7 +324,7 @@ internal static class SessionMutations
             reportBuilder.AppendLine();
         }
 
-        reportBuilder.AppendLine($"\nReport Generated: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
+        reportBuilder.AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"\nReport Generated: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
 
         var oldStatus = session.Status;
         session.InitialReport = reportBuilder.ToString();

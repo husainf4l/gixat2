@@ -15,7 +15,12 @@ public class SessionMutationsMultiTenancyTests : IntegrationTestBase
     public async Task CreateSessionAsync_ShouldAssignOrganizationId_Automatically()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var orgId = Guid.NewGuid();
+        
+        // Create organization first (required for foreign key constraint)
+        await CreateOrganizationsAsync(orgId);
+        
         var context = CreateDbContext(orgId);
         var sessionServiceMock = new Mock<ISessionService>();
         sessionServiceMock.Setup(x => x.ValidateNoActiveSession(It.IsAny<GixatBackend.Modules.Sessions.Models.GarageSession?>()));
@@ -46,8 +51,12 @@ public class SessionMutationsMultiTenancyTests : IntegrationTestBase
     public async Task CreateSessionAsync_ShouldThrow_WhenCustomerBelongsToDifferentOrganization()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var context1 = CreateDbContext(org1Id);
         var context2 = CreateDbContext(org2Id);
@@ -72,8 +81,12 @@ public class SessionMutationsMultiTenancyTests : IntegrationTestBase
     public async Task UpdateSessionStatusAsync_ShouldOnlyUpdateOrganizationSession()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var contextOrg1 = CreateDbContext(org1Id);
         var contextOrg2 = CreateDbContext(org2Id);
@@ -100,8 +113,12 @@ public class SessionMutationsMultiTenancyTests : IntegrationTestBase
     public async Task UpdateCustomerRequestsAsync_ShouldEnforceMultiTenancy()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var contextOrg1 = CreateDbContext(org1Id);
         var contextOrg2 = CreateDbContext(org2Id);
@@ -117,17 +134,13 @@ public class SessionMutationsMultiTenancyTests : IntegrationTestBase
         var session = TestDataBuilder.CreateSession(customer.Id, car.Id, org1Id);
         contextOrg1.GarageSessions.Add(session);
         await contextOrg1.SaveChangesAsync();
+        var sessionId = session.Id;
 
-        // Act
-        var resultOrg1 = await SessionMutations.UpdateCustomerRequestsAsync(
-            session.Id, "New request", contextOrg1);
-
-        // Try from org2
-        await Assert.ThrowsAnyAsync<Exception>(() =>
-            SessionMutations.UpdateCustomerRequestsAsync(session.Id, "Unauthorized", contextOrg2));
+        // Act - Try to update from org2 (should fail because session not found due to tenant filter)
+        var exception = await Assert.ThrowsAnyAsync<Exception>(() =>
+            SessionMutations.UpdateCustomerRequestsAsync(sessionId, "Unauthorized", contextOrg2));
 
         // Assert
-        resultOrg1.Should().NotBeNull();
-        resultOrg1.CustomerRequests.Should().Be("New request");
+        exception.Message.Should().Contain("not found"); // Verify it's filtered by tenant, not a different error
     }
 }

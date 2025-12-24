@@ -10,6 +10,7 @@ using HotChocolate.Authorization;
 
 namespace GixatBackend.Modules.Customers.GraphQL;
 
+[Authorize]
 [SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Required by HotChocolate for schema discovery")]
 [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated by HotChocolate")]
 public sealed record CreateCustomerInput(

@@ -8,11 +8,13 @@ using GixatBackend.Modules.Sessions.Models;
 using GixatBackend.Modules.Sessions.Enums;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using HotChocolate.Authorization;
 
 namespace GixatBackend.Modules.Common.GraphQL;
 
 [SuppressMessage("Performance", "CA1515:Consider making public types internal", Justification = "GraphQL mutation type")]
 [HotChocolate.Types.ExtendObjectType("Mutation")]
+[Authorize]
 public static partial class PresignedUploadMutations
 {
     // High-performance logging using LoggerMessage source generator

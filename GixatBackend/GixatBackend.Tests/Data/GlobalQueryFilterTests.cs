@@ -20,143 +20,219 @@ public class GlobalQueryFilterTests : IntegrationTestBase
     public async Task Customers_ShouldBeFilteredByOrganization_Automatically()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
 
         // Create organizations first (required for foreign key constraint)
         await CreateOrganizationsAsync(org1Id, org2Id);
 
-        var context1 = CreateDbContext(org1Id);
-        var context2 = CreateDbContext(org2Id);
+        // Create customer for org1
+        await using (var context1 = CreateDbContext(org1Id))
+        {
+            var customer1 = TestDataBuilder.CreateCustomer(org1Id, "Customer Org1");
+            context1.Customers.Add(customer1);
+            await context1.SaveChangesAsync();
+        }
 
-        var customer1 = TestDataBuilder.CreateCustomer(org1Id, "Customer Org1");
-        var customer2 = TestDataBuilder.CreateCustomer(org2Id, "Customer Org2");
-
-        context1.Customers.Add(customer1);
-        context1.Customers.Add(customer2);
-        await context1.SaveChangesAsync();
+        // Create customer for org2
+        await using (var context2 = CreateDbContext(org2Id))
+        {
+            var customer2 = TestDataBuilder.CreateCustomer(org2Id, "Customer Org2");
+            context2.Customers.Add(customer2);
+            await context2.SaveChangesAsync();
+        }
 
         // Act
-        var org1Customers = await context1.Customers.ToListAsync();
-        var org2Customers = await context2.Customers.ToListAsync();
+        await using (var context1 = CreateDbContext(org1Id))
+        await using (var context2 = CreateDbContext(org2Id))
+        {
+            var org1Customers = await context1.Customers.ToListAsync();
+            var org2Customers = await context2.Customers.ToListAsync();
 
-        // Assert
-        org1Customers.Should().ContainSingle()
-            .Which.FirstName.Should().Be("Customer");
-        org2Customers.Should().ContainSingle()
-            .Which.FirstName.Should().Be("Customer");
+            // Assert
+            org1Customers.Should().ContainSingle()
+                .Which.FirstName.Should().Be("Customer");
+            org2Customers.Should().ContainSingle()
+                .Which.FirstName.Should().Be("Customer");
+        }
     }
 
     [Fact]
     public async Task Cars_ShouldBeFilteredByOrganization_Automatically()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
 
-        var context1 = CreateDbContext(org1Id);
-        var context2 = CreateDbContext(org2Id);
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
-        var customer1 = TestDataBuilder.CreateCustomer(org1Id);
-        var customer2 = TestDataBuilder.CreateCustomer(org2Id);
-        context1.Customers.AddRange(customer1, customer2);
-        await context1.SaveChangesAsync();
+        // Create data for org1
+        await using (var context1 = CreateDbContext(org1Id))
+        {
+            var customer1 = TestDataBuilder.CreateCustomer(org1Id);
+            context1.Customers.Add(customer1);
+            await context1.SaveChangesAsync();
 
-        var car1 = TestDataBuilder.CreateCar(customer1.Id, org1Id, "Toyota");
-        var car2 = TestDataBuilder.CreateCar(customer2.Id, org2Id, "Honda");
-        context1.Cars.AddRange(car1, car2);
-        await context1.SaveChangesAsync();
+            var car1 = TestDataBuilder.CreateCar(customer1.Id, org1Id, "Toyota");
+            context1.Cars.Add(car1);
+            await context1.SaveChangesAsync();
+        }
 
-        // Act
-        var org1Cars = await context1.Cars.ToListAsync();
-        var org2Cars = await context2.Cars.ToListAsync();
+        // Create data for org2
+        await using (var context2 = CreateDbContext(org2Id))
+        {
+            var customer2 = TestDataBuilder.CreateCustomer(org2Id);
+            context2.Customers.Add(customer2);
+            await context2.SaveChangesAsync();
 
-        // Assert
-        org1Cars.Should().ContainSingle()
-            .Which.Make.Should().Be("Toyota");
-        org2Cars.Should().ContainSingle()
-            .Which.Make.Should().Be("Honda");
+            var car2 = TestDataBuilder.CreateCar(customer2.Id, org2Id, "Honda");
+            context2.Cars.Add(car2);
+            await context2.SaveChangesAsync();
+        }
+
+        // Act & Assert
+        await using (var context1 = CreateDbContext(org1Id))
+        await using (var context2 = CreateDbContext(org2Id))
+        {
+            var org1Cars = await context1.Cars.ToListAsync();
+            var org2Cars = await context2.Cars.ToListAsync();
+
+            org1Cars.Should().ContainSingle()
+                .Which.Make.Should().Be("Toyota");
+            org2Cars.Should().ContainSingle()
+                .Which.Make.Should().Be("Honda");
+        }
     }
 
     [Fact]
     public async Task Sessions_ShouldBeFilteredByOrganization_Automatically()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
 
-        var context1 = CreateDbContext(org1Id);
-        var context2 = CreateDbContext(org2Id);
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
-        var customer1 = TestDataBuilder.CreateCustomer(org1Id);
-        var customer2 = TestDataBuilder.CreateCustomer(org2Id);
-        context1.Customers.AddRange(customer1, customer2);
+        // Create data for org1
+        await using (var context1 = CreateDbContext(org1Id))
+        {
+            var customer1 = TestDataBuilder.CreateCustomer(org1Id);
+            context1.Customers.Add(customer1);
+            var car1 = TestDataBuilder.CreateCar(customer1.Id, org1Id);
+            context1.Cars.Add(car1);
+            await context1.SaveChangesAsync();
 
-        var car1 = TestDataBuilder.CreateCar(customer1.Id, org1Id);
-        var car2 = TestDataBuilder.CreateCar(customer2.Id, org2Id);
-        context1.Cars.AddRange(car1, car2);
-        await context1.SaveChangesAsync();
+            var session1 = TestDataBuilder.CreateSession(customer1.Id, car1.Id, org1Id);
+            context1.GarageSessions.Add(session1);
+            await context1.SaveChangesAsync();
+        }
 
-        var session1 = TestDataBuilder.CreateSession(customer1.Id, car1.Id, org1Id);
-        var session2 = TestDataBuilder.CreateSession(customer2.Id, car2.Id, org2Id);
-        context1.GarageSessions.AddRange(session1, session2);
-        await context1.SaveChangesAsync();
+        // Create data for org2
+        await using (var context2 = CreateDbContext(org2Id))
+        {
+            var customer2 = TestDataBuilder.CreateCustomer(org2Id);
+            context2.Customers.Add(customer2);
+            var car2 = TestDataBuilder.CreateCar(customer2.Id, org2Id);
+            context2.Cars.Add(car2);
+            await context2.SaveChangesAsync();
 
-        // Act
-        var org1Sessions = await context1.GarageSessions.ToListAsync();
-        var org2Sessions = await context2.GarageSessions.ToListAsync();
+            var session2 = TestDataBuilder.CreateSession(customer2.Id, car2.Id, org2Id);
+            context2.GarageSessions.Add(session2);
+            await context2.SaveChangesAsync();
+        }
 
-        // Assert
-        org1Sessions.Should().ContainSingle()
-            .Which.OrganizationId.Should().Be(org1Id);
-        org2Sessions.Should().ContainSingle()
-            .Which.OrganizationId.Should().Be(org2Id);
+        // Act & Assert
+        await using (var context1 = CreateDbContext(org1Id))
+        await using (var context2 = CreateDbContext(org2Id))
+        {
+            var org1Sessions = await context1.GarageSessions.ToListAsync();
+            var org2Sessions = await context2.GarageSessions.ToListAsync();
+
+            org1Sessions.Should().ContainSingle()
+                .Which.OrganizationId.Should().Be(org1Id);
+            org2Sessions.Should().ContainSingle()
+                .Which.OrganizationId.Should().Be(org2Id);
+        }
     }
 
     [Fact]
     public async Task JobCards_ShouldBeFilteredByOrganization_Automatically()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
 
-        var context1 = CreateDbContext(org1Id);
-        var context2 = CreateDbContext(org2Id);
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
-        var customer1 = TestDataBuilder.CreateCustomer(org1Id);
-        var customer2 = TestDataBuilder.CreateCustomer(org2Id);
-        var car1 = TestDataBuilder.CreateCar(customer1.Id, org1Id);
-        var car2 = TestDataBuilder.CreateCar(customer2.Id, org2Id);
-        var session1 = TestDataBuilder.CreateSession(customer1.Id, car1.Id, org1Id);
-        var session2 = TestDataBuilder.CreateSession(customer2.Id, car2.Id, org2Id);
+        Guid session1Id, session2Id;
 
-        context1.Customers.AddRange(customer1, customer2);
-        context1.Cars.AddRange(car1, car2);
-        context1.GarageSessions.AddRange(session1, session2);
-        await context1.SaveChangesAsync();
+        // Create data for org1
+        await using (var context1 = CreateDbContext(org1Id))
+        {
+            var customer1 = TestDataBuilder.CreateCustomer(org1Id);
+            var car1 = TestDataBuilder.CreateCar(customer1.Id, org1Id);
+            var session1 = TestDataBuilder.CreateSession(customer1.Id, car1.Id, org1Id);
+            session1Id = session1.Id;
 
-        var jobCard1 = TestDataBuilder.CreateJobCard(session1.Id, customer1.Id, car1.Id, org1Id, "JOB001");
-        var jobCard2 = TestDataBuilder.CreateJobCard(session2.Id, customer2.Id, car2.Id, org2Id, "JOB002");
-        context1.JobCards.AddRange(jobCard1, jobCard2);
-        await context1.SaveChangesAsync();
+            context1.Customers.Add(customer1);
+            context1.Cars.Add(car1);
+            context1.GarageSessions.Add(session1);
+            await context1.SaveChangesAsync();
 
-        // Act
-        var org1JobCards = await context1.JobCards.ToListAsync();
-        var org2JobCards = await context2.JobCards.ToListAsync();
+            var jobCard1 = TestDataBuilder.CreateJobCard(session1.Id, customer1.Id, car1.Id, org1Id, "JOB001");
+            context1.JobCards.Add(jobCard1);
+            await context1.SaveChangesAsync();
+        }
 
-        // Assert
-        org1JobCards.Should().ContainSingle()
-            .Which.SessionId.Should().Be(session1.Id);
-        org2JobCards.Should().ContainSingle()
-            .Which.SessionId.Should().Be(session2.Id);
+        // Create data for org2
+        await using (var context2 = CreateDbContext(org2Id))
+        {
+            var customer2 = TestDataBuilder.CreateCustomer(org2Id);
+            var car2 = TestDataBuilder.CreateCar(customer2.Id, org2Id);
+            var session2 = TestDataBuilder.CreateSession(customer2.Id, car2.Id, org2Id);
+            session2Id = session2.Id;
+
+            context2.Customers.Add(customer2);
+            context2.Cars.Add(car2);
+            context2.GarageSessions.Add(session2);
+            await context2.SaveChangesAsync();
+
+            var jobCard2 = TestDataBuilder.CreateJobCard(session2.Id, customer2.Id, car2.Id, org2Id, "JOB002");
+            context2.JobCards.Add(jobCard2);
+            await context2.SaveChangesAsync();
+        }
+
+        // Act & Assert
+        await using (var context1 = CreateDbContext(org1Id))
+        await using (var context2 = CreateDbContext(org2Id))
+        {
+            var org1JobCards = await context1.JobCards.ToListAsync();
+            var org2JobCards = await context2.JobCards.ToListAsync();
+
+            org1JobCards.Should().ContainSingle()
+                .Which.SessionId.Should().Be(session1Id);
+            org2JobCards.Should().ContainSingle()
+                .Which.SessionId.Should().Be(session2Id);
+        }
     }
 
     [Fact]
     public async Task Users_ShouldBeFilteredByOrganization_WhenOrganizationIdIsSet()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var context1 = CreateDbContext(org1Id);
         var context2 = CreateDbContext(org2Id);
@@ -183,59 +259,93 @@ public class GlobalQueryFilterTests : IntegrationTestBase
     public async Task IgnoreQueryFilters_ShouldReturnAllData_WhenUsed()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
 
-        var context = CreateDbContext(org1Id);
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
-        var customer1 = TestDataBuilder.CreateCustomer(org1Id, "Customer Org1");
-        var customer2 = TestDataBuilder.CreateCustomer(org2Id, "Customer Org2");
+        // Create customer for org1
+        await using (var context1 = CreateDbContext(org1Id))
+        {
+            var customer1 = TestDataBuilder.CreateCustomer(org1Id, "Customer Org1");
+            context1.Customers.Add(customer1);
+            await context1.SaveChangesAsync();
+        }
 
-        context.Customers.AddRange(customer1, customer2);
-        await context.SaveChangesAsync();
+        // Create customer for org2
+        await using (var context2 = CreateDbContext(org2Id))
+        {
+            var customer2 = TestDataBuilder.CreateCustomer(org2Id, "Customer Org2");
+            context2.Customers.Add(customer2);
+            await context2.SaveChangesAsync();
+        }
 
-        // Act
-        var filteredCustomers = await context.Customers.ToListAsync();
-        var allCustomers = await context.Customers.IgnoreQueryFilters().ToListAsync();
+        // Act & Assert
+        await using (var context = CreateDbContext(org1Id))
+        {
+            var filteredCustomers = await context.Customers.ToListAsync();
+            var allCustomers = await context.Customers.IgnoreQueryFilters().ToListAsync();
 
-        // Assert
-        filteredCustomers.Should().ContainSingle();
-        allCustomers.Should().HaveCount(2);
+            filteredCustomers.Should().ContainSingle();
+            allCustomers.Should().HaveCount(2);
+        }
     }
 
     [Fact]
     public async Task NavigationProperties_ShouldRespectQueryFilters()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
 
-        var context1 = CreateDbContext(org1Id);
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
-        var customer1 = TestDataBuilder.CreateCustomer(org1Id);
-        var customer2 = TestDataBuilder.CreateCustomer(org2Id);
-        context1.Customers.AddRange(customer1, customer2);
+        // Create data for org1
+        await using (var context1 = CreateDbContext(org1Id))
+        {
+            var customer1 = TestDataBuilder.CreateCustomer(org1Id);
+            context1.Customers.Add(customer1);
+            await context1.SaveChangesAsync();
 
-        var car1 = TestDataBuilder.CreateCar(customer1.Id, org1Id);
-        var car2 = TestDataBuilder.CreateCar(customer2.Id, org2Id);
-        context1.Cars.AddRange(car1, car2);
-        await context1.SaveChangesAsync();
+            var car1 = TestDataBuilder.CreateCar(customer1.Id, org1Id);
+            context1.Cars.Add(car1);
+            await context1.SaveChangesAsync();
+        }
 
-        // Act
-        var customersWithCars = await context1.Customers
-            .Include(c => c.Cars)
-            .ToListAsync();
+        // Create data for org2
+        await using (var context2 = CreateDbContext(org2Id))
+        {
+            var customer2 = TestDataBuilder.CreateCustomer(org2Id);
+            context2.Customers.Add(customer2);
+            await context2.SaveChangesAsync();
 
-        // Assert
-        customersWithCars.Should().ContainSingle();
-        customersWithCars.First().Cars.Should().ContainSingle()
-            .Which.OrganizationId.Should().Be(org1Id);
+            var car2 = TestDataBuilder.CreateCar(customer2.Id, org2Id);
+            context2.Cars.Add(car2);
+            await context2.SaveChangesAsync();
+        }
+
+        // Act & Assert
+        await using (var context1 = CreateDbContext(org1Id))
+        {
+            var customersWithCars = await context1.Customers
+                .Include(c => c.Cars)
+                .ToListAsync();
+
+            customersWithCars.Should().ContainSingle();
+            customersWithCars.First().Cars.Should().ContainSingle()
+                .Which.OrganizationId.Should().Be(org1Id);
+        }
     }
 
     [Fact]
     public async Task OrganizationEntity_ShouldNotBeFiltered()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var context = CreateDbContext(org1Id);
 

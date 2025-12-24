@@ -12,8 +12,12 @@ public class CustomerQueriesTests : IntegrationTestBase
     public async Task GetCustomers_ShouldReturnOnlyOrganizationCustomers()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var contextOrg1 = CreateDbContext(org1Id);
         var contextOrg2 = CreateDbContext(org2Id);
@@ -46,8 +50,12 @@ public class CustomerQueriesTests : IntegrationTestBase
     public async Task SearchCustomers_ShouldFilterByOrganization()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var contextOrg1 = CreateDbContext(org1Id);
         var contextOrg2 = CreateDbContext(org2Id);
@@ -77,8 +85,12 @@ public class CustomerQueriesTests : IntegrationTestBase
     public async Task GetCustomerById_ShouldReturnNull_WhenCustomerBelongsToAnotherOrganization()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var contextOrg1 = CreateDbContext(org1Id);
         var contextOrg2 = CreateDbContext(org2Id);
@@ -102,8 +114,12 @@ public class CustomerQueriesTests : IntegrationTestBase
     public async Task GetCars_ShouldReturnOnlyOrganizationCars()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var contextOrg1 = CreateDbContext(org1Id);
         var contextOrg2 = CreateDbContext(org2Id);
@@ -142,8 +158,12 @@ public class CustomerQueriesTests : IntegrationTestBase
     public async Task GetCarById_ShouldReturnNull_WhenCarBelongsToAnotherOrganization()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var contextOrg1 = CreateDbContext(org1Id);
         var contextOrg2 = CreateDbContext(org2Id);
@@ -169,8 +189,12 @@ public class CustomerQueriesTests : IntegrationTestBase
     public async Task GetCustomerStatistics_ShouldCalculateOnlyForOrganization()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var contextOrg1 = CreateDbContext(org1Id);
         var contextOrg2 = CreateDbContext(org2Id);
@@ -178,7 +202,7 @@ public class CustomerQueriesTests : IntegrationTestBase
         // Add 3 customers to org1
         for (int i = 0; i < 3; i++)
         {
-            var customer = CreateTestCustomer(org1Id, $"Customer {i}");
+            var customer = TestDataBuilder.CreateCustomer(org1Id, $"Customer {i}", $"customer{i}@org1.com", $"555000100{i}");
             contextOrg1.Customers.Add(customer);
         }
         await contextOrg1.SaveChangesAsync();
@@ -186,7 +210,7 @@ public class CustomerQueriesTests : IntegrationTestBase
         // Add 5 customers to org2
         for (int i = 0; i < 5; i++)
         {
-            var customer = CreateTestCustomer(org2Id, $"Customer {i}");
+            var customer = TestDataBuilder.CreateCustomer(org2Id, $"Customer {i}", $"customer{i}@org2.com", $"555000200{i}");
             contextOrg2.Customers.Add(customer);
         }
         await contextOrg2.SaveChangesAsync();

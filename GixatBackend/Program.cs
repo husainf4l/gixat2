@@ -49,7 +49,7 @@ if (File.Exists(envPath))
 // Add services to the container.
 var connectionString = $"Host={Environment.GetEnvironmentVariable("DB_SERVER")};Port=5432;Database={Environment.GetEnvironmentVariable("DB_DATABASE")};Username={Environment.GetEnvironmentVariable("DB_USER")};Password={Environment.GetEnvironmentVariable("DB_PASSWORD")};";
 
-// Add DbContext for all operations (mutations and DataLoaders)
+// Add DbContext with standard scoped registration
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString, npgsqlOptions =>
     {
@@ -60,6 +60,23 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
             maxRetryDelay: TimeSpan.FromSeconds(DatabaseConstants.MaxRetryDelaySeconds),
             errorCodesToAdd: null);
     }));
+
+// Add DbContext Factory for DataLoaders - uses separate options instance
+builder.Services.AddSingleton<IDbContextFactory<ApplicationDbContext>>(sp =>
+{
+    var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+    optionsBuilder.UseNpgsql(connectionString, npgsqlOptions =>
+    {
+        npgsqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+        npgsqlOptions.CommandTimeout(DatabaseConstants.CommandTimeoutSeconds);
+        npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: DatabaseConstants.MaxRetryCount,
+            maxRetryDelay: TimeSpan.FromSeconds(DatabaseConstants.MaxRetryDelaySeconds),
+            errorCodesToAdd: null);
+    });
+    
+    return new PooledApplicationDbContextFactory(optionsBuilder.Options);
+});
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITenantService, TenantService>();
@@ -221,11 +238,13 @@ builder.Services
     // DataLoader-based extensions
     .AddType(typeof(GixatBackend.Modules.JobCards.GraphQL.JobCardExtensions))
     .AddType(typeof(GixatBackend.Modules.JobCards.GraphQL.JobItemExtensions))
+    .AddType(typeof(GixatBackend.Modules.Customers.GraphQL.CarExtensions))
 #pragma warning restore CA2263
     .AddUploadType()
     // DataLoaders for N+1 prevention
     .AddDataLoader<GixatBackend.Modules.Customers.Services.CarsByCustomerDataLoader>()
     .AddDataLoader<GixatBackend.Modules.Sessions.Services.SessionsByCustomerDataLoader>()
+    .AddDataLoader<GixatBackend.Modules.Sessions.Services.SessionsByCarDataLoader>()
     .AddDataLoader<GixatBackend.Modules.JobCards.Services.JobCardsByCustomerDataLoader>()
     .AddDataLoader<GixatBackend.Modules.JobCards.Services.JobItemsByJobCardDataLoader>()
     .AddDataLoader<GixatBackend.Modules.Users.Services.UserByIdDataLoader>()
@@ -249,6 +268,9 @@ builder.Services
     .AddAuthorization();
 
 builder.Services.AddOpenApi();
+
+// Add Controllers for REST API endpoints
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -285,6 +307,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllers();
 app.MapGraphQL();
 
 await app.RunAsync().ConfigureAwait(false);

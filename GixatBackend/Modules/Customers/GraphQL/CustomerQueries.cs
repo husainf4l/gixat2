@@ -82,7 +82,7 @@ internal static class CustomerQueries
         ArgumentNullException.ThrowIfNull(context);
 
         var now = DateTime.UtcNow;
-        var startOfMonth = new DateTime(now.Year, now.Month, 1);
+        var startOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
 
         var totalCustomers = await context.Customers.CountAsync(cancellationToken).ConfigureAwait(false);
         var customersThisMonth = await context.Customers

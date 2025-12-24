@@ -179,12 +179,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         // Global Query Filters for Multi-Tenancy
         // IMPORTANT: Use _tenantService.OrganizationId directly in the lambda expression
         // so it's evaluated at query time, not at model creation time
+        
+        // Parent entities with OrganizationId
         builder.Entity<Customer>().HasQueryFilter(c => c.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<Car>().HasQueryFilter(c => c.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<GarageSession>().HasQueryFilter(s => s.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<JobCard>().HasQueryFilter(j => j.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<ApplicationUser>().HasQueryFilter(u => u.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<UserInvite>().HasQueryFilter(i => i.OrganizationId == _tenantService.OrganizationId);
+        
+        // Child entities - filter through parent navigation properties
+        builder.Entity<SessionMedia>().HasQueryFilter(sm => sm.Session!.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<SessionLog>().HasQueryFilter(sl => sl.Session!.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<JobItem>().HasQueryFilter(ji => ji.JobCard!.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<JobCardMedia>().HasQueryFilter(jcm => jcm.JobCard!.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<Account>().HasQueryFilter(a => a.User!.OrganizationId == _tenantService.OrganizationId);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

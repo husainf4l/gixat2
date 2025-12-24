@@ -108,6 +108,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 
     /// <summary>
     /// Creates organizations with specific IDs in the database (required for foreign key constraints)
+    /// If organizations already exist, this method does nothing (idempotent).
     /// </summary>
     protected async Task CreateOrganizationsAsync(params Guid[] organizationIds)
     {
@@ -115,14 +116,21 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         
         foreach (var orgId in organizationIds)
         {
-            var org = new Organization
+            // Check if organization already exists
+            var exists = await contextNoTenant.Organizations
+                .AnyAsync(o => o.Id == orgId);
+            
+            if (!exists)
             {
-                Id = orgId,
-                Name = $"Test Organization {orgId}",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
-            contextNoTenant.Organizations.Add(org);
+                var org = new Organization
+                {
+                    Id = orgId,
+                    Name = $"Test Organization {orgId}",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+                contextNoTenant.Organizations.Add(org);
+            }
         }
         
         await contextNoTenant.SaveChangesAsync();

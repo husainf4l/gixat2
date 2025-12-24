@@ -13,8 +13,12 @@ public class JobCardQueriesTests : IntegrationTestBase
     public async Task GetJobCards_ShouldReturnOnlyOrganizationJobCards()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var contextOrg1 = CreateDbContext(org1Id);
         var contextOrg2 = CreateDbContext(org2Id);
@@ -67,8 +71,12 @@ public class JobCardQueriesTests : IntegrationTestBase
     public async Task GetJobCardById_ShouldReturnNull_WhenJobCardBelongsToAnotherOrganization()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var contextOrg1 = CreateDbContext(org1Id);
         var contextOrg2 = CreateDbContext(org2Id);
@@ -102,8 +110,12 @@ public class JobCardQueriesTests : IntegrationTestBase
     public async Task SearchJobCards_ShouldFilterByOrganization()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var contextOrg1 = CreateDbContext(org1Id);
         var contextOrg2 = CreateDbContext(org2Id);
@@ -155,8 +167,12 @@ public class JobCardQueriesTests : IntegrationTestBase
     public async Task GetJobCardsByCustomer_ShouldFilterByOrganization()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var contextOrg1 = CreateDbContext(org1Id);
         var contextOrg2 = CreateDbContext(org2Id);
@@ -190,8 +206,12 @@ public class JobCardQueriesTests : IntegrationTestBase
     public async Task GetJobCardsByStatus_ShouldReturnOnlyOrganizationJobCards()
     {
         // Arrange
+        await CleanDatabaseAsync();
         var org1Id = Guid.NewGuid();
         var org2Id = Guid.NewGuid();
+
+        // Create organizations first (required for foreign key constraint)
+        await CreateOrganizationsAsync(org1Id, org2Id);
 
         var contextOrg1 = CreateDbContext(org1Id);
         var contextOrg2 = CreateDbContext(org2Id);

@@ -15,15 +15,17 @@ public sealed class UserProfileService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IS3Service _s3Service;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private const int MaxAvatarSizeMB = 5;
     private const int MaxAvatarSizeBytes = MaxAvatarSizeMB * 1024 * 1024;
     private static readonly string[] AllowedImageTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     private const string AvatarS3Prefix = "avatars/";
 
-    public UserProfileService(UserManager<ApplicationUser> userManager, IS3Service s3Service)
+    public UserProfileService(UserManager<ApplicationUser> userManager, IS3Service s3Service, IHttpContextAccessor httpContextAccessor)
     {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _s3Service = s3Service ?? throw new ArgumentNullException(nameof(s3Service));
+        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
     /// <summary>
@@ -44,13 +46,22 @@ public sealed class UserProfileService
 
         var roles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
 
+        // Generate API URL for avatar if S3 key exists
+        string? avatarUrl = null;
+        if (!string.IsNullOrEmpty(user.AvatarS3Key))
+        {
+            // Extract filename from S3 key (format: avatars/{userId}/{filename})
+            var fileName = user.AvatarS3Key.Split('/').Last();
+            avatarUrl = GetAvatarUrl(user.Id, fileName);
+        }
+
         return new UserProfile
         {
             Id = user.Id,
             FullName = user.FullName,
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
-            AvatarUrl = user.AvatarUrl,
+            AvatarUrl = avatarUrl,
             Bio = user.Bio,
             UserType = user.UserType.ToString(),
             CreatedAt = user.CreatedAt,
@@ -98,13 +109,21 @@ public sealed class UserProfileService
             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken)
             .ConfigureAwait(false);
 
+        // Generate API URL for avatar if S3 key exists
+        string? avatarUrl = null;
+        if (!string.IsNullOrEmpty(user.AvatarS3Key))
+        {
+            var fileName = user.AvatarS3Key.Split('/').Last();
+            avatarUrl = GetAvatarUrl(user.Id, fileName);
+        }
+
         return new UserProfile
         {
             Id = user.Id,
             FullName = user.FullName,
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
-            AvatarUrl = user.AvatarUrl,
+            AvatarUrl = avatarUrl,
             Bio = user.Bio,
             UserType = user.UserType.ToString(),
             CreatedAt = user.CreatedAt,
@@ -149,16 +168,11 @@ public sealed class UserProfileService
             ?? throw new EntityNotFoundException("User", userId);
 
         // Delete old avatar if exists
-        if (!string.IsNullOrEmpty(user.AvatarUrl))
+        if (!string.IsNullOrEmpty(user.AvatarS3Key))
         {
             try
             {
-                // Extract S3 key from URL (assuming format: https://bucket.s3.region.amazonaws.com/key)
-                var oldKey = ExtractS3KeyFromUrl(user.AvatarUrl);
-                if (!string.IsNullOrEmpty(oldKey))
-                {
-                    await _s3Service.DeleteFileAsync(oldKey).ConfigureAwait(false);
-                }
+                await _s3Service.DeleteFileAsync(user.AvatarS3Key).ConfigureAwait(false);
             }
             catch
             {
@@ -173,11 +187,8 @@ public sealed class UserProfileService
         var uploadedKey = await _s3Service.UploadFileAsync(fileStream, s3Key, contentType)
             .ConfigureAwait(false);
 
-        // Get presigned URL for the avatar (24 hours expiry)
-        var avatarUrl = _s3Service.GetFileUrl(uploadedKey).ToString();
-
-        // Update user avatar URL
-        user.AvatarUrl = avatarUrl;
+        // Store S3 key (not the full URL)
+        user.AvatarS3Key = uploadedKey;
         var result = await _userManager.UpdateAsync(user).ConfigureAwait(false);
 
         if (!result.Succeeded)
@@ -197,6 +208,10 @@ public sealed class UserProfileService
                 $"Failed to save avatar: {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
 
+        // Generate API URL for the response
+        var uploadedFileName = uploadedKey.Split('/').Last();
+        var avatarUrl = GetAvatarUrl(userId, uploadedFileName);
+
         return new AvatarUploadResult
         {
             AvatarUrl = avatarUrl,
@@ -212,19 +227,14 @@ public sealed class UserProfileService
         var user = await _userManager.FindByIdAsync(userId)
             ?? throw new EntityNotFoundException("User", userId);
 
-        if (string.IsNullOrEmpty(user.AvatarUrl))
+        if (string.IsNullOrEmpty(user.AvatarS3Key))
         {
             return false; // No avatar to delete
         }
 
-        // Extract S3 key from URL
-        var s3Key = ExtractS3KeyFromUrl(user.AvatarUrl);
-        if (!string.IsNullOrEmpty(s3Key))
-        {
-            await _s3Service.DeleteFileAsync(s3Key).ConfigureAwait(false);
-        }
+        await _s3Service.DeleteFileAsync(user.AvatarS3Key).ConfigureAwait(false);
 
-        user.AvatarUrl = null;
+        user.AvatarS3Key = null;
         var result = await _userManager.UpdateAsync(user).ConfigureAwait(false);
 
         if (!result.Succeeded)
@@ -276,17 +286,17 @@ public sealed class UserProfileService
         return sanitized.Length > 100 ? sanitized[..100] : sanitized;
     }
 
-    private static string? ExtractS3KeyFromUrl(string url)
+    private string GetAvatarUrl(string userId, string fileName)
     {
-        try
+        var request = _httpContextAccessor.HttpContext?.Request;
+        if (request == null)
         {
-            var uri = new Uri(url);
-            // Remove leading slash
-            return uri.AbsolutePath.TrimStart('/');
+            // Fallback for non-HTTP contexts (e.g., background jobs)
+            return $"/api/media/avatars/{userId}/{fileName}";
         }
-        catch
-        {
-            return null;
-        }
+
+        var scheme = request.Scheme;
+        var host = request.Host.ToString();
+        return $"{scheme}://{host}/api/media/avatars/{userId}/{fileName}";
     }
 }

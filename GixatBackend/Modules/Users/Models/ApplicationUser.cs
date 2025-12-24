@@ -14,7 +14,7 @@ public sealed class ApplicationUser : IdentityUser, IMustHaveOrganization
     public string? FullName { get; set; }
     
     [MaxLength(500)]
-    public string? AvatarUrl { get; set; }
+    public string? AvatarS3Key { get; set; }
     
     [MaxLength(1000)]
     public string? Bio { get; set; }
