@@ -54,7 +54,17 @@ public sealed class JobItem
     public string? TechnicianNotes { get; set; }
     public ICollection<JobItemMedia> Media { get; } = new List<JobItemMedia>();
     public ICollection<JobCardComment> Comments { get; } = new List<JobCardComment>();
-    
+
+    /// <summary>
+    /// Parts/inventory items used in this job item
+    /// </summary>
+    public ICollection<JobItemPart> Parts { get; } = new List<JobItemPart>();
+
+    /// <summary>
+    /// Labor time entries for this job item
+    /// </summary>
+    public ICollection<LaborEntry> LaborEntries { get; } = new List<LaborEntry>();
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

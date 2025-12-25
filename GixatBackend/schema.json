@@ -1,0 +1,6911 @@
+{
+  "data": {
+    "__schema": {
+      "types": [
+        {
+          "name": "UriSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "Car",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "make",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "model",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "year",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "licensePlate",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "vin",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "color",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "customerId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "customer",
+              "description": null,
+              "type": {
+                "name": "Customer",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "organizationId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "organization",
+              "description": null,
+              "type": {
+                "name": "Organization",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "sessions",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "updatedAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "AvatarUploadResult",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "avatarUrl",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "message",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "LoginInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobCardSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "SortEnumType",
+          "kind": "ENUM",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobItem",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "jobCardId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "jobCard",
+              "description": null,
+              "type": {
+                "name": "JobCard",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "assignedTechnicianId",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "assignedTechnician",
+              "description": null,
+              "type": {
+                "name": "ApplicationUser",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "description",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "status",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobItemStatus",
+                  "kind": "ENUM"
+                }
+              }
+            },
+            {
+              "name": "estimatedLaborCost",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Decimal",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "estimatedPartsCost",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Decimal",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "actualLaborCost",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Decimal",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "actualPartsCost",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Decimal",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "estimatedCost",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Decimal",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "actualCost",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Decimal",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "isApprovedByCustomer",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "approvedAt",
+              "description": null,
+              "type": {
+                "name": "DateTime",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "technicianNotes",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "media",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "comments",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "updatedAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "UserInviteFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobItemMediaFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "ApplicationUser",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "fullName",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "avatarS3Key",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "bio",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "userType",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UserType",
+                  "kind": "ENUM"
+                }
+              }
+            },
+            {
+              "name": "organizationId",
+              "description": null,
+              "type": {
+                "name": "UUID",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "organization",
+              "description": null,
+              "type": {
+                "name": "Organization",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "isActive",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "userName",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "normalizedUserName",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "email",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "normalizedEmail",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "emailConfirmed",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "passwordHash",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "securityStamp",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "concurrencyStamp",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "phoneNumber",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "phoneNumberConfirmed",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "twoFactorEnabled",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "lockoutEnd",
+              "description": null,
+              "type": {
+                "name": "DateTime",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "lockoutEnabled",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "accessFailedCount",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "roles",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "AuthPayload",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "token",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "user",
+              "description": null,
+              "type": {
+                "name": "ApplicationUser",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "error",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "DecimalOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobItemCommentsEdge",
+          "kind": "OBJECT",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCardComment",
+                  "kind": "OBJECT"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "JobCardMediaType",
+          "kind": "ENUM",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "PageInfo",
+          "kind": "OBJECT",
+          "description": "Information about pagination in a connection.",
+          "fields": [
+            {
+              "name": "hasNextPage",
+              "description": "Indicates whether more edges exist following the set defined by the clients arguments.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "hasPreviousPage",
+              "description": "Indicates whether more edges exist prior the set defined by the clients arguments.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "startCursor",
+              "description": "When paginating backwards, the cursor to continue.",
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "endCursor",
+              "description": "When paginating forwards, the cursor to continue.",
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "Address",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "country",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "city",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "street",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "phoneCountryCode",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "GarageSessionFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "UpdateProfileInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobCardComment",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "jobCardId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "jobCard",
+              "description": null,
+              "type": {
+                "name": "JobCard",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "jobItemId",
+              "description": null,
+              "type": {
+                "name": "UUID",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "jobItem",
+              "description": null,
+              "type": {
+                "name": "JobItem",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "authorId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "author",
+              "description": null,
+              "type": {
+                "name": "ApplicationUser",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "content",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "parentCommentId",
+              "description": null,
+              "type": {
+                "name": "UUID",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "parentComment",
+              "description": null,
+              "type": {
+                "name": "JobCardComment",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "replies",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "mentions",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "isEdited",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "editedAt",
+              "description": null,
+              "type": {
+                "name": "DateTime",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "isDeleted",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "deletedAt",
+              "description": null,
+              "type": {
+                "name": "DateTime",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "updatedAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "__Schema",
+          "kind": "OBJECT",
+          "description": "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations.",
+          "fields": [
+            {
+              "name": "description",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "types",
+              "description": "A list of all types supported by this server.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "queryType",
+              "description": "The type that query operations will be rooted at.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "__Type",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "mutationType",
+              "description": "If this server supports mutation, the type that mutation operations will be rooted at.",
+              "type": {
+                "name": "__Type",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "subscriptionType",
+              "description": "If this server support subscription, the type that subscription operations will be rooted at.",
+              "type": {
+                "name": "__Type",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "directives",
+              "description": "A list of all directives supported by this server.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "AppointmentFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "ListFilterInputTypeOfJobCardCommentMentionFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "SystemHealthResult",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "isHealthy",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "redis",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "HealthCheckResult",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "checkedAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "OrganizationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "UrlOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "CreateOrganizationInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "SessionMediaFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobCardFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "RegisterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "SessionStatus",
+          "kind": "ENUM",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "SearchCustomersEdge",
+          "kind": "OBJECT",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Customer",
+                  "kind": "OBJECT"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "JobCardsByCustomerConnection",
+          "kind": "OBJECT",
+          "description": "A connection to a list of items.",
+          "fields": [
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "PageInfo",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "nodes",
+              "description": "A flattened list of the nodes.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "totalCount",
+              "description": "Identifies the total count of items in the connection.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "SearchJobCardsEdge",
+          "kind": "OBJECT",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCard",
+                  "kind": "OBJECT"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "JobCardMedia",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "jobCardId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "jobCard",
+              "description": null,
+              "type": {
+                "name": "JobCard",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "mediaId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "media",
+              "description": null,
+              "type": {
+                "name": "AppMedia",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "type",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCardMediaType",
+                  "kind": "ENUM"
+                }
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "LogoUploadResult",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "logoUrl",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "message",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "AppMediaSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "__DirectiveLocation",
+          "kind": "ENUM",
+          "description": "A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.",
+          "fields": null
+        },
+        {
+          "name": "__TypeKind",
+          "kind": "ENUM",
+          "description": "An enum describing what kind of type a given `__Type` is.",
+          "fields": null
+        },
+        {
+          "name": "CustomerSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "__EnumValue",
+          "kind": "OBJECT",
+          "description": "One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string.",
+          "fields": [
+            {
+              "name": "name",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "description",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "isDeprecated",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "deprecationReason",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "Upload",
+          "kind": "SCALAR",
+          "description": "The `Upload` scalar type represents a file upload.",
+          "fields": null
+        },
+        {
+          "name": "CustomerStatistics",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "totalCustomers",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "customersThisMonth",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "activeCustomers",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "totalRevenue",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Decimal",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "ApplicationUserSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "MediaTypeOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobCardCommentMention",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "commentId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "comment",
+              "description": null,
+              "type": {
+                "name": "JobCardComment",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "mentionedUserId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "mentionedUser",
+              "description": null,
+              "type": {
+                "name": "ApplicationUser",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "isRead",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "readAt",
+              "description": null,
+              "type": {
+                "name": "DateTime",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "GarageSession",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "carId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "car",
+              "description": null,
+              "type": {
+                "name": "Car",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "customerId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "customer",
+              "description": null,
+              "type": {
+                "name": "Customer",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "organizationId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "organization",
+              "description": null,
+              "type": {
+                "name": "Organization",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "status",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "SessionStatus",
+                  "kind": "ENUM"
+                }
+              }
+            },
+            {
+              "name": "customerRequests",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "mileage",
+              "description": null,
+              "type": {
+                "name": "Int",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "inspectionNotes",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "inspectionRequests",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "testDriveNotes",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "testDriveRequests",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "initialReport",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "media",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "logs",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "updatedAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "AppointmentTypeOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "CreateAppointmentInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "CustomersConnection",
+          "kind": "OBJECT",
+          "description": "A connection to a list of items.",
+          "fields": [
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "PageInfo",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "nodes",
+              "description": "A flattened list of the nodes.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "totalCount",
+              "description": "Identifies the total count of items in the connection.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mutation",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "register",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "AuthPayload",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "login",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "AuthPayload",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "loginWithGoogle",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "GoogleAuthResponse",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "updateMyProfile",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UserProfile",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "uploadMyAvatar",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "AvatarUploadResult",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "deleteMyAvatar",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "generateAvatarUploadUrl",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "createOrganization",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "AuthPayload",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "assignUserToOrganization",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "updateMyOrganization",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Organization",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "uploadMyOrganizationLogo",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "LogoUploadResult",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "deleteMyOrganizationLogo",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "uploadMedia",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "AppMedia",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "presignedUploadUrl",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "processUploadedFile",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "AppMedia",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "processSessionUpload",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "SessionMedia",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "processBulkSessionUploads",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "createLookupItem",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "LookupItem",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "createSession",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "GarageSession",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "updateSessionStatus",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "GarageSession",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "updateCustomerRequests",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "GarageSession",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "updateInspection",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "GarageSession",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "updateTestDrive",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "GarageSession",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "generateInitialReport",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "GarageSession",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "uploadMediaToSession",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "SessionMedia",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "deleteSessionMedia",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "createJobCardFromSession",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCard",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "addJobItem",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCard",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "updateJobItemStatus",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobItem",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "updateJobCardStatus",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCard",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "assignTechnicianToJobCard",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCard",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "assignTechnicianToJobItem",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobItem",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "approveJobCard",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCard",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "approveJobItem",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobItem",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "uploadMediaToJobCard",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCardMedia",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "uploadMediaToJobItem",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobItemMedia",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "addJobCardComment",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCardComment",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "editJobCardComment",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCardComment",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "deleteJobCardComment",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCardComment",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "markMentionsAsRead",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "createCustomer",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Customer",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "createCar",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Car",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "exportCustomersToCsv",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "inviteUser",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "InvitePayload",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "cancelInvite",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "createAppointment",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "AppointmentPayload",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "updateAppointment",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "AppointmentPayload",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "updateAppointmentStatus",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "AppointmentPayload",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "convertToSession",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "AppointmentPayload",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "deleteAppointment",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "SessionLog",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "sessionId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "session",
+              "description": null,
+              "type": {
+                "name": "GarageSession",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "fromStatus",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "SessionStatus",
+                  "kind": "ENUM"
+                }
+              }
+            },
+            {
+              "name": "toStatus",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "SessionStatus",
+                  "kind": "ENUM"
+                }
+              }
+            },
+            {
+              "name": "notes",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "changedByUserId",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "SearchCustomersConnection",
+          "kind": "OBJECT",
+          "description": "A connection to a list of items.",
+          "fields": [
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "PageInfo",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "nodes",
+              "description": "A flattened list of the nodes.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "totalCount",
+              "description": "Identifies the total count of items in the connection.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "URL",
+          "kind": "SCALAR",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "CarFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "CreateCarInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "BulkSessionFileUploadRequestInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobCardsByStatusEdge",
+          "kind": "OBJECT",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCard",
+                  "kind": "OBJECT"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "RecentJobCardActivityConnection",
+          "kind": "OBJECT",
+          "description": "A connection to a list of items.",
+          "fields": [
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "PageInfo",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "nodes",
+              "description": "A flattened list of the nodes.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "totalCount",
+              "description": "Identifies the total count of items in the connection.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "CreateCustomerInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "ListFilterInputTypeOfApplicationUserFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobCardCommentSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "IntOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "ListFilterInputTypeOfJobItemMediaFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "UserInviteSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "String",
+          "kind": "SCALAR",
+          "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.",
+          "fields": null
+        },
+        {
+          "name": "Query",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "me",
+              "description": null,
+              "type": {
+                "name": "UserProfile",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "userProfileById",
+              "description": null,
+              "type": {
+                "name": "UserProfile",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "organizations",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "myOrganization",
+              "description": null,
+              "type": {
+                "name": "Organization",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "organizationById",
+              "description": null,
+              "type": {
+                "name": "Organization",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "lookupItems",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "lookupItemsByCategory",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "sessions",
+              "description": null,
+              "type": {
+                "name": "SessionsConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "sessionById",
+              "description": null,
+              "type": {
+                "name": "GarageSession",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "jobCards",
+              "description": null,
+              "type": {
+                "name": "JobCardsConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "searchJobCards",
+              "description": null,
+              "type": {
+                "name": "SearchJobCardsConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "jobCardById",
+              "description": null,
+              "type": {
+                "name": "JobCard",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "jobCardsByCustomer",
+              "description": null,
+              "type": {
+                "name": "JobCardsByCustomerConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "jobCardsByStatus",
+              "description": null,
+              "type": {
+                "name": "JobCardsByStatusConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "jobCardComments",
+              "description": null,
+              "type": {
+                "name": "JobCardCommentsConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "jobItemComments",
+              "description": null,
+              "type": {
+                "name": "JobItemCommentsConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "myUnreadMentions",
+              "description": null,
+              "type": {
+                "name": "MyUnreadMentionsConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "unreadMentionCount",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "commentById",
+              "description": null,
+              "type": {
+                "name": "JobCardComment",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "recentJobCardActivity",
+              "description": null,
+              "type": {
+                "name": "RecentJobCardActivityConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "customers",
+              "description": null,
+              "type": {
+                "name": "CustomersConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "searchCustomers",
+              "description": null,
+              "type": {
+                "name": "SearchCustomersConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "customerById",
+              "description": null,
+              "type": {
+                "name": "Customer",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "cars",
+              "description": null,
+              "type": {
+                "name": "CarsConnection",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "carById",
+              "description": null,
+              "type": {
+                "name": "Car",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "customerStatistics",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "CustomerStatistics",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "comprehensiveHealth",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ComprehensiveHealthResult",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "checkRedisHealth",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "HealthCheckResult",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "systemHealth",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "SystemHealthResult",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "invites",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "inviteByCode",
+              "description": null,
+              "type": {
+                "name": "UserInvite",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "appointments",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "appointmentById",
+              "description": null,
+              "type": {
+                "name": "Appointment",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "appointmentsByDateRange",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "availableSlots",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "customerUpcomingAppointments",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "technicianAppointments",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "ComprehensiveHealthResult",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "isHealthy",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "version",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "environment",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "uptime",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "checkDuration",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Long",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "systemMetrics",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "SystemMetrics",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "redis",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "HealthCheckResult",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "database",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "HealthCheckResult",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "s3",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "HealthCheckResult",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "checkedAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "UserTypeOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "ListFilterInputTypeOfJobItemFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobCardCommentFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "AddressSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "__Type",
+          "kind": "OBJECT",
+          "description": "The fundamental unit of any GraphQL Schema is the type. There are many kinds of types in GraphQL as represented by the `__TypeKind` enum.\n\nDepending on the kind of a type, certain fields describe information about that type. Scalar types provide no information beyond a name and description, while Enum types provide their values. Object and Interface types provide the fields they describe. Abstract types, Union and Interface, provide the Object types possible at runtime. List and NonNull types compose other types.",
+          "fields": [
+            {
+              "name": "kind",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "__TypeKind",
+                  "kind": "ENUM"
+                }
+              }
+            },
+            {
+              "name": "name",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "description",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "fields",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "interfaces",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "possibleTypes",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "enumValues",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "inputFields",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "ofType",
+              "description": null,
+              "type": {
+                "name": "__Type",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "specifiedByURL",
+              "description": "`specifiedByURL` may return a String (in the form of a URL) for custom scalars, otherwise it will return `null`.",
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "oneOf",
+              "description": null,
+              "type": {
+                "name": "Boolean",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "StringOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "SystemMetrics",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "workingSetMB",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Float",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "privateMemoryMB",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Float",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "gcTotalMemoryMB",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Float",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "gcHeapSizeMB",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Float",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "gcFragmentedMB",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Float",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "gcGen0Collections",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "gcGen1Collections",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "gcGen2Collections",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "gcTotalCollections",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "threadCount",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "threadPoolWorkerThreads",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "threadPoolCompletionPortThreads",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "threadPoolMinWorkerThreads",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "threadPoolMaxWorkerThreads",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "cpuUsagePercent",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Float",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "processorCount",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "totalProcessorTime",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "dotNetVersion",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "osDescription",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "osArchitecture",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "processArchitecture",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "is64BitProcess",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "processId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Organization",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "name",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "addressId",
+              "description": null,
+              "type": {
+                "name": "UUID",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "address",
+              "description": null,
+              "type": {
+                "name": "Address",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "logoId",
+              "description": null,
+              "type": {
+                "name": "UUID",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "logo",
+              "description": null,
+              "type": {
+                "name": "AppMedia",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "users",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "customers",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "isActive",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "AppointmentSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "ListFilterInputTypeOfJobCardCommentFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "SearchJobCardsConnection",
+          "kind": "OBJECT",
+          "description": "A connection to a list of items.",
+          "fields": [
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "PageInfo",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "nodes",
+              "description": "A flattened list of the nodes.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "totalCount",
+              "description": "Identifies the total count of items in the connection.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "GarageSessionSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "InviteUserInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "SessionFileUploadRequestInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobCardsByStatusConnection",
+          "kind": "OBJECT",
+          "description": "A connection to a list of items.",
+          "fields": [
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "PageInfo",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "nodes",
+              "description": "A flattened list of the nodes.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "totalCount",
+              "description": "Identifies the total count of items in the connection.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "JobItemSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "Float",
+          "kind": "SCALAR",
+          "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).",
+          "fields": null
+        },
+        {
+          "name": "SessionStage",
+          "kind": "ENUM",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "DateTimeOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "LookupItemSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "CreateLookupItemInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "Long",
+          "kind": "SCALAR",
+          "description": "The `Long` scalar type represents non-fractional signed whole 64-bit numeric values. Long can represent values between -(2^63) and 2^63 - 1.",
+          "fields": null
+        },
+        {
+          "name": "InviteStatus",
+          "kind": "ENUM",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobCardCommentMentionFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "UpdateAppointmentInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "UuidOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobItemStatus",
+          "kind": "ENUM",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "__InputValue",
+          "kind": "OBJECT",
+          "description": "Arguments provided to Fields or Directives and the input fields of an InputObject are represented as Input Values which describe their type and optionally a default value.",
+          "fields": [
+            {
+              "name": "name",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "description",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "type",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "__Type",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "defaultValue",
+              "description": "A GraphQL-formatted string representing the default value for this input value.",
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "isDeprecated",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "deprecationReason",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "AppointmentStatus",
+          "kind": "ENUM",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobCardsEdge",
+          "kind": "OBJECT",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCard",
+                  "kind": "OBJECT"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "CarSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "AppointmentPayload",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "appointment",
+              "description": null,
+              "type": {
+                "name": "Appointment",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "error",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "JobCardStatus",
+          "kind": "ENUM",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobCardsConnection",
+          "kind": "OBJECT",
+          "description": "A connection to a list of items.",
+          "fields": [
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "PageInfo",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "nodes",
+              "description": "A flattened list of the nodes.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "totalCount",
+              "description": "Identifies the total count of items in the connection.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "JobCardCommentsConnection",
+          "kind": "OBJECT",
+          "description": "A connection to a list of items.",
+          "fields": [
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "PageInfo",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "nodes",
+              "description": "A flattened list of the nodes.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "totalCount",
+              "description": "Identifies the total count of items in the connection.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "JobCardMediaTypeOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "RecentJobCardActivityEdge",
+          "kind": "OBJECT",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCardComment",
+                  "kind": "OBJECT"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "SessionLogFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "HealthCheckResult",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "isHealthy",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "service",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "message",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "responseTime",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Long",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "details",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "checkedAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Boolean",
+          "kind": "SCALAR",
+          "description": "The `Boolean` scalar type represents `true` or `false`.",
+          "fields": null
+        },
+        {
+          "name": "JobCardCommentsEdge",
+          "kind": "OBJECT",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCardComment",
+                  "kind": "OBJECT"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "__Directive",
+          "kind": "OBJECT",
+          "description": "A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.\n\nIn some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.",
+          "fields": [
+            {
+              "name": "name",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "description",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "locations",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "args",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "isRepeatable",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "JobCardsByCustomerEdge",
+          "kind": "OBJECT",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCard",
+                  "kind": "OBJECT"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Appointment",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "organizationId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "organization",
+              "description": null,
+              "type": {
+                "name": "Organization",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "customerId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "customer",
+              "description": null,
+              "type": {
+                "name": "Customer",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "carId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "car",
+              "description": null,
+              "type": {
+                "name": "Car",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "scheduledStartTime",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "scheduledEndTime",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "assignedTechnicianId",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "assignedTechnician",
+              "description": null,
+              "type": {
+                "name": "ApplicationUser",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "status",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "AppointmentStatus",
+                  "kind": "ENUM"
+                }
+              }
+            },
+            {
+              "name": "type",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "AppointmentType",
+                  "kind": "ENUM"
+                }
+              }
+            },
+            {
+              "name": "serviceRequested",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "customerNotes",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "internalNotes",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "sessionId",
+              "description": null,
+              "type": {
+                "name": "UUID",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "session",
+              "description": null,
+              "type": {
+                "name": "GarageSession",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "reminderSent",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "reminderSentAt",
+              "description": null,
+              "type": {
+                "name": "DateTime",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "contactPhone",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "contactEmail",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "estimatedDurationMinutes",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "cancelledAt",
+              "description": null,
+              "type": {
+                "name": "DateTime",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "cancellationReason",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "updatedAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "createdById",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "createdBy",
+              "description": null,
+              "type": {
+                "name": "ApplicationUser",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "BooleanOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "UUID",
+          "kind": "SCALAR",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "ListFilterInputTypeOfJobCardMediaFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "ListFilterInputTypeOfCustomerFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "UpdateOrganizationInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "AppointmentStatusOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "GoogleAuthResponse",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "success",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "token",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "user",
+              "description": null,
+              "type": {
+                "name": "ApplicationUser",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "message",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "KeyValuePairOfStringAndString",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "key",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "value",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "JobCardStatusOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "PresignedUploadUrl",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "uploadUrl",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "URL",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "fileKey",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "expiresAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "InvitePayload",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "invite",
+              "description": null,
+              "type": {
+                "name": "UserInvite",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "link",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "error",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "ListFilterInputTypeOfSessionLogFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "CustomersEdge",
+          "kind": "OBJECT",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Customer",
+                  "kind": "OBJECT"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "DateTime",
+          "kind": "SCALAR",
+          "description": "The `DateTime` scalar represents an ISO-8601 compliant date time type.",
+          "fields": null
+        },
+        {
+          "name": "ApplyPolicy",
+          "kind": "ENUM",
+          "description": "Defines when a policy shall be executed.",
+          "fields": null
+        },
+        {
+          "name": "ListFilterInputTypeOfGarageSessionFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "CarsEdge",
+          "kind": "OBJECT",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Car",
+                  "kind": "OBJECT"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "ListFilterInputTypeOfSessionMediaFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobCardMediaFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "__Field",
+          "kind": "OBJECT",
+          "description": "Object and Interface types are described by a list of Fields, each of which has a name, potentially a list of arguments, and a return type.",
+          "fields": [
+            {
+              "name": "name",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "description",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "args",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "type",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "__Type",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "isDeprecated",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "deprecationReason",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "AppointmentType",
+          "kind": "ENUM",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "SessionStatusOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "Decimal",
+          "kind": "SCALAR",
+          "description": "The `Decimal` scalar type represents a decimal floating-point number.",
+          "fields": null
+        },
+        {
+          "name": "AddressFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobItemStatusOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "Customer",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "firstName",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "lastName",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "email",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "phoneNumber",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "addressId",
+              "description": null,
+              "type": {
+                "name": "UUID",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "address",
+              "description": null,
+              "type": {
+                "name": "Address",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "organizationId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "organization",
+              "description": null,
+              "type": {
+                "name": "Organization",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "cars",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "sessions",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "jobCards",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "lastSessionDate",
+              "description": null,
+              "type": {
+                "name": "DateTime",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "totalVisits",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "totalSpent",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Decimal",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "activeJobCards",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "totalCars",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "updatedAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "JobCardCommentMentionSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "AddressInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobItemFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "UserInvite",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "email",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "role",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "inviteCode",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "expiryDate",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "status",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "InviteStatus",
+                  "kind": "ENUM"
+                }
+              }
+            },
+            {
+              "name": "organizationId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "organization",
+              "description": null,
+              "type": {
+                "name": "Organization",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "inviterId",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "inviter",
+              "description": null,
+              "type": {
+                "name": "ApplicationUser",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "JobItemMedia",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "jobItemId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "jobItem",
+              "description": null,
+              "type": {
+                "name": "JobItem",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "mediaId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "media",
+              "description": null,
+              "type": {
+                "name": "AppMedia",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "type",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCardMediaType",
+                  "kind": "ENUM"
+                }
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "JobItemCommentsConnection",
+          "kind": "OBJECT",
+          "description": "A connection to a list of items.",
+          "fields": [
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "PageInfo",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "nodes",
+              "description": "A flattened list of the nodes.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "totalCount",
+              "description": "Identifies the total count of items in the connection.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "UserType",
+          "kind": "ENUM",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "CarsConnection",
+          "kind": "OBJECT",
+          "description": "A connection to a list of items.",
+          "fields": [
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "PageInfo",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "nodes",
+              "description": "A flattened list of the nodes.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "totalCount",
+              "description": "Identifies the total count of items in the connection.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "InviteStatusOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "AppMediaFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "Int",
+          "kind": "SCALAR",
+          "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.",
+          "fields": null
+        },
+        {
+          "name": "SessionStageOperationFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "MediaType",
+          "kind": "ENUM",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "ListFilterInputTypeOfCarFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "CustomerFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "MyUnreadMentionsConnection",
+          "kind": "OBJECT",
+          "description": "A connection to a list of items.",
+          "fields": [
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "PageInfo",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "nodes",
+              "description": "A flattened list of the nodes.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "totalCount",
+              "description": "Identifies the total count of items in the connection.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "MyUnreadMentionsEdge",
+          "kind": "OBJECT",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCardCommentMention",
+                  "kind": "OBJECT"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "SessionsConnection",
+          "kind": "OBJECT",
+          "description": "A connection to a list of items.",
+          "fields": [
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "PageInfo",
+                  "kind": "OBJECT"
+                }
+              }
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "nodes",
+              "description": "A flattened list of the nodes.",
+              "type": {
+                "name": null,
+                "kind": "LIST",
+                "ofType": {
+                  "name": null,
+                  "kind": "NON_NULL"
+                }
+              }
+            },
+            {
+              "name": "totalCount",
+              "description": "Identifies the total count of items in the connection.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "SessionsEdge",
+          "kind": "OBJECT",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "GarageSession",
+                  "kind": "OBJECT"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "BulkSessionUploadResult",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "fileKey",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "success",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "sessionMedia",
+              "description": null,
+              "type": {
+                "name": "SessionMedia",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "errorMessage",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "ApplicationUserFilterInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "JobCard",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "sessionId",
+              "description": null,
+              "type": {
+                "name": "UUID",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "session",
+              "description": null,
+              "type": {
+                "name": "GarageSession",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "carId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "car",
+              "description": null,
+              "type": {
+                "name": "Car",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "customerId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "customer",
+              "description": null,
+              "type": {
+                "name": "Customer",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "organizationId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "organization",
+              "description": null,
+              "type": {
+                "name": "Organization",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "assignedTechnicianId",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "assignedTechnician",
+              "description": null,
+              "type": {
+                "name": "ApplicationUser",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "status",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "JobCardStatus",
+                  "kind": "ENUM"
+                }
+              }
+            },
+            {
+              "name": "internalNotes",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "items",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "media",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "comments",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "totalEstimatedCost",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Decimal",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "totalActualCost",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Decimal",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "totalEstimatedLabor",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Decimal",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "totalActualLabor",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Decimal",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "totalEstimatedParts",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Decimal",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "totalActualParts",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Decimal",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "isApprovedByCustomer",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "approvedAt",
+              "description": null,
+              "type": {
+                "name": "DateTime",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "updatedAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "SessionMedia",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "sessionId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "session",
+              "description": null,
+              "type": {
+                "name": "GarageSession",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "mediaId",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "media",
+              "description": null,
+              "type": {
+                "name": "AppMedia",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "stage",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "SessionStage",
+                  "kind": "ENUM"
+                }
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "OrganizationSortInput",
+          "kind": "INPUT_OBJECT",
+          "description": null,
+          "fields": null
+        },
+        {
+          "name": "AppMedia",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "url",
+              "description": null,
+              "type": {
+                "name": "URL",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "alt",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "type",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "MediaType",
+                  "kind": "ENUM"
+                }
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "UserProfile",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "fullName",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "email",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "phoneNumber",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "avatarUrl",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "bio",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "userType",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "DateTime",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "roles",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "organizationId",
+              "description": null,
+              "type": {
+                "name": "UUID",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "organization",
+              "description": null,
+              "type": {
+                "name": "Organization",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "LookupItem",
+          "kind": "OBJECT",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "UUID",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "category",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "value",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "parentId",
+              "description": null,
+              "type": {
+                "name": "UUID",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "parent",
+              "description": null,
+              "type": {
+                "name": "LookupItem",
+                "kind": "OBJECT",
+                "ofType": null
+              }
+            },
+            {
+              "name": "children",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": null,
+                  "kind": "LIST"
+                }
+              }
+            },
+            {
+              "name": "metadata",
+              "description": null,
+              "type": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
+            },
+            {
+              "name": "sortOrder",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Int",
+                  "kind": "SCALAR"
+                }
+              }
+            },
+            {
+              "name": "isActive",
+              "description": null,
+              "type": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "Boolean",
+                  "kind": "SCALAR"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

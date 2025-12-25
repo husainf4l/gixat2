@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { VehicleService, VehicleWithCustomer } from '../../services/vehicle.service';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 type SortField = 'make' | 'model' | 'year' | 'customerName';
 type SortDirection = 'asc' | 'desc';
@@ -10,7 +11,7 @@ type SortDirection = 'asc' | 'desc';
 @Component({
   selector: 'app-vehicles',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
   templateUrl: './vehicles.component.html',
 })
 export class VehiclesComponent implements OnInit {
@@ -22,6 +23,18 @@ export class VehiclesComponent implements OnInit {
   searchQuery = signal<string>('');
   sortField = signal<SortField>('make');
   sortDirection = signal<SortDirection>('asc');
+
+  // Pagination
+  Math = Math;
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(20);
+  totalPages = computed(() => Math.ceil(this.filteredVehicles().length / this.pageSize()));
+
+  paginatedVehicles = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    const end = start + this.pageSize();
+    return this.filteredVehicles().slice(start, end);
+  });
 
   filteredVehicles = computed(() => {
     let result = [...this.vehicles()];
@@ -99,5 +112,12 @@ export class VehiclesComponent implements OnInit {
 
   viewCustomer(customerId: string) {
     this.router.navigate(['/dashboard/customers', customerId]);
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 }

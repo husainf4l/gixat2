@@ -7,6 +7,7 @@ using GixatBackend.Modules.Invites.Enums;
 using GixatBackend.Modules.Invites.Models;
 using GixatBackend.Modules.Users.Enums;
 using GixatBackend.Modules.Users.Models;
+using GixatBackend.Modules.Users.GraphQL;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -86,7 +87,7 @@ internal sealed class AuthService : IAuthService
 
         var token = await GenerateJwtToken(user).ConfigureAwait(false);
 
-        return new AuthPayload(token, user);
+        return new AuthPayload(token, AuthUserInfo.FromApplicationUser(user));
     }
 
     public async Task<AuthPayload> LoginAsync(LoginInput input)
@@ -102,14 +103,14 @@ internal sealed class AuthService : IAuthService
 
         var token = await GenerateJwtToken(user).ConfigureAwait(false);
 
-        return new AuthPayload(token, user);
+        return new AuthPayload(token, AuthUserInfo.FromApplicationUser(user));
     }
 
     public async Task<AuthPayload> RefreshTokenForUserAsync(ApplicationUser user)
     {
         ArgumentNullException.ThrowIfNull(user);
         var token = await GenerateJwtToken(user).ConfigureAwait(false);
-        return new AuthPayload(token, user);
+        return new AuthPayload(token, AuthUserInfo.FromApplicationUser(user));
     }
 
     private async Task<string> GenerateJwtToken(ApplicationUser user)

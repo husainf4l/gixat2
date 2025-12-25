@@ -10,8 +10,7 @@ import { InviteManagementComponent } from '../../components/invite-management/in
   selector: 'app-profile',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, InviteManagementComponent],
-  templateUrl: './profile.component.html',
-  styleUrl: './profile.component.css'
+  templateUrl: './profile.component.html'
 })
 export class ProfileComponent implements OnInit {
   private profileService = inject(ProfileService);

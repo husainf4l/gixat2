@@ -280,10 +280,10 @@ public class FileValidationServiceTests
     }
 
     [Theory]
-    [InlineData("C:\\Windows\\file.jpg")]
-    [InlineData("/etc/passwd.jpg")]
-    [InlineData("folder/subfolder/file.jpg")]
-    public void SanitizeFileName_ShouldStripPathInformation(string fileNameWithPath)
+    [InlineData("C:\\Windows\\file.jpg", "file")]
+    [InlineData("/etc/passwd.jpg", "passwd")]
+    [InlineData("folder/subfolder/file.jpg", "file")]
+    public void SanitizeFileName_ShouldStripPathInformation(string fileNameWithPath, string expectedBaseName)
     {
         // Act
         var result = FileValidationService.SanitizeFileName(fileNameWithPath);
@@ -291,8 +291,10 @@ public class FileValidationServiceTests
         // Assert
         result.Should().NotContain("\\");
         result.Should().NotContain("/");
-        result.Should().Contain("file_");
+        result.Should().Contain($"{expectedBaseName}_");
         result.Should().EndWith(".jpg");
+        // Should contain timestamp in format YYYYMMDDHHMMSS
+        result.Should().MatchRegex($@"{expectedBaseName}_\d{{14}}\.jpg$");
     }
 
     #endregion

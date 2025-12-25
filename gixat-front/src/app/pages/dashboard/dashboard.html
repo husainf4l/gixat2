@@ -1,24 +1,5 @@
 <div class="min-h-screen bg-slate-50">
-  <div class="max-w-6xl mx-auto px-6 py-12">
-
-    <!-- Page Header -->
-    <div class="mb-8">
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h1 class="text-4xl font-semibold text-slate-900 tracking-tight mb-2">Dashboard</h1>
-          <p class="text-base text-slate-500">{{ currentDate }}</p>
-        </div>
-        <div class="flex items-center gap-3">
-          <button class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 transition-all">
-            <i class="ri-calendar-line text-slate-700"></i>
-          </button>
-          <button class="inline-flex items-center gap-2 px-3.5 py-2 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all">
-            <i class="ri-add-line"></i>
-            <span>New Job Card</span>
-          </button>
-        </div>
-      </div>
-    </div>
+  <div class="max-w-6xl mx-auto px-6 py-8">
 
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -53,7 +34,10 @@
       <h2 class="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         @for (action of quickActions; track action.label) {
-          <button class="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl hover:border-[#1b75bc] hover:bg-slate-50 transition-all text-left group">
+          <button 
+            (click)="handleQuickAction(action)"
+            class="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl hover:border-[#1b75bc] hover:bg-slate-50 transition-all text-left group"
+          >
             <div [class]="'w-10 h-10 rounded-lg flex items-center justify-center text-white ' + action.color">
               <i [class]="action.icon"></i>
             </div>
@@ -160,11 +144,11 @@
           <!-- Table Header -->
           <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-3">
             <div class="grid grid-cols-12 gap-4 text-xs font-medium text-slate-600">
-              <div class="col-span-1">Status</div>
+              <div class="col-span-2">Status</div>
               <div class="col-span-3">Customer</div>
               <div class="col-span-3">Vehicle</div>
               <div class="col-span-2">Ready Time</div>
-              <div class="col-span-2">Job ID</div>
+              <div class="col-span-1">Job ID</div>
               <div class="col-span-1"></div>
             </div>
           </div>
@@ -174,8 +158,8 @@
             @for (job of recentJobs; track job.id) {
               <button class="w-full px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-slate-50/50 transition-all text-left group">
                 <!-- Status -->
-                <div class="col-span-1">
-                  <span [class]="'inline-flex px-2.5 py-1 rounded text-xs font-semibold border ' + getStatusBadgeClass(job.status)">
+                <div class="col-span-2">
+                  <span [class]="'inline-flex px-3 py-1.5 rounded-lg text-xs font-semibold border whitespace-nowrap ' + getStatusBadgeClass(job.status)">
                     {{ job.status }}
                   </span>
                 </div>
@@ -205,7 +189,7 @@
                 </div>
 
                 <!-- Job ID -->
-                <div class="col-span-2">
+                <div class="col-span-1">
                   <p class="text-sm font-mono text-slate-500">{{ job.id }}</p>
                 </div>
 
@@ -224,3 +208,12 @@
 
   </div>
 </div>
+
+<!-- AI Chat Assistant -->
+<app-ai-chat-assistant></app-ai-chat-assistant>
+
+<!-- Live Workshop Assistant Modal -->
+<app-live-workshop-assistant 
+  [isOpen]="showLiveAssistant()" 
+  (close)="showLiveAssistant.set(false)"
+></app-live-workshop-assistant>

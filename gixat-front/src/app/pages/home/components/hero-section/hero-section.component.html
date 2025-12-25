@@ -10,31 +10,31 @@
       <!-- Left: Header Section (7 columns) -->
       <div class="lg:col-span-7 space-y-8 text-center lg:text-left">
         
-        <!-- Micro Label (Apple style) -->
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-[#f5f5f7] rounded-full">
-          <div class="w-1.5 h-1.5 rounded-full bg-[#0071e3] animate-pulse"></div>
-          <span class="text-[11px] font-medium tracking-wider text-[#6e6e73] uppercase">
+        <!-- Micro Label -->
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full">
+          <div class="w-1.5 h-1.5 rounded-full bg-[#1b75bc] animate-pulse"></div>
+          <span class="text-xs font-medium tracking-wider text-slate-600 uppercase">
             Garage Management Reimagined
           </span>
         </div>
         
-        <!-- Headline (Dramatic Apple scale) -->
+        <!-- Headline -->
         <div class="space-y-4">
-          <h1 class="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight leading-[1.05] text-[#1d1d1f]">
-            Manage your garage<br/>like <span class="text-[#0071e3]">never before</span>
+          <h1 class="text-5xl sm:text-6xl lg:text-6xl font-semibold tracking-tight leading-tight text-slate-900">
+            Manage your garage<br/>like <span class="text-[#1b75bc]">never before</span>
           </h1>
         </div>
 
-        <!-- Description (Apple's comfortable reading) -->
-        <p class="text-lg sm:text-xl text-[#6e6e73] font-light max-w-xl lg:max-w-none leading-relaxed">
+        <!-- Description -->
+        <p class="text-lg sm:text-xl text-slate-600 font-normal max-w-lg lg:max-w-lg leading-relaxed">
           Smart scheduling, automated reminders, and powerful tools designed specifically for automotive service centers.
         </p>
 
-        <!-- CTA Section (Apple button system) -->
+        <!-- CTA Section -->
         <div class="flex flex-col sm:flex-row items-center lg:items-start gap-3 pt-2">
           @if (isSignedIn()) {
             <a routerLink="/dashboard" 
-               class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#0071e3] text-white text-[15px] font-normal rounded-xl hover:bg-[#0077ED] transition-all duration-500 shadow-lg hover:shadow-xl hover:-translate-y-0.5 w-full sm:w-auto">
+               class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all shadow-sm hover:shadow-md w-full sm:w-auto">
               <span>Go to Dashboard</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
@@ -42,11 +42,11 @@
             </a>
           } @else {
             <a routerLink="/auth/register" 
-               class="inline-flex items-center justify-center px-6 py-3.5 bg-[#0071e3] text-white text-[15px] font-normal rounded-xl hover:bg-[#0077ED] transition-all duration-500 shadow-lg hover:shadow-xl hover:-translate-y-0.5 w-full sm:w-auto">
+               class="inline-flex items-center justify-center px-6 py-3 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all shadow-sm hover:shadow-md w-full sm:w-auto">
               <span>Start free trial</span>
             </a>
             <a href="#features" 
-               class="inline-flex items-center justify-center gap-1.5 px-6 py-3.5 text-[#0071e3] text-[15px] font-normal rounded-xl border-2 border-[#0071e3] hover:bg-[#0071e3]/5 transition-all duration-500 w-full sm:w-auto">
+               class="inline-flex items-center justify-center gap-1.5 px-6 py-3 text-[#1b75bc] text-sm font-medium rounded-lg border border-slate-200 hover:bg-slate-50 transition-all w-full sm:w-auto">
               <span>Learn more</span>
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
@@ -55,20 +55,20 @@
           }
         </div>
 
-        <!-- Trust indicators (Apple-style minimalism) -->
-        <div class="flex items-center justify-center lg:justify-start gap-3 pt-4 text-[13px] text-[#86868b]">
+        <!-- Trust indicators -->
+        <div class="flex items-center justify-center lg:justify-start gap-3 pt-4 text-sm text-slate-600">
           <div class="flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-[#0071e3]" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="w-4 h-4 text-[#1b75bc]" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
-            <span class="font-light">14-day free trial</span>
+            <span class="font-normal">14-day free trial</span>
           </div>
-          <div class="w-1 h-1 rounded-full bg-[#d2d2d7]"></div>
+          <div class="w-1 h-1 rounded-full bg-slate-300"></div>
           <div class="flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-[#0071e3]" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="w-4 h-4 text-[#1b75bc]" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
-            <span class="font-light">No credit card required</span>
+            <span class="font-normal">No credit card required</span>
           </div>
         </div>
       </div>
@@ -92,34 +92,34 @@
           }
         </div>
 
-        <!-- Refined Navigation (Apple minimalism) -->
+        <!-- Navigation -->
         <button (click)="prev()" 
                 aria-label="Previous image"
-                class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full z-20 bg-white/80 backdrop-blur-xl border border-[#d2d2d7]/50 flex items-center justify-center hover:bg-white hover:border-[#d2d2d7] transition-all duration-400 shadow-lg hover:shadow-xl hover:-translate-y-[22px]">
-          <svg class="w-5 h-5 text-[#1d1d1f]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full z-20 bg-white/90 backdrop-blur border border-slate-200 flex items-center justify-center hover:bg-white hover:border-slate-300 transition-all shadow-sm hover:shadow-md hover:-translate-y-[22px]">
+          <svg class="w-5 h-5 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
         <button (click)="next()" 
                 aria-label="Next image"
-                class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full z-20 bg-white/80 backdrop-blur-xl border border-[#d2d2d7]/50 flex items-center justify-center hover:bg-white hover:border-[#d2d2d7] transition-all duration-400 shadow-lg hover:shadow-xl hover:-translate-y-[22px]">
-          <svg class="w-5 h-5 text-[#1d1d1f]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full z-20 bg-white/90 backdrop-blur border border-slate-200 flex items-center justify-center hover:bg-white hover:border-slate-300 transition-all shadow-sm hover:shadow-md hover:-translate-y-[22px]">
+          <svg class="w-5 h-5 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
           </svg>
         </button>
 
-        <!-- Progress dots (Apple style) -->
+        <!-- Progress dots -->
         <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
           @for (image of images; track image.id) {
             <button (click)="currentIndex = image.id"
                     [attr.aria-label]="'Go to image ' + (image.id + 1)"
-                    class="transition-all duration-400"
+                    class="transition-all"
                     [class.w-2]="currentIndex !== image.id"
                     [class.h-2]="currentIndex !== image.id"
                     [class.w-6]="currentIndex === image.id"
                     [class.h-1.5]="currentIndex === image.id"
-                    [class.bg-[#86868b]]="currentIndex !== image.id"
-                    [class.bg-[#0071e3]]="currentIndex === image.id"
+                    [class.bg-slate-400]="currentIndex !== image.id"
+                    [class.bg-[#1b75bc]]="currentIndex === image.id"
                     [class.rounded-full]="true">
             </button>
           }

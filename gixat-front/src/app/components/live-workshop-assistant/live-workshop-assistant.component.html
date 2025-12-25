@@ -1,0 +1,129 @@
+<div *ngIf="isOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-6">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm animate-fade-in" (click)="onClose()"></div>
+  
+  <!-- Modal -->
+  <div class="relative w-full max-w-3xl bg-white rounded-xl shadow-2xl overflow-hidden animate-slide-up">
+    
+    <!-- Header -->
+    <div class="px-8 py-6 bg-slate-50 border-b border-slate-200">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-[#1b75bc] flex items-center justify-center">
+            <i class="ri-mic-line text-white text-lg"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold text-slate-900">Live Workshop Assistant</h2>
+            <p class="text-xs text-slate-500">Hands-free diagnostic support</p>
+          </div>
+        </div>
+        <button 
+          (click)="onClose()"
+          class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-all"
+          aria-label="Close">
+          <i class="ri-close-line text-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Status Indicator -->
+    <div class="px-8 py-6 bg-white border-b border-slate-100">
+      <div class="flex items-center justify-center gap-4">
+        <!-- Visualizer Circle -->
+        <div class="relative">
+          <div [class]="'w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 ' + 
+            (connected() ? 'bg-[#1b75bc]' : 'bg-slate-200')">
+            @if (connected()) {
+              <div class="flex items-end gap-1 h-6">
+                @for (bar of [1,2,3,4,5]; track bar) {
+                  <div 
+                    class="w-1 bg-white rounded-full animate-bounce" 
+                    [style.height]="'100%'"
+                    [style.animation-delay]="(bar * 0.1) + 's'"
+                    [style.animation-duration]="'0.6s'"
+                  ></div>
+                }
+              </div>
+            } @else {
+              <i class="ri-loader-4-line text-2xl text-slate-400 animate-spin"></i>
+            }
+          </div>
+          @if (connected()) {
+            <span class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></span>
+          }
+        </div>
+
+        <!-- Status Text -->
+        <div class="text-left">
+          <p class="text-sm font-semibold text-slate-900">{{ connectionStatus() }}</p>
+          <p class="text-xs text-slate-500">Speak naturally about diagnostic needs</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transcription Area -->
+    <div class="px-8 py-6 bg-white space-y-6" style="min-height: 320px; max-height: 400px; overflow-y: auto;">
+      
+      <!-- User Input -->
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center">
+            <i class="ri-user-line text-slate-600 text-xs"></i>
+          </div>
+          <span class="text-xs font-medium text-slate-600">You</span>
+        </div>
+        <div class="pl-8">
+          @if (transcription()) {
+            <p class="text-sm text-slate-700 leading-relaxed">{{ transcription() }}</p>
+          } @else {
+            <p class="text-sm text-slate-400 italic">Waiting for your input...</p>
+          }
+        </div>
+      </div>
+
+      <!-- Assistant Response -->
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded-lg bg-[#1b75bc] flex items-center justify-center">
+            <i class="ri-robot-line text-white text-xs"></i>
+          </div>
+          <span class="text-xs font-medium text-[#1b75bc]">Gixat Assistant</span>
+        </div>
+        <div class="pl-8">
+          @if (botTranscription()) {
+            <p class="text-sm text-slate-900 font-medium leading-relaxed">{{ botTranscription() }}</p>
+          } @else {
+            <p class="text-sm text-slate-400 italic">Assistant is ready to help...</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Footer -->
+    <div class="px-8 py-6 bg-slate-50 border-t border-slate-200">
+      <div class="flex items-center justify-between">
+        
+        <!-- Quick Actions -->
+        <div class="flex items-center gap-2">
+          <button class="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-medium rounded-lg hover:bg-slate-100 hover:border-slate-300 transition-all">
+            <i class="ri-tools-line"></i>
+            <span>Get Specs</span>
+          </button>
+          <button class="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-medium rounded-lg hover:bg-slate-100 hover:border-slate-300 transition-all">
+            <i class="ri-file-add-line"></i>
+            <span>Add Note</span>
+          </button>
+        </div>
+
+        <!-- End Session Button -->
+        <button 
+          (click)="onClose()"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-all">
+          <i class="ri-mic-off-line"></i>
+          <span>End Session</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

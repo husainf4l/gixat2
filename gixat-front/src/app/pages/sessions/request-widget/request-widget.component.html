@@ -1,39 +1,44 @@
 <div class="min-h-screen bg-slate-50">
   <div class="max-w-6xl mx-auto px-6 py-16">
     
-    <!-- Page Header -->
-    <div class="mb-8">
-      <div class="flex items-center justify-between mb-6">
+    <!-- Navigation Header -->
+    <div class="flex items-center justify-between mb-10">
+      <div class="flex items-center gap-6">
         <button
           (click)="goBack()"
-          class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-[#1b75bc] transition-colors"
+          class="inline-flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest hover:text-[#1b75bc] transition-all group"
         >
-          <i class="ri-arrow-left-s-line"></i>
+          <div class="w-8 h-8 rounded-full bg-white border border-slate-200/60 group-hover:border-[#1b75bc]/30 flex items-center justify-center transition-all shadow-sm">
+            <i class="ri-arrow-left-line text-lg"></i>
+          </div>
           <span>Back to Session</span>
         </button>
+        
+        <div class="h-6 w-px bg-slate-200"></div>
 
-        <div class="flex items-center gap-3">
-          @if (isSaving()) {
-            <div class="inline-flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 rounded-lg">
-              <div class="w-4 h-4 border-2 border-slate-200 border-t-[#1b75bc] rounded-full animate-spin"></div>
-              <span class="text-sm text-slate-600">Saving...</span>
-            </div>
-          }
-          <button
-            (click)="save()"
-            [disabled]="isSaving() || (stepId() !== 'initialReport' && !hasValidRequests())"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <i [class]="stepId() === 'initialReport' ? 'ri-file-list-3-line' : 'ri-save-line'"></i>
-            <span>{{ stepId() === 'initialReport' ? (sessionDetail()?.initialReport ? 'Update Report' : 'Generate Report') : 'Save & Continue' }}</span>
-          </button>
-        </div>
+        @if (sessionDetail()) {
+          <span class="px-4 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-full flex items-center gap-2 text-[9px] font-black uppercase tracking-widest">
+            <i [class]="stepIcon() + ' text-sm'"></i>
+            {{ stepTitle() }}
+          </span>
+        }
       </div>
 
-      <!-- Title Section -->
-      <div>
-        <h1 class="text-4xl font-semibold text-slate-900 tracking-tight mb-2">{{ stepTitle() }}</h1>
-        <p class="text-base text-slate-500">Document service protocols and findings</p>
+      <div class="flex items-center gap-3">
+        @if (isSaving()) {
+          <div class="inline-flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 rounded-lg">
+            <div class="w-4 h-4 border-2 border-slate-200 border-t-[#1b75bc] rounded-full animate-spin"></div>
+            <span class="text-sm text-slate-600">Saving...</span>
+          </div>
+        }
+        <button
+          (click)="save()"
+          [disabled]="isSaving() || (stepId() !== 'initialReport' && !hasValidRequests())"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <i [class]="stepId() === 'initialReport' ? 'ri-file-list-3-line' : 'ri-save-line'"></i>
+          <span>{{ stepId() === 'initialReport' ? (sessionDetail()?.initialReport ? 'Update Report' : 'Generate Report') : 'Save & Continue' }}</span>
+        </button>
       </div>
     </div>
 

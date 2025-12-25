@@ -39,10 +39,41 @@ interface JobCardData {
   requests: string[];
 }
 
+interface RecallData {
+  number: string;
+  issue: string;
+  description: string;
+  action: string;
+}
+
+interface TsbData {
+  number: string;
+  issue: string;
+  symptoms?: string;
+  repair?: string;
+}
+
+interface SupportProgramData {
+  number: string;
+  issue: string;
+  description: string;
+  coverage?: string;
+}
+
+interface DiagnosticData {
+  recalls: RecallData[];
+  powertrainTsbs: TsbData[];
+  brakingTsbs: TsbData[];
+  electricalTsbs: TsbData[];
+  supportPrograms: SupportProgramData[];
+}
+
+import { LiveWorkshopAssistantComponent } from '../../../components/live-workshop-assistant/live-workshop-assistant.component';
+
 @Component({
   selector: 'app-session-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, LiveWorkshopAssistantComponent],
   templateUrl: './session-detail.component.html',
 })
 export class SessionDetailComponent implements OnInit {
@@ -53,6 +84,9 @@ export class SessionDetailComponent implements OnInit {
   sessionDetail = signal<Session | null>(null);
   isLoading = signal<boolean>(true);
   errorMessage = signal<string | null>(null);
+  
+  // Live Workshop Assistant
+  showLiveAssistant = signal<boolean>(false);
   
   // Modal states
   showStepModal = signal<boolean>(false);
@@ -82,6 +116,17 @@ export class SessionDetailComponent implements OnInit {
   // Media upload
   selectedStage = signal<string>('customerRequests');
   pendingUploads = signal<PendingUpload[]>([]);
+
+  // AI Diagnostic
+  showDiagnosticResults = signal<boolean>(false);
+  isLoadingDiagnostic = signal<boolean>(false);
+  diagnosticData = signal<DiagnosticData>({
+    recalls: [],
+    powertrainTsbs: [],
+    brakingTsbs: [],
+    electricalTsbs: [],
+    supportPrograms: []
+  });
 
   ngOnInit() {
     const sessionId = this.route.snapshot.paramMap.get('id');
@@ -116,19 +161,19 @@ export class SessionDetailComponent implements OnInit {
   getStatusColor(status: string): string {
     switch (status.toUpperCase()) {
       case 'CUSTOMERREQUEST':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
+        return 'bg-blue-50 text-blue-600 border-blue-100';
       case 'INSPECTION':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
+        return 'bg-purple-50 text-purple-600 border-purple-100';
       case 'TESTDRIVE':
-        return 'bg-amber-50 text-amber-700 border-amber-200';
+        return 'bg-amber-50 text-amber-600 border-amber-100';
       case 'REPORTGENERATED':
-        return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+        return 'bg-indigo-50 text-indigo-600 border-indigo-100';
       case 'JOBCARDCREATED':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        return 'bg-emerald-50 text-emerald-600 border-emerald-100';
       case 'COMPLETED':
-        return 'bg-slate-100 text-slate-700 border-slate-200';
+        return 'bg-emerald-50 text-emerald-600 border-emerald-100';
       case 'CANCELLED':
-        return 'bg-red-50 text-red-700 border-red-200';
+        return 'bg-red-50 text-red-600 border-red-100';
       default:
         return 'bg-slate-100 text-slate-600 border-slate-200';
     }
@@ -259,20 +304,28 @@ export class SessionDetailComponent implements OnInit {
     });
   }
 
-  formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
+  formatDate(dateString: string | null | undefined): string {
+    if (!dateString) return 'Unknown';
     
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Invalid Date';
+      
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
+
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins}m ago`;
+      if (diffHours < 24) return `${diffHours}h ago`;
+      if (diffDays < 7) return `${diffDays}d ago`;
+      
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch (error) {
+      return 'Invalid Date';
+    }
   }
 
   openStepModal(step: WorkflowStep) {
@@ -757,10 +810,10 @@ export class SessionDetailComponent implements OnInit {
       '.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif',
       '.mp4', '.mov', '.avi', '.mpeg', '.webm'
     ];
-    
+
     const fileName = file.name.toLowerCase();
     const hasValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
-    
+
     if (!hasValidExtension) {
       return 'File extension is not allowed. Please upload images or videos only.';
     }
@@ -777,5 +830,69 @@ export class SessionDetailComponent implements OnInit {
     }
 
     return null; // File is valid
+  }
+
+  loadDiagnosticData() {
+    const session = this.sessionDetail();
+    if (!session?.car) return;
+
+    this.isLoadingDiagnostic.set(true);
+
+    // Simulate API call with mock data
+    setTimeout(() => {
+      // This is mock data - in production, this would call an AI service
+      const mockData: DiagnosticData = {
+        recalls: [
+          {
+            number: 'NHTSA-24V-123',
+            issue: 'Occupant Classification System Sensor',
+            description: 'The airbag system may not properly detect the presence or classification of a passenger, potentially causing the airbag to deploy incorrectly or not deploy during a crash.',
+            action: 'Dealers will replace the front passenger seat cushion pad and sensor assembly free of charge. Estimated repair time: 1.5 hours.'
+          }
+        ],
+        powertrainTsbs: [
+          {
+            number: 'EG-045-23',
+            issue: 'Cold Start Misfires',
+            symptoms: 'Engine may experience rough idle or misfires during cold starts, particularly in temperatures below 32°F. Check engine light may illuminate with P0300-P0304 codes.',
+            repair: 'Update ECM software to latest calibration version 8.2.1. In severe cases, replace spark plugs with updated part number.'
+          },
+          {
+            number: 'EG-067-23',
+            issue: 'Transmission Shift Quality',
+            symptoms: 'Delayed or harsh shifts between 2nd and 3rd gear, especially when transmission is cold.',
+            repair: 'Perform transmission fluid flush and refill with updated ATF specification. Update TCM software to version 5.4.2.'
+          }
+        ],
+        brakingTsbs: [
+          {
+            number: 'BR-028-24',
+            issue: 'Brake Noise at Low Speeds',
+            symptoms: 'Squeaking or grinding noise from front brakes during low-speed braking or when backing up.',
+            repair: 'Apply anti-squeal lubricant to brake pad contact points. If noise persists, replace brake pads with updated part number featuring new pad material compound.'
+          }
+        ],
+        electricalTsbs: [
+          {
+            number: 'EL-091-23',
+            issue: 'Infotainment System Freezing',
+            symptoms: 'Touchscreen may become unresponsive or freeze. Backup camera display may be delayed.',
+            repair: 'Update infotainment system software to version 12.3.5. Perform system reset by disconnecting battery for 10 minutes.'
+          }
+        ],
+        supportPrograms: [
+          {
+            number: 'CSP-2024-08',
+            issue: 'Extended Warranty - Fuel Pump',
+            description: 'Enhanced warranty coverage for fuel pump assembly due to higher-than-normal failure rates.',
+            coverage: 'Covered until 10 years/150,000 miles from original purchase date, whichever comes first. No cost to customer.'
+          }
+        ]
+      };
+
+      this.diagnosticData.set(mockData);
+      this.showDiagnosticResults.set(true);
+      this.isLoadingDiagnostic.set(false);
+    }, 1500);
   }
 }

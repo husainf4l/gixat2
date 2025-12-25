@@ -11,7 +11,7 @@ namespace GixatBackend.Modules.Common.Services.AWS;
 /// Manages temporary file storage for scanning before S3 upload
 /// </summary>
 [SuppressMessage("Performance", "CA1515:Consider making public types internal", Justification = "Used by GraphQL mutations and public API")]
-public sealed partial class TempFileStorageService : IDisposable
+public sealed partial class TempFileStorageService : ITempFileStorageService, IDisposable
 {
     private readonly string _tempDirectory;
     private readonly ILogger<TempFileStorageService> _logger;

@@ -1,0 +1,68 @@
+
+> gixat-front@0.0.0 build
+> ng build
+
+Node.js version v25.2.1 detected.
+Odd numbered Node.js versions will not enter LTS status and should not be used for production. For more information, please see https://nodejs.org/en/about/previous-releases/.
+❯ Building...
+
+[2m[77.59ms][22m [@tailwindcss/postcss] src/styles.css
+[2m[ 0.04ms][22m  [2m ↳ [22mQuick bail check
+[2m[15.98ms][22m  [2m ↳ [22mSetup compiler
+[2m[ 0.21ms][22m    [2m ↳ [22mPostCSS AST -> Tailwind CSS AST
+[2m[15.74ms][22m    [2m ↳ [22mCreate compiler
+[2m[ 0.06ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 1.01ms][22m  [2m ↳ [22mSetup scanner
+[2m[13.45ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 9.98ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[31.09ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 3.60ms][22m  [2m ↳ [22mTransform Tailwind CSS AST into PostCSS AST
+[2m[ 2.02ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[0.01ms][22m [@tailwindcss/postcss] src/app/components/job-card-chat/comment-item.component.ts
+[2m[0.01ms][22m  [2m ↳ [22mQuick bail check
+
+
+[2m[0.01ms][22m [@tailwindcss/postcss] src/app/components/job-card-chat/comment-form.component.ts
+[2m[0.01ms][22m  [2m ↳ [22mQuick bail check
+
+
+[2m[0.01ms][22m [@tailwindcss/postcss] src/app/components/job-card-chat/chat-panel.component.ts
+[2m[0.00ms][22m  [2m ↳ [22mQuick bail check
+
+
+[2m[0.01ms][22m [@tailwindcss/postcss] src/app/pages/home/components/features-section/features-section.component.html
+[2m[0.01ms][22m  [2m ↳ [22mQuick bail check
+
+
+[2m[0.01ms][22m [@tailwindcss/postcss] src/app/pages/organization-setup/organization-setup.css
+[2m[0.01ms][22m  [2m ↳ [22mQuick bail check
+
+
+[2m[0.01ms][22m [@tailwindcss/postcss] src/app/pages/profile/user-detail/user-detail.component.css
+[2m[0.00ms][22m  [2m ↳ [22mQuick bail check
+
+
+[2m[0.00ms][22m [@tailwindcss/postcss] src/app/pages/profile/profile.component.css
+[2m[0.00ms][22m  [2m ↳ [22mQuick bail check
+
+
+[2m[0.01ms][22m [@tailwindcss/postcss] src/app/pages/features/features.component.css
+[2m[0.01ms][22m  [2m ↳ [22mQuick bail check
+
+✔ Building...
+Initial chunk files   | Names         | Raw size | Estimated transfer size
+main-IWUSFNPG.js      | main          |  1.08 MB |               229.01 kB
+styles-6WKKA6KH.css   | styles        | 84.39 kB |                10.49 kB
+polyfills-5CFQRCPP.js | polyfills     | 34.59 kB |                11.33 kB
+
+                      | Initial total |  1.20 MB |               250.84 kB
+
+Application bundle generation complete. [4.293 seconds] - 2025-12-25T00:38:16.059Z
+
+▲ [WARNING] bundle initial exceeded maximum budget. Budget 1.10 MB was not met by 96.92 kB with a total of 1.20 MB.
+
+
+Output location: /Users/husain/Desktop/gixat2/gixat-front/dist/gixat-front
+

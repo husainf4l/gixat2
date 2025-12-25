@@ -45,6 +45,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<UserInvite> UserInvites { get; set; }
     public DbSet<Account> Accounts { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
+    public DbSet<InventoryItem> InventoryItems { get; set; }
+    public DbSet<JobItemPart> JobItemParts { get; set; }
+    public DbSet<LaborEntry> LaborEntries { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -236,6 +239,66 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<JobCardCommentMention>()
             .HasIndex(m => m.CommentId);
 
+        // InventoryItem relationships and indexes
+        builder.Entity<InventoryItem>()
+            .HasIndex(i => new { i.OrganizationId, i.PartNumber })
+            .IsUnique();
+
+        builder.Entity<InventoryItem>()
+            .HasIndex(i => new { i.OrganizationId, i.Category, i.IsActive });
+
+        builder.Entity<InventoryItem>()
+            .HasIndex(i => new { i.OrganizationId, i.IsActive, i.QuantityInStock });
+
+        // JobItemPart relationships
+        builder.Entity<JobItemPart>()
+            .HasOne(jip => jip.JobItem)
+            .WithMany(ji => ji.Parts)
+            .HasForeignKey(jip => jip.JobItemId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<JobItemPart>()
+            .HasOne(jip => jip.InventoryItem)
+            .WithMany(ii => ii.JobItemParts)
+            .HasForeignKey(jip => jip.InventoryItemId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // JobItemPart indexes
+        builder.Entity<JobItemPart>()
+            .HasIndex(jip => jip.JobItemId);
+
+        builder.Entity<JobItemPart>()
+            .HasIndex(jip => jip.InventoryItemId);
+
+        builder.Entity<JobItemPart>()
+            .HasIndex(jip => new { jip.JobItemId, jip.IsActual });
+
+        // LaborEntry relationships
+        builder.Entity<LaborEntry>()
+            .HasOne(le => le.JobItem)
+            .WithMany(ji => ji.LaborEntries)
+            .HasForeignKey(le => le.JobItemId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<LaborEntry>()
+            .HasOne(le => le.Technician)
+            .WithMany()
+            .HasForeignKey(le => le.TechnicianId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // LaborEntry indexes
+        builder.Entity<LaborEntry>()
+            .HasIndex(le => le.JobItemId);
+
+        builder.Entity<LaborEntry>()
+            .HasIndex(le => le.TechnicianId);
+
+        builder.Entity<LaborEntry>()
+            .HasIndex(le => new { le.JobItemId, le.IsActual });
+
+        builder.Entity<LaborEntry>()
+            .HasIndex(le => new { le.TechnicianId, le.StartTime, le.EndTime });
+
         // Appointment relationships
         builder.Entity<Appointment>()
             .HasOne(a => a.Customer)
@@ -294,15 +357,19 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<ApplicationUser>().HasQueryFilter(u => u.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<UserInvite>().HasQueryFilter(i => i.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<Appointment>().HasQueryFilter(a => a.OrganizationId == _tenantService.OrganizationId);
-        
+        builder.Entity<InventoryItem>().HasQueryFilter(i => i.OrganizationId == _tenantService.OrganizationId);
+
         // Child entities - filter through parent navigation properties
         builder.Entity<SessionMedia>().HasQueryFilter(sm => sm.Session!.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<SessionLog>().HasQueryFilter(sl => sl.Session!.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<JobItem>().HasQueryFilter(ji => ji.JobCard!.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<JobItemMedia>().HasQueryFilter(jim => jim.JobItem!.JobCard!.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<JobCardMedia>().HasQueryFilter(jcm => jcm.JobCard!.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<JobCardComment>().HasQueryFilter(jcc => jcc.JobCard!.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<JobCardCommentMention>().HasQueryFilter(jccm => jccm.Comment!.JobCard!.OrganizationId == _tenantService.OrganizationId);
         builder.Entity<Account>().HasQueryFilter(a => a.User!.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<JobItemPart>().HasQueryFilter(jip => jip.JobItem!.JobCard!.OrganizationId == _tenantService.OrganizationId);
+        builder.Entity<LaborEntry>().HasQueryFilter(le => le.JobItem!.JobCard!.OrganizationId == _tenantService.OrganizationId);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

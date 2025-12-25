@@ -2,9 +2,10 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { AppointmentService, Appointment, AppointmentStatus, CreateAppointmentInput, TimeSlot, RecurrenceType } from '../../services/appointment.service';
+import { AppointmentService, Appointment, AppointmentStatus, AppointmentType, CreateAppointmentInput } from '../../services/appointment.service';
 import { CustomerService, Customer } from '../../services/customer.service';
 import { ProfileService } from '../../services/profile.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-appointments',
@@ -16,6 +17,7 @@ export class AppointmentsComponent implements OnInit {
   private appointmentService = inject(AppointmentService);
   private customerService = inject(CustomerService);
   private profileService = inject(ProfileService);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
   // State
@@ -23,6 +25,7 @@ export class AppointmentsComponent implements OnInit {
   filteredAppointments = signal<Appointment[]>([]);
   loading = signal(false);
   viewMode = signal<'calendar' | 'list'>('calendar');
+  organizationId = signal<string | null>(null);
   
   // Filters
   selectedDate = signal<Date>(new Date());
@@ -40,22 +43,38 @@ export class AppointmentsComponent implements OnInit {
   showRescheduleModal = signal(false);
   selectedAppointment = signal<Appointment | null>(null);
 
-  // Create appointment form
-  createForm = signal<CreateAppointmentInput>({
+  // Create appointment form - using new structure
+  createForm = signal<{
+    customerId: string;
+    carId: string;
+    scheduledDate: string; // Date picker value (YYYY-MM-DD)
+    scheduledTime: string; // Time picker value (HH:mm)
+    durationMinutes: number;
+    type: AppointmentType | null;
+    serviceRequested: string;
+    assignedTechnicianId?: string;
+    customerNotes?: string;
+    internalNotes?: string;
+    contactPhone?: string;
+    contactEmail?: string;
+  }>({
     customerId: '',
     carId: '',
     scheduledDate: '',
     scheduledTime: '',
-    duration: 60,
-    serviceType: '',
-    serviceDescription: '',
-    technicianId: '',
-    notes: ''
+    durationMinutes: 60,
+    type: null,
+    serviceRequested: '',
+    assignedTechnicianId: undefined,
+    customerNotes: undefined,
+    internalNotes: undefined,
+    contactPhone: undefined,
+    contactEmail: undefined
   });
 
   customers = signal<Customer[]>([]);
   technicians = signal<any[]>([]);
-  availableSlots = signal<TimeSlot[]>([]);
+  availableSlots = signal<string[]>([]); // Array of DateTime strings
   customerCars = signal<any[]>([]);
 
   // Reschedule form
@@ -64,9 +83,20 @@ export class AppointmentsComponent implements OnInit {
 
   // Enum access for template
   AppointmentStatus = AppointmentStatus;
-  statuses = Object.values(AppointmentStatus);
+  AppointmentType = AppointmentType;
+  statuses = Object.values(AppointmentStatus).filter(v => typeof v === 'number') as AppointmentStatus[];
+  types = Object.values(AppointmentType).filter(v => typeof v === 'number') as AppointmentType[];
 
   ngOnInit() {
+    // Load organization ID
+    this.authService.me().subscribe({
+      next: (data) => {
+        if (data.me?.organizationId) {
+          this.organizationId.set(data.me.organizationId);
+        }
+      }
+    });
+
     this.loadAppointments();
     this.loadTechnicians();
     this.loadCustomers();
@@ -75,11 +105,11 @@ export class AppointmentsComponent implements OnInit {
 
   loadAppointments() {
     this.loading.set(true);
-    this.appointmentService.getAppointments(100).subscribe({
-      next: (result) => {
-        const apps = result.edges.map(e => e.node);
+    this.appointmentService.getAppointments().subscribe({
+      next: (apps) => {
         this.appointments.set(apps);
         this.applyFilters();
+        this.generateCalendar();
         this.loading.set(false);
       },
       error: (err: any) => {
@@ -97,33 +127,54 @@ export class AppointmentsComponent implements OnInit {
 
   updateDuration(event: Event) {
     const value = +(event.target as HTMLSelectElement).value;
-    this.createForm.update(f => ({ ...f, duration: value }));
+    this.createForm.update(f => ({ ...f, durationMinutes: value }));
     this.loadAvailableSlots();
   }
 
-  updateScheduledTime(startTime: string) {
-    this.createForm.update(f => ({ ...f, scheduledTime: startTime }));
+  updateScheduledTime(slotDateTime: string) {
+    // slotDateTime is a full DateTime string from availableSlots
+    const date = new Date(slotDateTime);
+    this.createForm.update(f => ({
+      ...f,
+      scheduledDate: date.toISOString().split('T')[0],
+      scheduledTime: date.toTimeString().slice(0, 5)
+    }));
   }
 
-  updateServiceType(event: Event) {
-    const value = (event.target as HTMLSelectElement).value;
-    this.createForm.update(f => ({ ...f, serviceType: value }));
+  updateType(event: Event) {
+    const value = +(event.target as HTMLSelectElement).value;
+    this.createForm.update(f => ({ ...f, type: value as AppointmentType }));
   }
 
-  updateServiceDescription(event: Event) {
+  updateServiceRequested(event: Event) {
     const value = (event.target as HTMLTextAreaElement).value;
-    this.createForm.update(f => ({ ...f, serviceDescription: value }));
+    this.createForm.update(f => ({ ...f, serviceRequested: value }));
   }
 
   updateTechnicianId(event: Event) {
     const value = (event.target as HTMLSelectElement).value || undefined;
-    this.createForm.update(f => ({ ...f, technicianId: value }));
+    this.createForm.update(f => ({ ...f, assignedTechnicianId: value }));
     this.loadAvailableSlots();
   }
 
-  updateNotes(event: Event) {
+  updateCustomerNotes(event: Event) {
     const value = (event.target as HTMLTextAreaElement).value;
-    this.createForm.update(f => ({ ...f, notes: value }));
+    this.createForm.update(f => ({ ...f, customerNotes: value || undefined }));
+  }
+
+  updateInternalNotes(event: Event) {
+    const value = (event.target as HTMLTextAreaElement).value;
+    this.createForm.update(f => ({ ...f, internalNotes: value || undefined }));
+  }
+
+  updateContactPhone(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.createForm.update(f => ({ ...f, contactPhone: value || undefined }));
+  }
+
+  updateContactEmail(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.createForm.update(f => ({ ...f, contactEmail: value || undefined }));
   }
 
   getTodayDate(): string {
@@ -158,18 +209,17 @@ export class AppointmentsComponent implements OnInit {
 
     // Technician filter
     if (this.selectedTechnician() !== 'ALL') {
-      filtered = filtered.filter(a => a.technicianId === this.selectedTechnician());
+      filtered = filtered.filter(a => a.assignedTechnician?.id === this.selectedTechnician());
     }
 
     // Search filter
     const query = this.searchQuery().toLowerCase();
     if (query) {
       filtered = filtered.filter(a => 
-        a.customer.firstName.toLowerCase().includes(query) ||
-        a.customer.lastName.toLowerCase().includes(query) ||
+        a.customer.name.toLowerCase().includes(query) ||
         a.car.make.toLowerCase().includes(query) ||
         a.car.model.toLowerCase().includes(query) ||
-        a.serviceType.toLowerCase().includes(query)
+        this.appointmentService.formatType(a.type).toLowerCase().includes(query)
       );
     }
 
@@ -177,7 +227,7 @@ export class AppointmentsComponent implements OnInit {
   }
 
   onStatusFilterChange(status: string) {
-    this.selectedStatus.set(status as any);
+    this.selectedStatus.set(status === 'ALL' ? 'ALL' : +status as AppointmentStatus);
     this.applyFilters();
   }
 
@@ -224,9 +274,10 @@ export class AppointmentsComponent implements OnInit {
         date,
         isCurrentMonth: true,
         isToday: this.isSameDay(date, today),
-        appointments: this.appointments().filter(a => 
-          this.formatDateForComparison(new Date(a.scheduledDate)) === dateStr
-        )
+        appointments: this.appointments().filter(a => {
+          const appointmentDate = new Date(a.scheduledStartTime);
+          return this.formatDateForComparison(appointmentDate) === dateStr;
+        })
       });
     }
 
@@ -284,11 +335,14 @@ export class AppointmentsComponent implements OnInit {
       carId: '',
       scheduledDate: '',
       scheduledTime: '',
-      duration: 60,
-      serviceType: '',
-      serviceDescription: '',
-      technicianId: '',
-      notes: ''
+      durationMinutes: 60,
+      type: null,
+      serviceRequested: '',
+      assignedTechnicianId: undefined,
+      customerNotes: undefined,
+      internalNotes: undefined,
+      contactPhone: undefined,
+      contactEmail: undefined
     });
     this.customerCars.set([]);
     this.availableSlots.set([]);
@@ -309,11 +363,17 @@ export class AppointmentsComponent implements OnInit {
 
   loadAvailableSlots() {
     const form = this.createForm();
-    if (form.scheduledDate && form.duration) {
-      this.appointmentService.getAvailableTimeSlots(
-        form.scheduledDate,
-        form.duration,
-        form.technicianId || undefined
+    const orgId = this.organizationId();
+    
+    if (form.scheduledDate && form.durationMinutes && orgId) {
+      // Convert date to DateTime for the query
+      const dateTime = new Date(`${form.scheduledDate}T00:00:00`).toISOString();
+      
+      this.appointmentService.getAvailableSlots(
+        dateTime,
+        form.durationMinutes,
+        orgId,
+        form.assignedTechnicianId
       ).subscribe({
         next: (slots) => this.availableSlots.set(slots),
         error: (err) => console.error('Failed to load slots:', err)
@@ -325,13 +385,39 @@ export class AppointmentsComponent implements OnInit {
     const form = this.createForm();
     if (!this.validateCreateForm()) return;
 
+    // Build DateTime strings from date and time
+    const scheduledStartTime = new Date(`${form.scheduledDate}T${form.scheduledTime}:00`).toISOString();
+    const scheduledEndTime = new Date(new Date(scheduledStartTime).getTime() + form.durationMinutes * 60000).toISOString();
+
+    const input: CreateAppointmentInput = {
+      customerId: form.customerId,
+      carId: form.carId,
+      scheduledStartTime,
+      scheduledEndTime,
+      type: form.type!,
+      serviceRequested: form.serviceRequested,
+      estimatedDurationMinutes: form.durationMinutes,
+      assignedTechnicianId: form.assignedTechnicianId,
+      customerNotes: form.customerNotes,
+      internalNotes: form.internalNotes,
+      contactPhone: form.contactPhone,
+      contactEmail: form.contactEmail
+    };
+
     this.loading.set(true);
-    this.appointmentService.createAppointment(form).subscribe({
-      next: (appointment) => {
-        this.appointments.update(apps => [...apps, appointment]);
-        this.applyFilters();
-        this.generateCalendar();
-        this.closeCreateModal();
+    this.appointmentService.createAppointment(input).subscribe({
+      next: (result) => {
+        if (result.error) {
+          alert(`Failed to create appointment: ${result.error}`);
+          this.loading.set(false);
+          return;
+        }
+        if (result.appointment) {
+          this.appointments.update(apps => [...apps, result.appointment!]);
+          this.applyFilters();
+          this.generateCalendar();
+          this.closeCreateModal();
+        }
         this.loading.set(false);
       },
       error: (err) => {
@@ -345,7 +431,7 @@ export class AppointmentsComponent implements OnInit {
   validateCreateForm(): boolean {
     const form = this.createForm();
     if (!form.customerId || !form.carId || !form.scheduledDate || 
-        !form.scheduledTime || !form.serviceType) {
+        !form.scheduledTime || form.type === null) {
       alert('Please fill in all required fields');
       return false;
     }
@@ -366,10 +452,16 @@ export class AppointmentsComponent implements OnInit {
     if (!confirm('Confirm this appointment?')) return;
 
     this.appointmentService.confirmAppointment(appointment.id).subscribe({
-      next: (updated) => {
-        this.updateAppointmentInList(updated);
-        if (this.selectedAppointment()?.id === updated.id) {
-          this.selectedAppointment.set(updated);
+      next: (result) => {
+        if (result.error) {
+          alert(`Failed to confirm: ${result.error}`);
+          return;
+        }
+        if (result.appointment) {
+          this.updateAppointmentInList(result.appointment);
+          if (this.selectedAppointment()?.id === result.appointment.id) {
+            this.selectedAppointment.set(result.appointment);
+          }
         }
       },
       error: (err) => {
@@ -379,17 +471,40 @@ export class AppointmentsComponent implements OnInit {
     });
   }
 
+  checkInAppointment(appointment: Appointment) {
+    this.appointmentService.checkInAppointment(appointment.id).subscribe({
+      next: (result) => {
+        if (result.error) {
+          alert(`Failed to check in: ${result.error}`);
+          return;
+        }
+        if (result.appointment) {
+          this.updateAppointmentInList(result.appointment);
+          if (this.selectedAppointment()?.id === result.appointment.id) {
+            this.selectedAppointment.set(result.appointment);
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Failed to check in:', err);
+        alert('Failed to check in appointment');
+      }
+    });
+  }
+
   startAppointment(appointment: Appointment) {
     this.appointmentService.startAppointment(appointment.id).subscribe({
-      next: (updated) => {
-        this.updateAppointmentInList(updated);
-        if (this.selectedAppointment()?.id === updated.id) {
-          this.selectedAppointment.set(updated);
+      next: (result) => {
+        if (result.error) {
+          alert(`Failed to start: ${result.error}`);
+          return;
         }
-        // Navigate to create session
-        this.router.navigate(['/dashboard/sessions/create'], {
-          queryParams: { appointmentId: appointment.id }
-        });
+        if (result.appointment) {
+          this.updateAppointmentInList(result.appointment);
+          if (this.selectedAppointment()?.id === result.appointment.id) {
+            this.selectedAppointment.set(result.appointment);
+          }
+        }
       },
       error: (err) => {
         console.error('Failed to start:', err);
@@ -398,14 +513,41 @@ export class AppointmentsComponent implements OnInit {
     });
   }
 
+  convertToSession(appointment: Appointment) {
+    if (!confirm('Convert this appointment to a session?')) return;
+
+    this.appointmentService.convertToSession(appointment.id).subscribe({
+      next: (result) => {
+        if (result.error) {
+          alert(`Failed to convert: ${result.error}`);
+          return;
+        }
+        if (result.appointment?.session) {
+          // Navigate to the session
+          this.router.navigate(['/dashboard/sessions', result.appointment.session.id]);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to convert:', err);
+        alert('Failed to convert appointment to session');
+      }
+    });
+  }
+
   completeAppointment(appointment: Appointment) {
     if (!confirm('Mark this appointment as completed?')) return;
 
     this.appointmentService.completeAppointment(appointment.id).subscribe({
-      next: (updated) => {
-        this.updateAppointmentInList(updated);
-        if (this.selectedAppointment()?.id === updated.id) {
-          this.selectedAppointment.set(updated);
+      next: (result) => {
+        if (result.error) {
+          alert(`Failed to complete: ${result.error}`);
+          return;
+        }
+        if (result.appointment) {
+          this.updateAppointmentInList(result.appointment);
+          if (this.selectedAppointment()?.id === result.appointment.id) {
+            this.selectedAppointment.set(result.appointment);
+          }
         }
       },
       error: (err) => {
@@ -419,13 +561,19 @@ export class AppointmentsComponent implements OnInit {
     const reason = prompt('Reason for cancellation (optional):');
     if (reason === null) return; // User clicked cancel
 
-    this.appointmentService.cancelAppointment(appointment.id, reason).subscribe({
-      next: (updated) => {
-        this.updateAppointmentInList(updated);
-        if (this.selectedAppointment()?.id === updated.id) {
-          this.selectedAppointment.set(updated);
+    this.appointmentService.cancelAppointment(appointment.id, reason || undefined).subscribe({
+      next: (result) => {
+        if (result.error) {
+          alert(`Failed to cancel: ${result.error}`);
+          return;
         }
-        this.closeDetailsModal();
+        if (result.appointment) {
+          this.updateAppointmentInList(result.appointment);
+          if (this.selectedAppointment()?.id === result.appointment.id) {
+            this.selectedAppointment.set(result.appointment);
+          }
+          this.closeDetailsModal();
+        }
       },
       error: (err) => {
         console.error('Failed to cancel:', err);
@@ -438,10 +586,16 @@ export class AppointmentsComponent implements OnInit {
     if (!confirm('Mark this appointment as no-show?')) return;
 
     this.appointmentService.markNoShow(appointment.id).subscribe({
-      next: (updated) => {
-        this.updateAppointmentInList(updated);
-        if (this.selectedAppointment()?.id === updated.id) {
-          this.selectedAppointment.set(updated);
+      next: (result) => {
+        if (result.error) {
+          alert(`Failed to mark no-show: ${result.error}`);
+          return;
+        }
+        if (result.appointment) {
+          this.updateAppointmentInList(result.appointment);
+          if (this.selectedAppointment()?.id === result.appointment.id) {
+            this.selectedAppointment.set(result.appointment);
+          }
         }
       },
       error: (err) => {
@@ -453,8 +607,9 @@ export class AppointmentsComponent implements OnInit {
 
   openRescheduleModal(appointment: Appointment) {
     this.selectedAppointment.set(appointment);
-    this.rescheduleDate.set(appointment.scheduledDate.split('T')[0]);
-    this.rescheduleTime.set(appointment.scheduledTime);
+    const startDate = new Date(appointment.scheduledStartTime);
+    this.rescheduleDate.set(startDate.toISOString().split('T')[0]);
+    this.rescheduleTime.set(startDate.toTimeString().slice(0, 5));
     this.showRescheduleModal.set(true);
   }
 
@@ -476,28 +631,30 @@ export class AppointmentsComponent implements OnInit {
       return;
     }
 
-    this.appointmentService.rescheduleAppointment(appointment.id, newDate, newTime).subscribe({
-      next: (updated) => {
-        this.updateAppointmentInList(updated);
-        this.closeRescheduleModal();
-        this.closeDetailsModal();
-        this.generateCalendar();
+    // Calculate new start and end times
+    const newStartTime = new Date(`${newDate}T${newTime}:00`).toISOString();
+    const duration = new Date(appointment.scheduledEndTime).getTime() - new Date(appointment.scheduledStartTime).getTime();
+    const newEndTime = new Date(new Date(newStartTime).getTime() + duration).toISOString();
+
+    this.appointmentService.updateAppointment(appointment.id, {
+      scheduledStartTime: newStartTime,
+      scheduledEndTime: newEndTime
+    }).subscribe({
+      next: (result) => {
+        if (result.error) {
+          alert(`Failed to reschedule: ${result.error}`);
+          return;
+        }
+        if (result.appointment) {
+          this.updateAppointmentInList(result.appointment);
+          this.closeRescheduleModal();
+          this.closeDetailsModal();
+          this.generateCalendar();
+        }
       },
       error: (err) => {
         console.error('Failed to reschedule:', err);
         alert('Failed to reschedule appointment');
-      }
-    });
-  }
-
-  sendReminder(appointment: Appointment, type: 'SMS' | 'EMAIL') {
-    this.appointmentService.sendReminder(appointment.id, type as any).subscribe({
-      next: (result) => {
-        alert(result.message);
-      },
-      error: (err) => {
-        console.error('Failed to send reminder:', err);
-        alert('Failed to send reminder');
       }
     });
   }
@@ -515,24 +672,28 @@ export class AppointmentsComponent implements OnInit {
     return this.appointmentService.getStatusColor(status);
   }
 
-  formatStatus(status: string): string {
+  formatStatus(status: AppointmentStatus | number): string {
     return this.appointmentService.formatStatus(status);
   }
 
-  formatTime(time: string): string {
-    return this.appointmentService.formatTime(time);
+  formatType(type: AppointmentType | number): string {
+    return this.appointmentService.formatType(type);
   }
 
-  formatDuration(minutes: number): string {
-    return this.appointmentService.formatDuration(minutes);
+  formatTime(dateTime: string): string {
+    return this.appointmentService.formatTime(dateTime);
   }
 
-  formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+  formatDate(dateTime: string): string {
+    return this.appointmentService.formatDate(dateTime);
+  }
+
+  formatDateTime(dateTime: string): string {
+    return this.appointmentService.formatDateTime(dateTime);
+  }
+
+  formatDuration(startTime: string, endTime: string): string {
+    return this.appointmentService.formatDuration(startTime, endTime);
   }
 
   formatDateForComparison(date: Date): string {
@@ -551,6 +712,10 @@ export class AppointmentsComponent implements OnInit {
     return this.appointmentService.canConfirm(appointment);
   }
 
+  canCheckIn(appointment: Appointment): boolean {
+    return this.appointmentService.canCheckIn(appointment);
+  }
+
   canStart(appointment: Appointment): boolean {
     return this.appointmentService.canStart(appointment);
   }
@@ -563,25 +728,36 @@ export class AppointmentsComponent implements OnInit {
     return this.appointmentService.canCancel(appointment);
   }
 
+  canConvertToSession(appointment: Appointment): boolean {
+    return this.appointmentService.canConvertToSession(appointment);
+  }
+
   canReschedule(appointment: Appointment): boolean {
-    return this.appointmentService.canReschedule(appointment);
+    return appointment.status === AppointmentStatus.SCHEDULED || 
+           appointment.status === AppointmentStatus.CONFIRMED;
+  }
+
+  isSlotSelected(slotDateTime: string): boolean {
+    const form = this.createForm();
+    if (!form.scheduledTime) return false;
+    const slotTime = new Date(slotDateTime).toTimeString().slice(0, 5);
+    return slotTime === form.scheduledTime;
   }
 
   getTodayAppointments(): Appointment[] {
     const today = new Date().toISOString().split('T')[0];
-    return this.filteredAppointments().filter(a => 
-      a.scheduledDate.split('T')[0] === today
-    );
+    return this.filteredAppointments().filter(a => {
+      const appointmentDate = new Date(a.scheduledStartTime);
+      return this.formatDateForComparison(appointmentDate) === today;
+    });
   }
 
   getUpcomingAppointments(): Appointment[] {
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
     return this.filteredAppointments()
-      .filter(a => a.scheduledDate.split('T')[0] >= today)
+      .filter(a => new Date(a.scheduledStartTime) >= now)
       .sort((a, b) => {
-        const dateCompare = a.scheduledDate.localeCompare(b.scheduledDate);
-        if (dateCompare !== 0) return dateCompare;
-        return a.scheduledTime.localeCompare(b.scheduledTime);
+        return new Date(a.scheduledStartTime).getTime() - new Date(b.scheduledStartTime).getTime();
       });
   }
 }

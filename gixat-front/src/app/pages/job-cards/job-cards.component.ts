@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { JobCardService, JobCardStatus, JobCard } from '../../services/job-card.service';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 type SortField = 'id' | 'customerName' | 'status' | 'createdAt';
 type SortDirection = 'asc' | 'desc';
@@ -10,7 +11,7 @@ type SortDirection = 'asc' | 'desc';
 @Component({
   selector: 'app-job-cards',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
   templateUrl: './job-cards.component.html',
 })
 export class JobCardsComponent implements OnInit {
@@ -32,6 +33,18 @@ export class JobCardsComponent implements OnInit {
   allJobCards = signal<JobCard[]>([]);
   
   jobCardStatuses = Object.values(JobCardStatus);
+
+  // Pagination
+  Math = Math;
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(20);
+  totalPages = computed(() => Math.ceil(this.jobCards().length / this.pageSize()));
+
+  paginatedJobCards = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    const end = start + this.pageSize();
+    return this.jobCards().slice(start, end);
+  });
 
   jobCards = computed(() => {
     return this.allJobCards();
@@ -88,6 +101,13 @@ export class JobCardsComponent implements OnInit {
 
   viewJobCard(id: string) {
     this.router.navigate(['/dashboard/job-cards', id]);
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   getStatusColor(status: string): string {

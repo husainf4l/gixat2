@@ -1,4 +1,5 @@
 using GixatBackend.Modules.Users.Enums;
+using GixatBackend.Modules.Users.GraphQL;
 using System.Diagnostics.CodeAnalysis;
 
 namespace GixatBackend.Modules.Users.Models;
@@ -10,4 +11,4 @@ public sealed record LoginInput(string Email, string Password);
 public sealed record RegisterInput(string Email, string Password, string FullName, string Role, UserType UserType, Guid? OrganizationId = null, string? InviteCode = null);
 
 [SuppressMessage("Design", "CA1515:Consider making public types internal", Justification = "Required to be public for HotChocolate type discovery")]
-public sealed record AuthPayload(string? Token, ApplicationUser? User, string? Error = null);
+public sealed record AuthPayload(string? Token, AuthUserInfo? User, string? Error = null);

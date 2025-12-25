@@ -103,7 +103,7 @@ namespace GixatBackend.Modules.Common.Services.AWS
             return presignedUrl;
         }
 
-        public async Task<string> DownloadToTempAsync(string fileKey, TempFileStorageService tempStorage)
+        public async Task<string> DownloadToTempAsync(string fileKey, ITempFileStorageService tempStorage)
         {
             var getRequest = new GetObjectRequest
             {

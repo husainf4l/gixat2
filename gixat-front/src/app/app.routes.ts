@@ -25,10 +25,12 @@ import { PrivacyPolicyComponent } from './pages/legal/privacy-policy/privacy-pol
 import { TermsOfServiceComponent } from './pages/legal/terms-of-service/terms-of-service.component';
 import { DataDeletionComponent } from './pages/legal/data-deletion/data-deletion.component';
 import { FeaturesComponent } from './pages/features/features.component';
+import { TrackingComponent } from './pages/tracking/tracking.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'features', component: FeaturesComponent },
+  { path: 'tracking', component: TrackingComponent },
   { path: 'auth/login', component: LoginComponent },
   { path: 'auth/register', component: SignupComponent },
   { path: 'auth/callback', component: CallbackComponent },

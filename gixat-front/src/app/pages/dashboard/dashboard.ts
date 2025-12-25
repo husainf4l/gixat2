@@ -1,11 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { AiChatAssistantComponent } from '../../components/ai-chat-assistant/ai-chat-assistant.component';
+import { LiveWorkshopAssistantComponent } from '../../components/live-workshop-assistant/live-workshop-assistant.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AiChatAssistantComponent, LiveWorkshopAssistantComponent],
   templateUrl: './dashboard.html',
 })
 export class DashboardComponent implements OnInit {
@@ -17,6 +19,9 @@ export class DashboardComponent implements OnInit {
     month: 'long', 
     day: 'numeric' 
   });
+
+  // Live Workshop Assistant
+  showLiveAssistant = signal<boolean>(false);
 
   // Stats Data
   stats = [
@@ -64,9 +69,9 @@ export class DashboardComponent implements OnInit {
 
   // Quick Actions
   quickActions = [
-    { icon: 'ri-user-add-line', label: 'Add Client', description: 'Register new customer', color: 'bg-[#1b75bc]' },
-    { icon: 'ri-calendar-line', label: 'Book Appointment', description: 'Schedule service bay', color: 'bg-purple-600' },
-    { icon: 'ri-add-line', label: 'Stock Update', description: 'Add inventory items', color: 'bg-amber-600' },
+    { icon: 'ri-mic-line', label: 'Live Assistant', description: 'Hands-free diagnostics', color: 'bg-[#1b75bc]', action: 'live-assistant' },
+    { icon: 'ri-user-add-line', label: 'Add Client', description: 'Register new customer', color: 'bg-purple-600' },
+    { icon: 'ri-calendar-line', label: 'Book Appointment', description: 'Schedule service bay', color: 'bg-amber-600' },
     { icon: 'ri-error-warning-line', label: 'Scan Codes', description: 'OBD-II Diagnostic tool', color: 'bg-red-600' }
   ];
 
@@ -102,5 +107,22 @@ export class DashboardComponent implements OnInit {
     if (!this.user()) {
       this.authService.me().subscribe();
     }
+  }
+
+  handleQuickAction(action: any) {
+    if (action.action === 'live-assistant') {
+      this.showLiveAssistant.set(true);
+    }
+    // Add other action handlers here in the future
+  }
+
+  getStatusBadgeClass(status: string): string {
+    const statusClasses: { [key: string]: string } = {
+      'In Progress': 'bg-blue-50 text-blue-700 border-blue-200',
+      'Pending': 'bg-slate-100 text-slate-700 border-slate-200',
+      'Completed': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      'Delayed': 'bg-red-50 text-red-700 border-red-200'
+    };
+    return statusClasses[status] || 'bg-slate-100 text-slate-700 border-slate-200';
   }
 }

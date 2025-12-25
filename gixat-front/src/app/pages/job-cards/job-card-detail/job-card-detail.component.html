@@ -1,5 +1,5 @@
-<div class="min-h-screen bg-[#fbfbfd]">
-  <div class="max-w-7xl mx-auto px-8 py-10">
+<div class="min-h-screen bg-slate-50">
+  <div class="max-w-7xl mx-auto px-6 py-8">
     <!-- Navigation Header -->
     <div class="flex items-center justify-between mb-10">
       <div class="flex items-center gap-6">
@@ -77,7 +77,7 @@
         <div class="col-span-8 space-y-10">
           
           <!-- Summary Banner -->
-          <div class="p-8 bg-white border border-slate-200/60 rounded-[2.5rem] shadow-sm flex items-center justify-between">
+          <div class="p-8 bg-white border border-slate-200/60 rounded-xl shadow-sm flex items-center justify-between">
             <div class="flex items-center gap-6">
               <div class="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[#1b75bc] shadow-inner">
                 <i class="ri-file-list-3-fill text-3xl opacity-40"></i>
@@ -104,7 +104,7 @@
           <!-- Job Items List -->
           <div class="space-y-6">
             @for (item of jc.items; track item.id) {
-              <div class="group bg-white border border-slate-200/60 rounded-[2rem] overflow-hidden hover:border-[#1b75bc]/30 transition-all duration-500 shadow-sm">
+              <div class="group bg-white border border-slate-200/60 rounded-xl overflow-hidden hover:border-[#1b75bc]/30 transition-all duration-500 shadow-sm">
                 <div class="p-8">
                   <div class="flex items-start justify-between mb-8">
                     <div class="flex-1">
@@ -147,11 +147,11 @@
 
                   <!-- Item Stats -->
                   <div class="grid grid-cols-4 gap-4 mb-8">
-                    <div class="p-5 bg-[#fbfbfd] border border-slate-100 rounded-2xl">
+                    <div class="p-5 bg-slate-50 border border-slate-100 rounded-2xl">
                       <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Est. Labor</p>
                       <p class="text-sm font-black text-slate-900 tracking-tight">{{ formatCurrency(item.estimatedLaborCost) }}</p>
                     </div>
-                    <div class="p-5 bg-[#fbfbfd] border border-slate-100 rounded-2xl">
+                    <div class="p-5 bg-slate-50 border border-slate-100 rounded-2xl">
                       <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Est. Parts</p>
                       <p class="text-sm font-black text-slate-900 tracking-tight">{{ formatCurrency(item.estimatedPartsCost) }}</p>
                     </div>
@@ -208,7 +208,7 @@
           </div>
 
           <!-- Internal Audit Trail -->
-          <div class="bg-white border border-slate-200/60 rounded-[2.5rem] overflow-hidden shadow-sm">
+          <div class="bg-white border border-slate-200/60 rounded-xl overflow-hidden shadow-sm">
             <div class="p-8 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3">
               <i class="ri-sticky-note-fill text-[#1b75bc] text-xl opacity-40"></i>
               <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Internal Audit & Session Intelligence</h3>
@@ -219,7 +219,7 @@
           </div>
 
           <!-- Team Chat Section -->
-          <div class="bg-white border border-slate-200/60 rounded-[2.5rem] overflow-hidden shadow-sm">
+          <div class="bg-white border border-slate-200/60 rounded-xl overflow-hidden shadow-sm">
             <div class="p-8 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3">
               <i class="ri-chat-3-fill text-brand text-xl opacity-40"></i>
               <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Team Collaboration & Discussion</h3>
@@ -234,7 +234,7 @@
         <div class="col-span-4 space-y-10">
           
           <!-- Financial Protocol -->
-          <div class="bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200">
+          <div class="bg-slate-900 rounded-xl overflow-hidden shadow-xl shadow-slate-200">
             <div class="p-8 border-b border-white/5">
               <h3 class="text-[10px] font-black text-white/40 uppercase tracking-widest">Production Value Analysis</h3>
             </div>
@@ -296,7 +296,7 @@
           </div>
 
           <!-- Entity & Asset Link -->
-          <div class="bg-white border border-slate-200/60 rounded-[2.5rem] overflow-hidden shadow-sm">
+          <div class="bg-white border border-slate-200/60 rounded-xl overflow-hidden shadow-sm">
             <div class="p-8 border-b border-slate-50 bg-slate-50/30">
               <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol Context</h3>
             </div>
@@ -360,7 +360,7 @@
 
           <!-- Job Card Media -->
           @if (jc.media && jc.media.length > 0) {
-            <div class="bg-white border border-slate-200/60 rounded-[2.5rem] overflow-hidden shadow-sm">
+            <div class="bg-white border border-slate-200/60 rounded-xl overflow-hidden shadow-sm">
               <div class="p-8 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
                 <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Job Card Media</h3>
                 <button (click)="openMediaUploadModal('job', jc.id)" class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#1b75bc] hover:bg-blue-50 transition-all">
@@ -396,7 +396,7 @@
               </div>
             </div>
           } @else {
-            <div class="bg-white border border-slate-200/60 rounded-[2.5rem] overflow-hidden shadow-sm">
+            <div class="bg-white border border-slate-200/60 rounded-xl overflow-hidden shadow-sm">
               <div class="p-8 text-center">
                 <button (click)="openMediaUploadModal('job', jc.id)" class="w-full px-4 py-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl text-[11px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-100 hover:border-[#1b75bc] transition-all">
                   <i class="ri-camera-add-line text-xl mb-2 block"></i>
@@ -409,13 +409,32 @@
         </div>
       </div>
     }
+
+    <!-- Live Workshop Assistant Floating Button -->
+    @if (!isLoading() && jobCard()) {
+      <button 
+        (click)="showLiveAssistant.set(true)"
+        class="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-[#1b75bc] to-[#155a92] text-white rounded-2xl shadow-2xl hover:shadow-[0_0_30px_rgba(27,117,188,0.5)] transition-all duration-300 hover:scale-110 flex items-center justify-center z-50 group"
+        title="Open Live Workshop Assistant"
+      >
+        <i class="ri-mic-line text-2xl group-hover:scale-110 transition-transform"></i>
+        <span class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></span>
+      </button>
+    }
+
+    <!-- Live Workshop Assistant Modal -->
+    <app-live-workshop-assistant 
+      [isOpen]="showLiveAssistant()" 
+      (close)="showLiveAssistant.set(false)"
+    ></app-live-workshop-assistant>
+
   </div>
 </div>
 
 <!-- Modal Refinements (Simplified for style context) -->
 @if (showAddItemModal()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/70 backdrop-blur-md transition-all animate-fadeIn">
-    <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden border border-white/20">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-white/20">
       <div class="px-10 py-8 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
         <h3 class="text-xl font-black text-slate-900 tracking-tight">Define Protocol</h3>
         <button (click)="showAddItemModal.set(false)" class="text-slate-400 hover:text-slate-900 transition-all"><i class="ri-close-line text-2xl"></i></button>
@@ -424,16 +443,16 @@
         <!-- Form elements already styled high-end in previous turns -->
         <div class="space-y-2">
           <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Task Specification</label>
-          <input type="text" [(ngModel)]="newItem.description" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+          <input type="text" [(ngModel)]="newItem.description" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-2">
             <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Labor Assessment</label>
-            <input type="number" [(ngModel)]="newItem.estimatedLaborCost" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-black focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+            <input type="number" [(ngModel)]="newItem.estimatedLaborCost" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-black focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
           </div>
           <div class="space-y-2">
             <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Asset Assessment</label>
-            <input type="number" [(ngModel)]="newItem.estimatedPartsCost" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-black focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+            <input type="number" [(ngModel)]="newItem.estimatedPartsCost" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-black focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
           </div>
         </div>
       </div>
@@ -448,7 +467,7 @@
 <!-- Update Item Modal -->
 @if (showUpdateItemModal()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/70 backdrop-blur-md transition-all">
-    <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden border border-white/20 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden border border-white/20 max-h-[90vh] overflow-y-auto">
       <div class="px-10 py-8 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between sticky top-0 bg-white z-10">
         <h3 class="text-xl font-black text-slate-900 tracking-tight">Update Protocol Item</h3>
         <button (click)="showUpdateItemModal.set(false)" class="text-slate-400 hover:text-slate-900 transition-all"><i class="ri-close-line text-2xl"></i></button>
@@ -457,7 +476,7 @@
         @if (selectedItem(); as item) {
           <div class="space-y-2">
             <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Status</label>
-            <select [(ngModel)]="updateData.status" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+            <select [(ngModel)]="updateData.status" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
               @for (status of jobItemStatuses; track status) {
                 <option [value]="status">{{ formatStatus(status) }}</option>
               }
@@ -467,17 +486,17 @@
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-2">
               <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Actual Labor Cost</label>
-              <input type="number" step="0.01" [(ngModel)]="updateData.actualLaborCost" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-black focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+              <input type="number" step="0.01" [(ngModel)]="updateData.actualLaborCost" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-black focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
             </div>
             <div class="space-y-2">
               <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Actual Parts Cost</label>
-              <input type="number" step="0.01" [(ngModel)]="updateData.actualPartsCost" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-black focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+              <input type="number" step="0.01" [(ngModel)]="updateData.actualPartsCost" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-black focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
             </div>
           </div>
 
           <div class="space-y-2">
             <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Technician Notes</label>
-            <textarea [(ngModel)]="updateData.technicianNotes" rows="4" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all resize-none"></textarea>
+            <textarea [(ngModel)]="updateData.technicianNotes" rows="4" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all resize-none"></textarea>
           </div>
 
           @if (!item.isApprovedByCustomer && updateData.status === JobItemStatus.IN_PROGRESS) {
@@ -504,7 +523,7 @@
 <!-- Assign Technician Modal -->
 @if (showAssignTechModal()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/70 backdrop-blur-md transition-all">
-    <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden border border-white/20">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-white/20">
       <div class="px-10 py-8 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
         <h3 class="text-xl font-black text-slate-900 tracking-tight">Assign Technician</h3>
         <button (click)="showAssignTechModal.set(false)" class="text-slate-400 hover:text-slate-900 transition-all"><i class="ri-close-line text-2xl"></i></button>
@@ -512,7 +531,7 @@
       <div class="p-10 space-y-6">
         <div class="space-y-2">
           <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Select Technician</label>
-          <select [(ngModel)]="selectedTechId" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+          <select [(ngModel)]="selectedTechId" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
             <option value="">Unassigned</option>
             @for (tech of technicians(); track tech.id) {
               <option [value]="tech.id">{{ tech.fullName }}</option>
@@ -531,7 +550,7 @@
 <!-- Media Upload Modal -->
 @if (showMediaUploadModal()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/70 backdrop-blur-md transition-all">
-    <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden border border-white/20">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-white/20">
       <div class="px-10 py-8 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
         <h3 class="text-xl font-black text-slate-900 tracking-tight">Upload Media</h3>
         <button (click)="showMediaUploadModal.set(false)" class="text-slate-400 hover:text-slate-900 transition-all"><i class="ri-close-line text-2xl"></i></button>
@@ -539,7 +558,7 @@
       <div class="p-10 space-y-6">
         <div class="space-y-2">
           <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Media Type</label>
-          <select [(ngModel)]="selectedMediaType" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+          <select [(ngModel)]="selectedMediaType" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
             @for (type of mediaTypes; track type) {
               <option [value]="type">{{ formatStatus(type) }}</option>
             }
@@ -548,7 +567,7 @@
 
         <div class="space-y-2">
           <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Select File</label>
-          <input type="file" (change)="onFileSelected($event)" accept="image/*,video/*" class="w-full px-6 py-4 bg-[#fbfbfd] border border-slate-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
+          <input type="file" (change)="onFileSelected($event)" accept="image/*,video/*" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-[#1b75bc]/5 focus:border-[#1b75bc]/40 outline-none transition-all">
           @if (selectedFile()) {
             <p class="text-xs text-slate-600 mt-2">{{ selectedFile()?.name }}</p>
           }
@@ -574,7 +593,7 @@
 <!-- Share Link Modal -->
 @if (showShareLinkModal()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/70 backdrop-blur-md transition-all">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-white/20">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-white/20">
       <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
         <h3 class="text-lg font-semibold text-slate-900">Share Estimate Link</h3>
         <button (click)="showShareLinkModal.set(false)" class="text-slate-400 hover:text-slate-900 transition-all">

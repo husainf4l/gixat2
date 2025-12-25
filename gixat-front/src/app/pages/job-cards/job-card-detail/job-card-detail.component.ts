@@ -6,11 +6,12 @@ import { firstValueFrom } from 'rxjs';
 import { JobCardService, JobCard, JobCardStatus, JobItemStatus, JobItem, JobCardMediaType, Technician } from '../../../services/job-card.service';
 import { AuthService } from '../../../services/auth.service';
 import { ChatPanelComponent } from '../../../components/job-card-chat/chat-panel.component';
+import { LiveWorkshopAssistantComponent } from '../../../components/live-workshop-assistant/live-workshop-assistant.component';
 
 @Component({
   selector: 'app-job-card-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ChatPanelComponent],
+  imports: [CommonModule, RouterModule, FormsModule, ChatPanelComponent, LiveWorkshopAssistantComponent],
   templateUrl: './job-card-detail.component.html',
 })
 export class JobCardDetailComponent implements OnInit {
@@ -22,6 +23,9 @@ export class JobCardDetailComponent implements OnInit {
   jobCard = signal<JobCard | null>(null);
   isLoading = signal<boolean>(true);
   errorMessage = signal<string | null>(null);
+  
+  // Live Workshop Assistant
+  showLiveAssistant = signal<boolean>(false);
   
   technicians = signal<Technician[]>([]);
 

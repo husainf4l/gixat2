@@ -23,8 +23,7 @@ const GET_COUNTRIES_WITH_CITIES = gql`
   selector: 'app-organization-setup',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './organization-setup.html',
-  styleUrl: './organization-setup.css'
+  templateUrl: './organization-setup.html'
 })
 export class OrganizationSetupComponent implements OnInit {
   private router = inject(Router);

@@ -29,7 +29,7 @@ namespace GixatBackend.Modules.Common.Services.AWS
         /// <summary>
         /// Download a file from S3 to temporary storage
         /// </summary>
-        Task<string> DownloadToTempAsync(string fileKey, TempFileStorageService tempStorage);
+        Task<string> DownloadToTempAsync(string fileKey, ITempFileStorageService tempStorage);
     }
 }
 

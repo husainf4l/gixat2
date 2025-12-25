@@ -1,0 +1,275 @@
+<div class="p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">System Health Check</h1>
+    <div class="flex space-x-2">
+      <button (click)="refreshHealth()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+        Refresh
+      </button>
+      <button class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+        Export Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Overall Health Status -->
+  <div class="bg-white rounded-lg shadow p-6 mb-6" *ngIf="healthData$ | async as healthData">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-medium text-gray-900">Overall System Health</h2>
+      <div class="flex items-center">
+        <span [class]="getHealthStatusColor(healthData.isHealthy)" class="text-2xl mr-2">
+          {{ healthData.isHealthy ? '✓' : '✗' }}
+        </span>
+        <span [class]="getHealthStatusBgColor(healthData.isHealthy) + ' ' + getHealthStatusColor(healthData.isHealthy)"
+              class="px-3 py-1 rounded-full text-sm font-medium">
+          {{ healthData.isHealthy ? 'HEALTHY' : 'UNHEALTHY' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="text-center">
+        <div class="text-2xl font-bold text-gray-900">{{ healthData.version }}</div>
+        <div class="text-sm text-gray-500">Version</div>
+      </div>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-gray-900">{{ healthData.environment }}</div>
+        <div class="text-sm text-gray-500">Environment</div>
+      </div>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-gray-900">{{ healthData.uptime }}</div>
+        <div class="text-sm text-gray-500">Uptime</div>
+      </div>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-gray-900">{{ healthData.checkDuration }}ms</div>
+        <div class="text-sm text-gray-500">Check Duration</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Component Health Checks -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6" *ngIf="healthData$ | async as healthData">
+    <!-- Redis Health -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-medium text-gray-900">Redis Cache</h3>
+        <span [class]="getHealthStatusColor(healthData.redis.isHealthy)" class="text-xl">
+          {{ healthData.redis.isHealthy ? '✓' : '✗' }}
+        </span>
+      </div>
+      <div class="space-y-2">
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-500">Status:</span>
+          <span [class]="getHealthStatusColor(healthData.redis.isHealthy)" class="text-sm font-medium">
+            {{ healthData.redis.isHealthy ? 'Healthy' : 'Unhealthy' }}
+          </span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-500">Response Time:</span>
+          <span class="text-sm font-medium">{{ healthData.redis.responseTime }}ms</span>
+        </div>
+        <div class="mt-3 p-3 bg-gray-50 rounded">
+          <div class="text-xs text-gray-600">{{ healthData.redis.message }}</div>
+        </div>
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs">
+            <span class="text-gray-500">Read/Write Test:</span>
+            <span class="font-medium">{{ healthData.redis.details.ReadWriteTest }}</span>
+          </div>
+          <div class="flex justify-between text-xs">
+            <span class="text-gray-500">Connection:</span>
+            <span class="font-medium">{{ healthData.redis.details.ConnectionStatus }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Database Health -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-medium text-gray-900">PostgreSQL Database</h3>
+        <span [class]="getHealthStatusColor(healthData.database.isHealthy)" class="text-xl">
+          {{ healthData.database.isHealthy ? '✓' : '✗' }}
+        </span>
+      </div>
+      <div class="space-y-2">
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-500">Status:</span>
+          <span [class]="getHealthStatusColor(healthData.database.isHealthy)" class="text-sm font-medium">
+            {{ healthData.database.isHealthy ? 'Healthy' : 'Unhealthy' }}
+          </span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-500">Response Time:</span>
+          <span class="text-sm font-medium">{{ healthData.database.responseTime }}ms</span>
+        </div>
+        <div class="mt-3 p-3 bg-gray-50 rounded">
+          <div class="text-xs text-gray-600">{{ healthData.database.message }}</div>
+        </div>
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs">
+            <span class="text-gray-500">Organizations:</span>
+            <span class="font-medium">{{ healthData.database.details.Organizations }}</span>
+          </div>
+          <div class="flex justify-between text-xs">
+            <span class="text-gray-500">Pending Migrations:</span>
+            <span class="font-medium">{{ healthData.database.details.PendingMigrations }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3 Health -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-medium text-gray-900">AWS S3 Storage</h3>
+        <span [class]="getHealthStatusColor(healthData.s3.isHealthy)" class="text-xl">
+          {{ healthData.s3.isHealthy ? '✓' : '✗' }}
+        </span>
+      </div>
+      <div class="space-y-2">
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-500">Status:</span>
+          <span [class]="getHealthStatusColor(healthData.s3.isHealthy)" class="text-sm font-medium">
+            {{ healthData.s3.isHealthy ? 'Healthy' : 'Unhealthy' }}
+          </span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-500">Response Time:</span>
+          <span class="text-sm font-medium">{{ healthData.s3.responseTime }}ms</span>
+        </div>
+        <div class="mt-3 p-3 bg-gray-50 rounded">
+          <div class="text-xs text-gray-600">{{ healthData.s3.message }}</div>
+        </div>
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs">
+            <span class="text-gray-500">Buckets:</span>
+            <span class="font-medium">{{ healthData.s3.details.BucketCount }}</span>
+          </div>
+          <div class="flex justify-between text-xs">
+            <span class="text-gray-500">Region:</span>
+            <span class="font-medium">{{ healthData.s3.details.Region }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Metrics -->
+  <div class="bg-white rounded-lg shadow p-6" *ngIf="healthData$ | async as healthData">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">System Metrics</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Memory Metrics -->
+      <div>
+        <h4 class="text-sm font-medium text-gray-900 mb-3">Memory</h4>
+        <div class="space-y-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Working Set:</span>
+            <span class="font-medium">{{ formatMemory(healthData.systemMetrics.workingSetMB) }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Private Memory:</span>
+            <span class="font-medium">{{ formatMemory(healthData.systemMetrics.privateMemoryMB) }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">GC Total Memory:</span>
+            <span class="font-medium">{{ formatMemory(healthData.systemMetrics.gcTotalMemoryMB) }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">GC Heap Size:</span>
+            <span class="font-medium">{{ formatMemory(healthData.systemMetrics.gcHeapSizeMB) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CPU & Performance -->
+      <div>
+        <h4 class="text-sm font-medium text-gray-900 mb-3">CPU & Performance</h4>
+        <div class="space-y-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">CPU Usage:</span>
+            <span class="font-medium">{{ formatCpu(healthData.systemMetrics.cpuUsagePercent) }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Processors:</span>
+            <span class="font-medium">{{ healthData.systemMetrics.processorCount }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Total CPU Time:</span>
+            <span class="font-medium">{{ healthData.systemMetrics.totalProcessorTime }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Active Threads:</span>
+            <span class="font-medium">{{ healthData.systemMetrics.threadCount }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Runtime Info -->
+      <div>
+        <h4 class="text-sm font-medium text-gray-900 mb-3">Runtime Information</h4>
+        <div class="space-y-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">.NET Version:</span>
+            <span class="font-medium">{{ healthData.systemMetrics.dotNetVersion }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">OS:</span>
+            <span class="font-medium">{{ healthData.systemMetrics.osDescription.split(' ')[0] }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Architecture:</span>
+            <span class="font-medium">{{ healthData.systemMetrics.processArchitecture }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Process ID:</span>
+            <span class="font-medium">{{ healthData.systemMetrics.processId }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Garbage Collection Stats -->
+    <div class="mt-6 pt-6 border-t border-gray-200">
+      <h4 class="text-sm font-medium text-gray-900 mb-3">Garbage Collection</h4>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="text-center">
+          <div class="text-lg font-bold text-gray-900">{{ healthData.systemMetrics.gcGen0Collections }}</div>
+          <div class="text-xs text-gray-500">Gen 0</div>
+        </div>
+        <div class="text-center">
+          <div class="text-lg font-bold text-gray-900">{{ healthData.systemMetrics.gcGen1Collections }}</div>
+          <div class="text-xs text-gray-500">Gen 1</div>
+        </div>
+        <div class="text-center">
+          <div class="text-lg font-bold text-gray-900">{{ healthData.systemMetrics.gcGen2Collections }}</div>
+          <div class="text-xs text-gray-500">Gen 2</div>
+        </div>
+        <div class="text-center">
+          <div class="text-lg font-bold text-gray-900">{{ healthData.systemMetrics.gcTotalCollections }}</div>
+          <div class="text-xs text-gray-500">Total</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thread Pool Info -->
+    <div class="mt-6 pt-6 border-t border-gray-200">
+      <h4 class="text-sm font-medium text-gray-900 mb-3">Thread Pool</h4>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <div class="text-sm text-gray-500">Worker Threads:</div>
+          <div class="text-sm font-medium">{{ healthData.systemMetrics.threadPoolWorkerThreads }}</div>
+        </div>
+        <div>
+          <div class="text-sm text-gray-500">Completion Port Threads:</div>
+          <div class="text-sm font-medium">{{ healthData.systemMetrics.threadPoolCompletionPortThreads }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Last Updated -->
+  <div class="text-center text-sm text-gray-500 mt-6" *ngIf="healthData$ | async as healthData">
+    Last checked: {{ healthData.checkedAt | date:'medium' }} • Auto-refreshes every 30 seconds
+  </div>
+</div>

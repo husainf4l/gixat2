@@ -5,6 +5,7 @@ import { catchError, debounceTime, distinctUntilChanged, Subject, switchMap, map
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SessionService, Session } from '../../services/session.service';
 import { FormsModule } from '@angular/forms';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 interface SessionRowVM {
   id: string;
@@ -24,7 +25,7 @@ type StatusFilter = 'all' | 'in-progress' | 'quality-check' | 'ready-for-pickup'
 @Component({
   selector: 'app-sessions',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
   templateUrl: './sessions.component.html',
 })
 export class SessionsComponent implements OnInit {
@@ -46,6 +47,11 @@ export class SessionsComponent implements OnInit {
   // Sort
   sortField = signal<SortField>('createdAt');
   sortDirection = signal<SortDirection>('desc');
+
+  // Pagination
+  Math = Math;
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(20);
 
   readonly statusFilters: StatusFilter[] = ['in-progress', 'quality-check', 'ready-for-pickup', 'completed'];
 
@@ -121,6 +127,14 @@ export class SessionsComponent implements OnInit {
     return result;
   });
 
+  totalPages = computed(() => Math.ceil(this.sessions().length / this.pageSize()));
+
+  paginatedSessions = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    const end = start + this.pageSize();
+    return this.sessions().slice(start, end);
+  });
+
   ngOnInit() {
     this.searchSubject.next('');
   }
@@ -179,6 +193,13 @@ export class SessionsComponent implements OnInit {
   createNewSession() {
     // Navigate to customers page to select customer and car
     this.router.navigate(['/dashboard/customers']);
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   getStatusColor(status: string): string {

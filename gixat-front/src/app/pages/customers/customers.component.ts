@@ -7,6 +7,7 @@ import { Customer, CustomerService } from '../../services/customer.service';
 import { FormsModule } from '@angular/forms';
 import { AddCustomerModalComponent } from '../../components/add-customer-modal/add-customer-modal.component';
 import { AddCarModalComponent } from '../../components/add-car-modal/add-car-modal.component';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 type CustomerRowVM = {
   id: string;
@@ -28,13 +29,16 @@ type StatusFilter = 'all' | 'active-job' | 'recent' | 'active' | 'inactive' | 'n
 @Component({
   selector: 'app-customers',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, AddCustomerModalComponent, AddCarModalComponent],
+  imports: [CommonModule, RouterModule, FormsModule, AddCustomerModalComponent, AddCarModalComponent, PaginationComponent],
   templateUrl: './customers.component.html',
 })
 export class CustomersComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private customerService = inject(CustomerService);
+
+  // Make Math available in template
+  Math = Math;
 
   searchQuery = signal<string>('');
   private searchSubject = new Subject<string>();
@@ -50,6 +54,15 @@ export class CustomersComponent implements OnInit {
   hasNextPage = signal<boolean>(false);
   endCursor = signal<string | null>(null);
   currentPage = signal<number>(1);
+  pageSize = signal<number>(20);
+  
+  // Computed pagination values
+  totalPages = computed(() => Math.ceil(this.customers().length / this.pageSize()));
+  paginatedCustomers = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    const end = start + this.pageSize();
+    return this.customers().slice(start, end);
+  });
 
   // Sort & Filter
   sortField = signal<SortField>('name');
@@ -260,5 +273,13 @@ export class CustomersComponent implements OnInit {
         this.errorMessage.set(err instanceof Error ? err.message : 'Failed to export customers');
       }
     });
+  }
+
+  // Pagination methods
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 }

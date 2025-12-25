@@ -2,14 +2,31 @@ import { Injectable, inject } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
 import { Observable, map } from 'rxjs';
 
-// Enums
+// Enums - Matching documentation
 export enum AppointmentStatus {
-  SCHEDULED = 'SCHEDULED',
-  CONFIRMED = 'CONFIRMED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
-  NO_SHOW = 'NO_SHOW'
+  SCHEDULED = 0,
+  CONFIRMED = 1,
+  CHECKED_IN = 2,
+  IN_PROGRESS = 3,
+  COMPLETED = 4,
+  NO_SHOW = 5,
+  CANCELLED = 6
+}
+
+export enum AppointmentType {
+  GENERAL_SERVICE = 0,
+  OIL_CHANGE = 1,
+  BRAKE_SERVICE = 2,
+  TIRE_CHANGE = 3,
+  INSPECTION = 4,
+  DIAGNOSIS = 5,
+  REPAIR = 6,
+  CONSULTATION = 7,
+  AIR_CONDITIONING_SERVICE = 8,
+  BATTERY_REPLACEMENT = 9,
+  ENGINE_REPAIR = 10,
+  TRANSMISSION_SERVICE = 11,
+  OTHER = 99
 }
 
 export enum ReminderType {
@@ -18,85 +35,52 @@ export enum ReminderType {
   PUSH = 'PUSH'
 }
 
-export enum ReminderStatus {
-  PENDING = 'PENDING',
-  SENT = 'SENT',
-  FAILED = 'FAILED'
-}
-
-export enum RecurrenceType {
-  NONE = 'NONE',
-  DAILY = 'DAILY',
-  WEEKLY = 'WEEKLY',
-  MONTHLY = 'MONTHLY'
-}
-
 // Interfaces
 export interface AppointmentCustomer {
   id: string;
-  firstName: string;
-  lastName: string;
-  email?: string | null;
-  phoneNumber: string;
+  name: string; // Documentation uses 'name' instead of firstName/lastName
 }
 
 export interface AppointmentCar {
   id: string;
+  licensePlate: string;
   make: string;
   model: string;
-  year: number;
-  licensePlate: string;
 }
 
 export interface AppointmentTechnician {
   id: string;
   fullName: string;
-  email: string;
+}
+
+export interface Session {
+  id: string;
+  status: string;
 }
 
 export interface Appointment {
   id: string;
-  customerId: string;
-  customer: AppointmentCustomer;
-  carId: string;
-  car: AppointmentCar;
-  scheduledDate: string;
-  scheduledTime: string; // HH:mm format
-  duration: number; // in minutes
-  serviceType: string;
-  serviceDescription?: string | null;
+  scheduledStartTime: string; // DateTime ISO 8601
+  scheduledEndTime: string;   // DateTime ISO 8601
   status: AppointmentStatus;
-  technicianId?: string | null;
-  technician?: AppointmentTechnician | null;
-  notes?: string | null;
-  reminderSent: boolean;
-  isRecurring: boolean;
-  recurrenceType?: RecurrenceType | null;
-  recurrenceEndDate?: string | null;
+  type: AppointmentType;
+  serviceRequested?: string | null;
+  customerNotes?: string | null;
+  internalNotes?: string | null;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
+  customer: AppointmentCustomer;
+  car: AppointmentCar;
+  assignedTechnician?: AppointmentTechnician | null;
+  session?: Session | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface TimeSlot {
-  id: string;
-  date: string;
-  startTime: string; // HH:mm format
-  endTime: string;
-  technicianId?: string | null;
-  technician?: AppointmentTechnician | null;
+  startTime: string; // DateTime ISO 8601
+  endTime: string;   // DateTime ISO 8601
   isAvailable: boolean;
-  isBlocked: boolean;
-  blockReason?: string | null;
-}
-
-export interface AppointmentReminder {
-  id: string;
-  appointmentId: string;
-  reminderType: ReminderType;
-  scheduledFor: string;
-  status: ReminderStatus;
-  sentAt?: string | null;
-  errorMessage?: string | null;
 }
 
 export interface AppointmentsConnection {
@@ -116,110 +100,87 @@ export interface AppointmentsConnection {
 export interface CreateAppointmentInput {
   customerId: string;
   carId: string;
-  scheduledDate: string;
-  scheduledTime: string;
-  duration: number;
-  serviceType: string;
-  serviceDescription?: string;
-  technicianId?: string;
-  notes?: string;
-  isRecurring?: boolean;
-  recurrenceType?: RecurrenceType;
-  recurrenceEndDate?: string;
+  scheduledStartTime: string; // DateTime ISO 8601
+  scheduledEndTime: string;   // DateTime ISO 8601
+  type: AppointmentType;
+  serviceRequested?: string;
+  estimatedDurationMinutes: number;
+  assignedTechnicianId?: string;
+  customerNotes?: string;
+  internalNotes?: string;
+  contactPhone?: string;
+  contactEmail?: string;
 }
 
 export interface UpdateAppointmentInput {
-  scheduledDate?: string;
-  scheduledTime?: string;
-  duration?: number;
-  serviceType?: string;
-  serviceDescription?: string;
-  technicianId?: string;
-  notes?: string;
-  status?: AppointmentStatus;
+  scheduledStartTime?: string;
+  scheduledEndTime?: string;
+  type?: AppointmentType;
+  serviceRequested?: string;
+  assignedTechnicianId?: string;
+  customerNotes?: string;
+  internalNotes?: string;
+  contactPhone?: string;
+  contactEmail?: string;
 }
 
 // GraphQL Fragments
 const APPOINTMENT_FRAGMENT = gql`
   fragment AppointmentDetails on Appointment {
     id
-    scheduledDate
-    scheduledTime
-    duration
-    serviceType
-    serviceDescription
+    scheduledStartTime
+    scheduledEndTime
     status
-    notes
-    reminderSent
-    isRecurring
-    recurrenceType
-    recurrenceEndDate
-    createdAt
-    updatedAt
+    type
+    serviceRequested
+    customerNotes
+    internalNotes
+    contactPhone
+    contactEmail
     customer {
       id
-      firstName
-      lastName
-      email
-      phoneNumber
+      name
     }
     car {
       id
+      licensePlate
       make
       model
-      year
-      licensePlate
     }
-    technician {
+    assignedTechnician {
       id
       fullName
-      email
     }
-  }
-`;
-
-// GraphQL Queries
-const APPOINTMENTS_QUERY = gql`
-  query GetAppointments($first: Int, $after: String, $where: AppointmentFilterInput, $order: [AppointmentSortInput!]) {
-    appointments(first: $first, after: $after, where: $where, order: $order) {
-      edges {
-        node {
-          ...AppointmentDetails
-        }
-        cursor
-      }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
-      }
-      totalCount
-    }
-  }
-  ${APPOINTMENT_FRAGMENT}
-`;
-
-const APPOINTMENT_BY_ID_QUERY = gql`
-  query GetAppointmentById($id: UUID!) {
-    appointmentById(id: $id) {
-      ...AppointmentDetails
-    }
-  }
-  ${APPOINTMENT_FRAGMENT}
-`;
-
-const AVAILABLE_TIME_SLOTS_QUERY = gql`
-  query GetAvailableTimeSlots($date: Date!, $technicianId: String, $duration: Int!) {
-    availableTimeSlots(date: $date, technicianId: $technicianId, duration: $duration) {
+    session {
       id
-      date
-      startTime
-      endTime
-      isAvailable
-      isBlocked
-      blockReason
-      technician {
+      status
+    }
+    createdAt
+    updatedAt
+  }
+`;
+
+// GraphQL Queries - Matching documentation
+const APPOINTMENTS_QUERY = gql`
+  query GetAppointments($where: AppointmentFilterInput, $order: [AppointmentSortInput!]) {
+    appointments(where: $where, order: $order) {
+      id
+      scheduledStartTime
+      scheduledEndTime
+      status
+      type
+      serviceRequested
+      customer {
+        id
+        name
+      }
+      car {
+        id
+        licensePlate
+        make
+        model
+      }
+      assignedTechnician {
         id
         fullName
       }
@@ -227,142 +188,117 @@ const AVAILABLE_TIME_SLOTS_QUERY = gql`
   }
 `;
 
-const TECHNICIAN_AVAILABILITY_QUERY = gql`
-  query GetTechnicianAvailability($technicianId: String!, $startDate: Date!, $endDate: Date!) {
-    technicianAvailability(technicianId: $technicianId, startDate: $startDate, endDate: $endDate) {
-      date
-      availableSlots {
-        startTime
-        endTime
+const APPOINTMENT_BY_ID_QUERY = gql`
+  query GetAppointment($id: UUID!) {
+    appointmentById(id: $id) {
+      id
+      scheduledStartTime
+      scheduledEndTime
+      status
+      type
+      serviceRequested
+      customerNotes
+      internalNotes
+      contactPhone
+      contactEmail
+      customer {
+        id
+        name
       }
-      bookedSlots {
-        startTime
-        endTime
-        appointmentId
+      car {
+        id
+        licensePlate
+      }
+      assignedTechnician {
+        id
+        fullName
+      }
+      session {
+        id
+        status
       }
     }
   }
 `;
 
-const TODAY_APPOINTMENTS_QUERY = gql`
-  query GetTodayAppointments {
-    todayAppointments {
-      ...AppointmentDetails
-    }
+const AVAILABLE_SLOTS_QUERY = gql`
+  query GetAvailableSlots($date: DateTime!, $durationMinutes: Int!, $organizationId: UUID!, $technicianId: String) {
+    availableSlots(
+      date: $date
+      durationMinutes: $durationMinutes
+      organizationId: $organizationId
+      technicianId: $technicianId
+    )
   }
-  ${APPOINTMENT_FRAGMENT}
 `;
 
-const UPCOMING_APPOINTMENTS_QUERY = gql`
-  query GetUpcomingAppointments($days: Int!) {
-    upcomingAppointments(days: $days) {
-      ...AppointmentDetails
+const CUSTOMER_UPCOMING_APPOINTMENTS_QUERY = gql`
+  query GetCustomerUpcoming($customerId: UUID!) {
+    customerUpcomingAppointments(customerId: $customerId) {
+      id
+      scheduledStartTime
+      type
+      status
     }
   }
-  ${APPOINTMENT_FRAGMENT}
 `;
 
-// GraphQL Mutations
+// GraphQL Mutations - Matching documentation
 const CREATE_APPOINTMENT_MUTATION = gql`
   mutation CreateAppointment($input: CreateAppointmentInput!) {
     createAppointment(input: $input) {
-      ...AppointmentDetails
+      appointment {
+        id
+        scheduledStartTime
+      }
+      error
     }
   }
-  ${APPOINTMENT_FRAGMENT}
 `;
 
 const UPDATE_APPOINTMENT_MUTATION = gql`
   mutation UpdateAppointment($id: UUID!, $input: UpdateAppointmentInput!) {
     updateAppointment(id: $id, input: $input) {
-      ...AppointmentDetails
-    }
-  }
-  ${APPOINTMENT_FRAGMENT}
-`;
-
-const CANCEL_APPOINTMENT_MUTATION = gql`
-  mutation CancelAppointment($id: UUID!, $reason: String) {
-    cancelAppointment(id: $id, reason: $reason) {
-      ...AppointmentDetails
-    }
-  }
-  ${APPOINTMENT_FRAGMENT}
-`;
-
-const CONFIRM_APPOINTMENT_MUTATION = gql`
-  mutation ConfirmAppointment($id: UUID!) {
-    confirmAppointment(id: $id) {
-      ...AppointmentDetails
-    }
-  }
-  ${APPOINTMENT_FRAGMENT}
-`;
-
-const MARK_NO_SHOW_MUTATION = gql`
-  mutation MarkNoShow($id: UUID!) {
-    markNoShow(id: $id) {
-      ...AppointmentDetails
-    }
-  }
-  ${APPOINTMENT_FRAGMENT}
-`;
-
-const START_APPOINTMENT_MUTATION = gql`
-  mutation StartAppointment($id: UUID!) {
-    startAppointment(id: $id) {
-      ...AppointmentDetails
-    }
-  }
-  ${APPOINTMENT_FRAGMENT}
-`;
-
-const COMPLETE_APPOINTMENT_MUTATION = gql`
-  mutation CompleteAppointment($id: UUID!) {
-    completeAppointment(id: $id) {
-      ...AppointmentDetails
-    }
-  }
-  ${APPOINTMENT_FRAGMENT}
-`;
-
-const RESCHEDULE_APPOINTMENT_MUTATION = gql`
-  mutation RescheduleAppointment($id: UUID!, $newDate: Date!, $newTime: String!) {
-    rescheduleAppointment(id: $id, newDate: $newDate, newTime: $newTime) {
-      ...AppointmentDetails
-    }
-  }
-  ${APPOINTMENT_FRAGMENT}
-`;
-
-const SEND_REMINDER_MUTATION = gql`
-  mutation SendAppointmentReminder($id: UUID!, $type: ReminderType!) {
-    sendAppointmentReminder(id: $id, type: $type) {
-      success
-      message
+      appointment {
+        id
+        scheduledStartTime
+        serviceRequested
+      }
+      error
     }
   }
 `;
 
-const BLOCK_TIME_SLOT_MUTATION = gql`
-  mutation BlockTimeSlot($date: Date!, $startTime: String!, $endTime: String!, $technicianId: String, $reason: String!) {
-    blockTimeSlot(date: $date, startTime: $startTime, endTime: $endTime, technicianId: $technicianId, reason: $reason) {
-      id
-      date
-      startTime
-      endTime
-      isBlocked
-      blockReason
+const UPDATE_APPOINTMENT_STATUS_MUTATION = gql`
+  mutation UpdateStatus($id: UUID!, $status: AppointmentStatus!, $reason: String) {
+    updateAppointmentStatus(id: $id, status: $status, cancellationReason: $reason) {
+      appointment {
+        id
+        status
+      }
+      error
     }
   }
 `;
 
-const UNBLOCK_TIME_SLOT_MUTATION = gql`
-  mutation UnblockTimeSlot($id: UUID!) {
-    unblockTimeSlot(id: $id) {
-      id
-      isBlocked
+const CONVERT_TO_SESSION_MUTATION = gql`
+  mutation ConvertToSession($id: UUID!) {
+    convertToSession(id: $id) {
+      appointment {
+        id
+        status
+        session {
+          id
+        }
+      }
+      error
     }
+  }
+`;
+
+const DELETE_APPOINTMENT_MUTATION = gql`
+  mutation DeleteAppointment($id: UUID!) {
+    deleteAppointment(id: $id)
   }
 `;
 
@@ -371,18 +307,13 @@ export class AppointmentService {
   private apollo = inject(Apollo);
 
   // Query Methods
-  getAppointments(
-    first: number = 20,
-    after?: string | null,
-    where?: any,
-    order?: any[]
-  ): Observable<AppointmentsConnection> {
-    return this.apollo.query<{ appointments: AppointmentsConnection }>({
+  getAppointments(where?: any, order?: any[]): Observable<Appointment[]> {
+    return this.apollo.query<{ appointments: Appointment[] }>({
       query: APPOINTMENTS_QUERY,
-      variables: { first, after, where, order },
+      variables: { where, order },
       fetchPolicy: 'network-only'
     }).pipe(
-      map(result => result.data?.appointments!)
+      map(result => result.data?.appointments || [])
     );
   }
 
@@ -396,48 +327,34 @@ export class AppointmentService {
     );
   }
 
-  getAvailableTimeSlots(date: string, duration: number, technicianId?: string): Observable<TimeSlot[]> {
-    return this.apollo.query<{ availableTimeSlots: TimeSlot[] }>({
-      query: AVAILABLE_TIME_SLOTS_QUERY,
-      variables: { date, duration, technicianId },
+  getAvailableSlots(
+    date: string,
+    durationMinutes: number,
+    organizationId: string,
+    technicianId?: string
+  ): Observable<string[]> {
+    return this.apollo.query<{ availableSlots: string[] }>({
+      query: AVAILABLE_SLOTS_QUERY,
+      variables: { date, durationMinutes, organizationId, technicianId },
       fetchPolicy: 'network-only'
     }).pipe(
-      map(result => result.data?.availableTimeSlots!)
+      map(result => result.data?.availableSlots || [])
     );
   }
 
-  getTechnicianAvailability(technicianId: string, startDate: string, endDate: string): Observable<any> {
-    return this.apollo.query<{ technicianAvailability: any }>({
-      query: TECHNICIAN_AVAILABILITY_QUERY,
-      variables: { technicianId, startDate, endDate },
+  getCustomerUpcomingAppointments(customerId: string): Observable<Appointment[]> {
+    return this.apollo.query<{ customerUpcomingAppointments: Appointment[] }>({
+      query: CUSTOMER_UPCOMING_APPOINTMENTS_QUERY,
+      variables: { customerId },
       fetchPolicy: 'network-only'
     }).pipe(
-      map(result => result.data?.technicianAvailability!)
-    );
-  }
-
-  getTodayAppointments(): Observable<Appointment[]> {
-    return this.apollo.query<{ todayAppointments: Appointment[] }>({
-      query: TODAY_APPOINTMENTS_QUERY,
-      fetchPolicy: 'network-only'
-    }).pipe(
-      map(result => result.data?.todayAppointments!)
-    );
-  }
-
-  getUpcomingAppointments(days: number = 7): Observable<Appointment[]> {
-    return this.apollo.query<{ upcomingAppointments: Appointment[] }>({
-      query: UPCOMING_APPOINTMENTS_QUERY,
-      variables: { days },
-      fetchPolicy: 'network-only'
-    }).pipe(
-      map(result => result.data?.upcomingAppointments!)
+      map(result => result.data?.customerUpcomingAppointments || [])
     );
   }
 
   // Mutation Methods
-  createAppointment(input: CreateAppointmentInput): Observable<Appointment> {
-    return this.apollo.mutate<{ createAppointment: Appointment }>({
+  createAppointment(input: CreateAppointmentInput): Observable<{ appointment?: Appointment; error?: string }> {
+    return this.apollo.mutate<{ createAppointment: { appointment?: Appointment; error?: string } }>({
       mutation: CREATE_APPOINTMENT_MUTATION,
       variables: { input }
     }).pipe(
@@ -448,8 +365,8 @@ export class AppointmentService {
     );
   }
 
-  updateAppointment(id: string, input: UpdateAppointmentInput): Observable<Appointment> {
-    return this.apollo.mutate<{ updateAppointment: Appointment }>({
+  updateAppointment(id: string, input: UpdateAppointmentInput): Observable<{ appointment?: Appointment; error?: string }> {
+    return this.apollo.mutate<{ updateAppointment: { appointment?: Appointment; error?: string } }>({
       mutation: UPDATE_APPOINTMENT_MUTATION,
       variables: { id, input }
     }).pipe(
@@ -460,164 +377,165 @@ export class AppointmentService {
     );
   }
 
-  cancelAppointment(id: string, reason?: string): Observable<Appointment> {
-    return this.apollo.mutate<{ cancelAppointment: Appointment }>({
-      mutation: CANCEL_APPOINTMENT_MUTATION,
-      variables: { id, reason }
+  updateAppointmentStatus(
+    id: string,
+    status: AppointmentStatus,
+    cancellationReason?: string
+  ): Observable<{ appointment?: Appointment; error?: string }> {
+    return this.apollo.mutate<{ updateAppointmentStatus: { appointment?: Appointment; error?: string } }>({
+      mutation: UPDATE_APPOINTMENT_STATUS_MUTATION,
+      variables: { id, status, reason: cancellationReason }
     }).pipe(
       map(result => {
-        if (!result.data) throw new Error('Failed to cancel appointment');
-        return result.data.cancelAppointment;
+        if (!result.data) throw new Error('Failed to update appointment status');
+        return result.data.updateAppointmentStatus;
       })
     );
   }
 
-  confirmAppointment(id: string): Observable<Appointment> {
-    return this.apollo.mutate<{ confirmAppointment: Appointment }>({
-      mutation: CONFIRM_APPOINTMENT_MUTATION,
+  convertToSession(id: string): Observable<{ appointment?: Appointment; error?: string }> {
+    return this.apollo.mutate<{ convertToSession: { appointment?: Appointment; error?: string } }>({
+      mutation: CONVERT_TO_SESSION_MUTATION,
       variables: { id }
     }).pipe(
       map(result => {
-        if (!result.data) throw new Error('Failed to confirm appointment');
-        return result.data.confirmAppointment;
+        if (!result.data) throw new Error('Failed to convert appointment to session');
+        return result.data.convertToSession;
       })
     );
   }
 
-  markNoShow(id: string): Observable<Appointment> {
-    return this.apollo.mutate<{ markNoShow: Appointment }>({
-      mutation: MARK_NO_SHOW_MUTATION,
+  deleteAppointment(id: string): Observable<boolean> {
+    return this.apollo.mutate<{ deleteAppointment: boolean }>({
+      mutation: DELETE_APPOINTMENT_MUTATION,
       variables: { id }
     }).pipe(
       map(result => {
-        if (!result.data) throw new Error('Failed to mark as no-show');
-        return result.data.markNoShow;
+        if (!result.data) throw new Error('Failed to delete appointment');
+        return result.data.deleteAppointment;
       })
     );
   }
 
-  startAppointment(id: string): Observable<Appointment> {
-    return this.apollo.mutate<{ startAppointment: Appointment }>({
-      mutation: START_APPOINTMENT_MUTATION,
-      variables: { id }
-    }).pipe(
-      map(result => {
-        if (!result.data) throw new Error('Failed to start appointment');
-        return result.data.startAppointment;
-      })
-    );
+  // Helper Methods - Status management
+  confirmAppointment(id: string): Observable<{ appointment?: Appointment; error?: string }> {
+    return this.updateAppointmentStatus(id, AppointmentStatus.CONFIRMED);
   }
 
-  completeAppointment(id: string): Observable<Appointment> {
-    return this.apollo.mutate<{ completeAppointment: Appointment }>({
-      mutation: COMPLETE_APPOINTMENT_MUTATION,
-      variables: { id }
-    }).pipe(
-      map(result => {
-        if (!result.data) throw new Error('Failed to complete appointment');
-        return result.data.completeAppointment;
-      })
-    );
+  checkInAppointment(id: string): Observable<{ appointment?: Appointment; error?: string }> {
+    return this.updateAppointmentStatus(id, AppointmentStatus.CHECKED_IN);
   }
 
-  rescheduleAppointment(id: string, newDate: string, newTime: string): Observable<Appointment> {
-    return this.apollo.mutate<{ rescheduleAppointment: Appointment }>({
-      mutation: RESCHEDULE_APPOINTMENT_MUTATION,
-      variables: { id, newDate, newTime }
-    }).pipe(
-      map(result => {
-        if (!result.data) throw new Error('Failed to reschedule appointment');
-        return result.data.rescheduleAppointment;
-      })
-    );
+  startAppointment(id: string): Observable<{ appointment?: Appointment; error?: string }> {
+    return this.updateAppointmentStatus(id, AppointmentStatus.IN_PROGRESS);
   }
 
-  sendReminder(id: string, type: ReminderType): Observable<{ success: boolean; message: string }> {
-    return this.apollo.mutate<{ sendAppointmentReminder: { success: boolean; message: string } }>({
-      mutation: SEND_REMINDER_MUTATION,
-      variables: { id, type }
-    }).pipe(
-      map(result => {
-        if (!result.data) throw new Error('Failed to send reminder');
-        return result.data.sendAppointmentReminder;
-      })
-    );
+  completeAppointment(id: string): Observable<{ appointment?: Appointment; error?: string }> {
+    return this.updateAppointmentStatus(id, AppointmentStatus.COMPLETED);
   }
 
-  blockTimeSlot(date: string, startTime: string, endTime: string, reason: string, technicianId?: string): Observable<TimeSlot> {
-    return this.apollo.mutate<{ blockTimeSlot: TimeSlot }>({
-      mutation: BLOCK_TIME_SLOT_MUTATION,
-      variables: { date, startTime, endTime, reason, technicianId }
-    }).pipe(
-      map(result => {
-        if (!result.data) throw new Error('Failed to block time slot');
-        return result.data.blockTimeSlot;
-      })
-    );
+  cancelAppointment(id: string, reason?: string): Observable<{ appointment?: Appointment; error?: string }> {
+    return this.updateAppointmentStatus(id, AppointmentStatus.CANCELLED, reason);
   }
 
-  unblockTimeSlot(id: string): Observable<TimeSlot> {
-    return this.apollo.mutate<{ unblockTimeSlot: TimeSlot }>({
-      mutation: UNBLOCK_TIME_SLOT_MUTATION,
-      variables: { id }
-    }).pipe(
-      map(result => {
-        if (!result.data) throw new Error('Failed to unblock time slot');
-        return result.data.unblockTimeSlot;
-      })
-    );
+  markNoShow(id: string): Observable<{ appointment?: Appointment; error?: string }> {
+    return this.updateAppointmentStatus(id, AppointmentStatus.NO_SHOW);
   }
 
-  // Helper Methods
+  // Helper Methods - UI
   getStatusColor(status: AppointmentStatus): string {
     const colors: Record<AppointmentStatus, string> = {
       [AppointmentStatus.SCHEDULED]: 'bg-blue-100 text-blue-800 border-blue-200',
       [AppointmentStatus.CONFIRMED]: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      [AppointmentStatus.CHECKED_IN]: 'bg-purple-100 text-purple-800 border-purple-200',
       [AppointmentStatus.IN_PROGRESS]: 'bg-amber-100 text-amber-800 border-amber-200',
       [AppointmentStatus.COMPLETED]: 'bg-slate-100 text-slate-800 border-slate-200',
-      [AppointmentStatus.CANCELLED]: 'bg-red-100 text-red-800 border-red-200',
-      [AppointmentStatus.NO_SHOW]: 'bg-orange-100 text-orange-800 border-orange-200'
+      [AppointmentStatus.NO_SHOW]: 'bg-orange-100 text-orange-800 border-orange-200',
+      [AppointmentStatus.CANCELLED]: 'bg-red-100 text-red-800 border-red-200'
     };
     return colors[status] || 'bg-slate-100 text-slate-800 border-slate-200';
   }
 
-  formatStatus(status: string): string {
-    return status.replace(/_/g, ' ').toLowerCase()
-      .replace(/\b\w/g, c => c.toUpperCase());
+  formatStatus(status: AppointmentStatus | number): string {
+    const statusMap: Record<AppointmentStatus, string> = {
+      [AppointmentStatus.SCHEDULED]: 'Scheduled',
+      [AppointmentStatus.CONFIRMED]: 'Confirmed',
+      [AppointmentStatus.CHECKED_IN]: 'Checked In',
+      [AppointmentStatus.IN_PROGRESS]: 'In Progress',
+      [AppointmentStatus.COMPLETED]: 'Completed',
+      [AppointmentStatus.NO_SHOW]: 'No Show',
+      [AppointmentStatus.CANCELLED]: 'Cancelled'
+    };
+    return statusMap[status as AppointmentStatus] || 'Unknown';
   }
 
-  formatTime(time: string): string {
-    // Converts HH:mm to 12-hour format
-    const [hours, minutes] = time.split(':').map(Number);
-    const period = hours >= 12 ? 'PM' : 'AM';
-    const displayHours = hours % 12 || 12;
-    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+  formatType(type: AppointmentType | number): string {
+    const typeMap: Record<AppointmentType, string> = {
+      [AppointmentType.GENERAL_SERVICE]: 'General Service',
+      [AppointmentType.OIL_CHANGE]: 'Oil Change',
+      [AppointmentType.BRAKE_SERVICE]: 'Brake Service',
+      [AppointmentType.TIRE_CHANGE]: 'Tire Change',
+      [AppointmentType.INSPECTION]: 'Inspection',
+      [AppointmentType.DIAGNOSIS]: 'Diagnosis',
+      [AppointmentType.REPAIR]: 'Repair',
+      [AppointmentType.CONSULTATION]: 'Consultation',
+      [AppointmentType.AIR_CONDITIONING_SERVICE]: 'Air Conditioning Service',
+      [AppointmentType.BATTERY_REPLACEMENT]: 'Battery Replacement',
+      [AppointmentType.ENGINE_REPAIR]: 'Engine Repair',
+      [AppointmentType.TRANSMISSION_SERVICE]: 'Transmission Service',
+      [AppointmentType.OTHER]: 'Other'
+    };
+    return typeMap[type as AppointmentType] || 'Unknown';
   }
 
-  formatDuration(minutes: number): string {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+  formatDateTime(dateTime: string): string {
+    const date = new Date(dateTime);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+  }
+
+  formatTime(dateTime: string): string {
+    const date = new Date(dateTime);
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+  }
+
+  formatDate(dateTime: string): string {
+    const date = new Date(dateTime);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  formatDuration(startTime: string, endTime: string): string {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const diffMs = end.getTime() - start.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const hours = Math.floor(diffMins / 60);
+    const mins = diffMins % 60;
     if (hours > 0 && mins > 0) return `${hours}h ${mins}m`;
     if (hours > 0) return `${hours}h`;
     return `${mins}m`;
   }
 
-  isToday(dateString: string): boolean {
-    const date = new Date(dateString);
+  isToday(dateTime: string): boolean {
+    const date = new Date(dateTime);
     const today = new Date();
     return date.toDateString() === today.toDateString();
   }
 
-  isTomorrow(dateString: string): boolean {
-    const date = new Date(dateString);
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return date.toDateString() === tomorrow.toDateString();
-  }
-
-  isPast(dateString: string, time: string): boolean {
-    const appointmentDate = new Date(`${dateString}T${time}`);
-    return appointmentDate < new Date();
+  isPast(dateTime: string): boolean {
+    return new Date(dateTime) < new Date();
   }
 
   canCancel(appointment: Appointment): boolean {
@@ -629,18 +547,22 @@ export class AppointmentService {
     return appointment.status === AppointmentStatus.SCHEDULED;
   }
 
+  canCheckIn(appointment: Appointment): boolean {
+    return appointment.status === AppointmentStatus.CONFIRMED || 
+           appointment.status === AppointmentStatus.SCHEDULED;
+  }
+
   canStart(appointment: Appointment): boolean {
-    return (appointment.status === AppointmentStatus.CONFIRMED || 
-            appointment.status === AppointmentStatus.SCHEDULED) &&
-           this.isToday(appointment.scheduledDate);
+    return appointment.status === AppointmentStatus.CHECKED_IN || 
+           appointment.status === AppointmentStatus.CONFIRMED;
   }
 
   canComplete(appointment: Appointment): boolean {
     return appointment.status === AppointmentStatus.IN_PROGRESS;
   }
 
-  canReschedule(appointment: Appointment): boolean {
-    return appointment.status === AppointmentStatus.SCHEDULED || 
+  canConvertToSession(appointment: Appointment): boolean {
+    return appointment.status === AppointmentStatus.CHECKED_IN || 
            appointment.status === AppointmentStatus.CONFIRMED;
   }
 }

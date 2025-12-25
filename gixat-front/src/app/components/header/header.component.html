@@ -2,9 +2,10 @@
   <div class="max-w-[1920px] mx-auto px-6 py-4">
     <div class="flex items-center justify-between gap-6">
       
-      <!-- Page Title -->
+      <!-- Page Title & Info -->
       <div class="flex-shrink-0">
         <h1 class="text-2xl font-semibold text-slate-900 tracking-tight">{{ pageTitle() }}</h1>
+        <p class="text-sm text-slate-500 mt-0.5">{{ pageSubtitle() || currentDate() }}</p>
       </div>
 
       <!-- Search Bar -->
@@ -74,9 +75,20 @@
         }
       </div>
 
-      <!-- Right Section: Notifications & User Menu -->
+      <!-- Right Section: Actions, Notifications & User Menu -->
       <div class="flex items-center gap-3">
-        
+
+        <!-- Dashboard Actions -->
+        @if (pageTitle() === 'Dashboard') {
+          <button class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 transition-all">
+            <i class="ri-calendar-line text-slate-700"></i>
+          </button>
+          <button class="inline-flex items-center gap-2 px-3.5 py-2 bg-[#1b75bc] text-white text-sm font-medium rounded-lg hover:bg-[#155a92] transition-all">
+            <i class="ri-add-line"></i>
+            <span>New Job Card</span>
+          </button>
+        }
+
         <!-- Notifications Button -->
         <button class="relative p-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all">
           <i class="ri-notification-line text-xl"></i>

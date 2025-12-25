@@ -1,5 +1,5 @@
 <div class="min-h-screen bg-slate-50">
-  <div class="max-w-6xl mx-auto px-6 py-16">
+  <div class="max-w-7xl mx-auto px-6 py-16">
     
     <!-- Actions Bar -->
     <div class="mb-8">
@@ -89,10 +89,15 @@
 
     <!-- Results Info -->
     @if (!isLoading()) {
-      <div class="mb-4">
+      <div class="mb-4 flex items-center justify-between">
         <p class="text-xs text-slate-500">
-          {{ customers().length }} {{ customers().length === 1 ? 'customer' : 'customers' }}
+          Showing {{ ((currentPage() - 1) * pageSize()) + 1 }} - {{ Math.min(currentPage() * pageSize(), customers().length) }} of {{ customers().length }} {{ customers().length === 1 ? 'customer' : 'customers' }}
         </p>
+        @if (totalPages() > 1) {
+          <p class="text-xs text-slate-500">
+            Page {{ currentPage() }} of {{ totalPages() }}
+          </p>
+        }
       </div>
     }
 
@@ -146,7 +151,7 @@
 
           <!-- Table Body -->
           <div class="divide-y divide-slate-100">
-            @for (customer of customers(); track customer.id) {
+            @for (customer of paginatedCustomers(); track customer.id) {
               <button
                 (click)="openCustomer(customer.id)"
                 class="w-full px-5 py-3.5 grid grid-cols-12 gap-4 items-center hover:bg-slate-50 transition-all text-left group"
@@ -208,6 +213,15 @@
               </button>
             }
           </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-6">
+          <app-pagination
+            [currentPage]="currentPage()"
+            [totalPages]="totalPages()"
+            (pageChange)="goToPage($event)"
+          ></app-pagination>
         </div>
       } @else {
         <div class="bg-white border border-slate-200 rounded-lg p-12 text-center">

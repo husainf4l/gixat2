@@ -6,6 +6,8 @@ namespace GixatBackend.Modules.Common.Services.AWS;
 
 internal sealed class FileValidationService
 {
+    private static readonly char[] InvalidChars = IOPath.GetInvalidFileNameChars().Concat(new[] { '<', '>', ':', '|', '?', '*' }).ToArray();
+    
     private static readonly HashSet<string> AllowedImageExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
         ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg"
@@ -39,7 +41,18 @@ internal sealed class FileValidationService
 
         // Sanitize and validate file name
         var cleanFileName = IOPath.GetFileName(fileName);
-        if (cleanFileName != fileName || fileName.Contains("..", StringComparison.Ordinal) || IOPath.IsPathRooted(fileName))
+        if (cleanFileName != fileName || 
+            fileName.Contains("..", StringComparison.Ordinal) || 
+            IOPath.IsPathRooted(fileName) ||
+            fileName.Contains('\\', StringComparison.Ordinal) || 
+            fileName.Contains('/', StringComparison.Ordinal) ||
+            fileName.Contains(':', StringComparison.Ordinal) ||
+            fileName.Contains('*', StringComparison.Ordinal) ||
+            fileName.Contains('?', StringComparison.Ordinal) ||
+            fileName.Contains('"', StringComparison.Ordinal) ||
+            fileName.Contains('<', StringComparison.Ordinal) ||
+            fileName.Contains('>', StringComparison.Ordinal) ||
+            fileName.Contains('|', StringComparison.Ordinal))
         {
             throw new InvalidOperationException("Invalid file name");
         }
@@ -79,7 +92,18 @@ internal sealed class FileValidationService
 
         // Sanitize and validate file name
         var fileName = IOPath.GetFileName(file.Name);
-        if (fileName != file.Name || fileName.Contains("..", StringComparison.Ordinal) || IOPath.IsPathRooted(fileName))
+        if (fileName != file.Name || 
+            fileName.Contains("..", StringComparison.Ordinal) || 
+            IOPath.IsPathRooted(fileName) ||
+            fileName.Contains('\\', StringComparison.Ordinal) || 
+            fileName.Contains('/', StringComparison.Ordinal) ||
+            fileName.Contains(':', StringComparison.Ordinal) ||
+            fileName.Contains('*', StringComparison.Ordinal) ||
+            fileName.Contains('?', StringComparison.Ordinal) ||
+            fileName.Contains('"', StringComparison.Ordinal) ||
+            fileName.Contains('<', StringComparison.Ordinal) ||
+            fileName.Contains('>', StringComparison.Ordinal) ||
+            fileName.Contains('|', StringComparison.Ordinal))
         {
             throw new InvalidOperationException("Invalid file name");
         }
@@ -143,18 +167,26 @@ internal sealed class FileValidationService
 
     public static string SanitizeFileName(string fileName)
     {
-        // Remove any path characters
-        fileName = IOPath.GetFileName(fileName);
-        
-        // Remove any potentially dangerous characters
-        var invalidChars = IOPath.GetInvalidFileNameChars();
-        fileName = string.Join("_", fileName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries));
-        
+        // Remove any path characters - handle both Windows (\) and Unix (/) separators
+        var lastBackslash = fileName.LastIndexOf('\\');
+        var lastForwardSlash = fileName.LastIndexOf('/');
+        var lastSeparator = Math.Max(lastBackslash, lastForwardSlash);
+        if (lastSeparator >= 0)
+        {
+            fileName = fileName.Substring(lastSeparator + 1);
+        }
+
+        // Replace invalid characters with underscores
+        foreach (var invalidChar in InvalidChars)
+        {
+            fileName = fileName.Replace(invalidChar, '_');
+        }
+
         // Add timestamp to prevent collisions
         var extension = IOPath.GetExtension(fileName);
         var nameWithoutExtension = IOPath.GetFileNameWithoutExtension(fileName);
         var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
-        
+
         return $"{nameWithoutExtension}_{timestamp}{extension}";
     }
 }

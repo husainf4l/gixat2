@@ -108,6 +108,33 @@ internal static class OrganizationMutations
         user.OrganizationId = organization.Id;
         await context.SaveChangesAsync().ConfigureAwait(false);
 
+        // Automatically assign OrgAdmin role to the organization creator
+        var orgAdminRole = await context.Roles.FirstOrDefaultAsync(r => r.Name == "OrgAdmin").ConfigureAwait(false);
+        if (orgAdminRole == null)
+        {
+            // Create OrgAdmin role if it doesn't exist
+            orgAdminRole = new IdentityRole("OrgAdmin");
+            await context.Roles.AddAsync(orgAdminRole).ConfigureAwait(false);
+            await context.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        // Check if user already has OrgAdmin role
+        var existingRole = await context.UserRoles
+            .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == orgAdminRole.Id)
+            .ConfigureAwait(false);
+
+        if (existingRole == null)
+        {
+            // Assign OrgAdmin role to the user
+            var userRole = new IdentityUserRole<string>
+            {
+                UserId = userId,
+                RoleId = orgAdminRole.Id
+            };
+            await context.UserRoles.AddAsync(userRole).ConfigureAwait(false);
+            await context.SaveChangesAsync().ConfigureAwait(false);
+        }
+
         await transaction.CommitAsync().ConfigureAwait(false);
 
         // Generate fresh auth payload with updated JWT token containing OrganizationId

@@ -5,5 +5,6 @@ export const environment = {
   get apiUrl() {
     return window.__env?.apiUrl || 'http://localhost:8002';
   },
-  googleClientId: '452012051448-9n3pmrnaccuaikme75dg1vqo6la8tiem.apps.googleusercontent.com'
+  googleClientId: '452012051448-9n3pmrnaccuaikme75dg1vqo6la8tiem.apps.googleusercontent.com',
+  geminiApiKey: 'AIzaSyByYekd4QDnh4YhJRNhDvCGvXYmMtAgRzs'
 };

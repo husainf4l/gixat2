@@ -9,8 +9,7 @@ import { catchError, of } from 'rxjs';
   selector: 'app-user-detail',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './user-detail.component.html',
-  styleUrl: './user-detail.component.css'
+  templateUrl: './user-detail.component.html'
 })
 export class UserDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);

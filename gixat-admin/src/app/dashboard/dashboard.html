@@ -1,0 +1,99 @@
+<div class="p-6">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">System Admin Dashboard</h1>
+    <p class="text-gray-600 mt-2">Welcome to the Gixat System Administration Panel</p>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white p-6 rounded-lg shadow">
+      <h3 class="text-lg font-medium text-gray-900">Total Companies</h3>
+      <p class="text-3xl font-bold text-blue-600">247</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow">
+      <h3 class="text-lg font-medium text-gray-900">Active Users</h3>
+      <p class="text-3xl font-bold text-green-600">12,543</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow">
+      <h3 class="text-lg font-medium text-gray-900">System Uptime</h3>
+      <p class="text-3xl font-bold text-purple-600">99.9%</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow">
+      <h3 class="text-lg font-medium text-gray-900">API Requests</h3>
+      <p class="text-3xl font-bold text-yellow-600">1.2M</p>
+    </div>
+  </div>
+
+  <!-- Recent activity -->
+  <div class="bg-white p-6 rounded-lg shadow mb-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">System Activity</h3>
+    <div class="space-y-4">
+      <div class="flex items-center">
+        <div class="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+        <p class="text-sm text-gray-600">New company registered: AutoPro Services</p>
+      </div>
+      <div class="flex items-center">
+        <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+        <p class="text-sm text-gray-600">User login spike detected from region US-WEST</p>
+      </div>
+      <div class="flex items-center">
+        <div class="w-2 h-2 bg-red-500 rounded-full mr-3"></div>
+        <p class="text-sm text-gray-600">Failed login attempts from IP 192.168.1.100</p>
+      </div>
+      <div class="flex items-center">
+        <div class="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
+        <p class="text-sm text-gray-600">Database backup completed successfully</p>
+      </div>
+      <div class="flex items-center">
+        <div class="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+        <p class="text-sm text-gray-600">New user role assigned: Admin to john.doe@gixat.com</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <a routerLink="/companies" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+        <svg class="w-8 h-8 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+        </svg>
+        <div>
+          <p class="font-medium text-gray-900">Manage Companies</p>
+          <p class="text-sm text-gray-500">View and edit company data</p>
+        </div>
+      </a>
+
+      <a routerLink="/users" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+        <svg class="w-8 h-8 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+        </svg>
+        <div>
+          <p class="font-medium text-gray-900">Manage Users</p>
+          <p class="text-sm text-gray-500">User accounts and permissions</p>
+        </div>
+      </a>
+
+      <a routerLink="/system-logs" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+        <svg class="w-8 h-8 text-yellow-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <div>
+          <p class="font-medium text-gray-900">System Logs</p>
+          <p class="text-sm text-gray-500">View system activity logs</p>
+        </div>
+      </a>
+
+      <a routerLink="/health-check" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+        <svg class="w-8 h-8 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        <div>
+          <p class="font-medium text-gray-900">Health Check</p>
+          <p class="text-sm text-gray-500">System health monitoring</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
