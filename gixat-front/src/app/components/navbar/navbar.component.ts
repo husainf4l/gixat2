@@ -105,12 +105,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   navigateToProfile() {
-    const userId = this.userId();
-    if (userId) {
-      this.router.navigate(['/dashboard/organization', userId]);
-    } else {
-      this.router.navigate(['/dashboard/organization']);
-    }
+    // Navigate to organization page with profile tab query parameter
+    this.router.navigate(['/dashboard/organization'], {
+      queryParams: { tab: 'profile' }
+    });
     this.closeUserMenu();
   }
 

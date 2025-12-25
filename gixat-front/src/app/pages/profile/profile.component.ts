@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { ProfileService, UserProfile, UpdateProfileInput, Organization, UpdateOrganizationInput, AddressInput, OrganizationUser, CreateUserInput } from '../../services/profile.service';
 import { catchError, of, firstValueFrom } from 'rxjs';
 import { InviteManagementComponent } from '../../components/invite-management/invite-management.component';
@@ -16,6 +16,7 @@ import { InviteManagementComponent } from '../../components/invite-management/in
 export class ProfileComponent implements OnInit {
   private profileService = inject(ProfileService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   // Profile data
   profile = signal<UserProfile | null>(null);
@@ -79,9 +80,28 @@ export class ProfileComponent implements OnInit {
   activeTab = signal<'organization' | 'team' | 'profile' | 'invites' | 'roles'>('organization');
 
   ngOnInit() {
+    // Read tab from query parameters
+    this.route.queryParams.subscribe(params => {
+      const tab = params['tab'];
+      if (tab && ['organization', 'team', 'profile', 'invites', 'roles'].includes(tab)) {
+        this.activeTab.set(tab as 'organization' | 'team' | 'profile' | 'invites' | 'roles');
+      }
+    });
+
     this.loadProfile();
     this.loadOrganization();
     this.loadOrganizationUsers();
+  }
+
+  setActiveTab(tab: 'organization' | 'team' | 'profile' | 'invites' | 'roles') {
+    this.activeTab.set(tab);
+    // Update URL with query parameter
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   loadProfile() {

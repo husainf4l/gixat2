@@ -1,0 +1,137 @@
+<section id="features" class="relative py-24 bg-white overflow-hidden">
+  <!-- Refined background -->
+  <div class="absolute inset-0 opacity-[0.02]">
+    <div class="absolute top-1/4 left-0 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(0,113,227,0.15),rgba(255,255,255,0))]"></div>
+  </div>
+
+  <div class="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+      
+    <!-- Centered Header -->
+    <div class="mb-16 text-center max-w-3xl mx-auto">
+      <h2 class="text-4xl sm:text-5xl lg:text-6xl font-light text-[#1d1d1f] tracking-tight leading-[1.1] mb-4">
+        See it in action
+      </h2>
+      <p class="text-[17px] text-[#6e6e73] font-light leading-relaxed">
+        Explore how Gixat transforms your garage operations
+      </p>
+    </div>
+
+    <!-- Interactive Showcase Layout -->
+    <div class="grid lg:grid-cols-12 gap-8 lg:gap-12">
+      
+      <!-- Left: Feature Navigation -->
+      <div class="lg:col-span-5 space-y-3">
+        @for (feature of features; track feature.id; let i = $index) {
+          <button 
+            (click)="selectFeature(i)"
+            [class.bg-[#f5f5f7]]="selectedFeature() === i"
+            [class.border-[#0071e3]]="selectedFeature() === i"
+            [class.bg-white]="selectedFeature() !== i"
+            [class.border-[#d2d2d7]/30]="selectedFeature() !== i"
+            class="w-full text-left p-6 rounded-2xl border-2 transition-all duration-400 hover:border-[#0071e3]/50 group">
+            
+            <div class="flex items-start gap-4">
+              <!-- Icon -->
+              <div [class]="'flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-400 ' + feature.iconBg + ' ' + (selectedFeature() === i ? 'scale-110' : '')">
+                <i [class]="feature.icon + ' text-2xl ' + feature.iconColor"></i>
+              </div>
+              
+              <!-- Content -->
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg font-normal text-[#1d1d1f] mb-1 leading-snug">
+                  {{ feature.title }}
+                </h3>
+                <p class="text-[13px] text-[#6e6e73] font-light leading-relaxed">
+                  {{ feature.shortDesc }}
+                </p>
+              </div>
+
+              <!-- Arrow indicator -->
+              <svg 
+                [class.opacity-100]="selectedFeature() === i"
+                [class.opacity-0]="selectedFeature() !== i"
+                [class.translate-x-0]="selectedFeature() === i"
+                [class.-translate-x-2]="selectedFeature() !== i"
+                class="w-5 h-5 text-[#0071e3] flex-shrink-0 transition-all duration-400" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24" 
+                stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+          </button>
+        }
+      </div>
+
+      <!-- Right: Preview Area -->
+      <div class="lg:col-span-7">
+        <div class="sticky top-8">
+          <!-- Visual Preview -->
+          <div class="relative bg-[#f5f5f7] rounded-3xl overflow-hidden border border-[#d2d2d7]/30 mb-6" style="aspect-ratio: 16/10;">
+            <div class="absolute inset-0 flex items-center justify-center">
+              @for (feature of features; track feature.id; let i = $index) {
+                <img 
+                  [src]="feature.previewImage" 
+                  [alt]="feature.title"
+                  [class.opacity-100]="selectedFeature() === i"
+                  [class.opacity-0]="selectedFeature() !== i"
+                  [class.scale-100]="selectedFeature() === i"
+                  [class.scale-95]="selectedFeature() !== i"
+                  class="absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out"
+                  loading="lazy" />
+              }
+            </div>
+          </div>
+
+          <!-- Feature Details -->
+          <div class="bg-white rounded-2xl p-8 border border-[#d2d2d7]/30">
+            @for (feature of features; track feature.id; let i = $index) {
+              @if (selectedFeature() === i) {
+                <div class="animate-fade-in">
+                  <h3 class="text-2xl font-light text-[#1d1d1f] mb-3 leading-tight">
+                    {{ feature.title }}
+                  </h3>
+                  <p class="text-[15px] text-[#6e6e73] font-light leading-relaxed mb-6">
+                    {{ feature.description }}
+                  </p>
+                  
+                  <!-- Highlights -->
+                  <div class="grid grid-cols-2 gap-3">
+                    @for (highlight of feature.highlights; track highlight) {
+                      <div class="flex items-start gap-2 text-[13px] text-[#1d1d1f]">
+                        <svg class="w-4 h-4 text-[#0071e3] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="font-light">{{ highlight }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<style>
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out;
+}
+</style>

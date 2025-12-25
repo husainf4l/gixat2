@@ -12,3 +12,4 @@ export class DataDeletionComponent {
   lastUpdated = 'December 24, 2024';
 }
 
+

@@ -12,3 +12,4 @@ export class TermsOfServiceComponent {
   lastUpdated = 'December 24, 2024';
 }
 
+

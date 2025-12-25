@@ -40,7 +40,7 @@
         <div class="border-b border-slate-200 bg-white rounded-t-xl">
           <nav class="flex gap-1 px-1" aria-label="Tabs">
             <button
-              (click)="activeTab.set('organization')"
+              (click)="setActiveTab('organization')"
               class="px-4 py-3 text-sm font-medium transition-all relative -mb-px"
               [class.text-[#1b75bc]]="activeTab() === 'organization'"
               [class.text-slate-600]="activeTab() !== 'organization'"
@@ -55,7 +55,7 @@
               </div>
             </button>
             <button
-              (click)="activeTab.set('team')"
+              (click)="setActiveTab('team')"
               class="px-4 py-3 text-sm font-medium transition-all relative -mb-px"
               [class.text-[#1b75bc]]="activeTab() === 'team'"
               [class.text-slate-600]="activeTab() !== 'team'"
@@ -75,7 +75,7 @@
               </div>
             </button>
             <button
-              (click)="activeTab.set('profile')"
+              (click)="setActiveTab('profile')"
               class="px-4 py-3 text-sm font-medium transition-all relative -mb-px"
               [class.text-[#1b75bc]]="activeTab() === 'profile'"
               [class.text-slate-600]="activeTab() !== 'profile'"
@@ -90,7 +90,7 @@
               </div>
             </button>
             <button
-              (click)="activeTab.set('invites')"
+              (click)="setActiveTab('invites')"
               class="px-4 py-3 text-sm font-medium transition-all relative -mb-px"
               [class.text-[#1b75bc]]="activeTab() === 'invites'"
               [class.text-slate-600]="activeTab() !== 'invites'"
@@ -105,7 +105,7 @@
               </div>
             </button>
             <button
-              (click)="activeTab.set('roles')"
+              (click)="setActiveTab('roles')"
               class="px-4 py-3 text-sm font-medium transition-all relative -mb-px"
               [class.text-[#1b75bc]]="activeTab() === 'roles'"
               [class.text-slate-600]="activeTab() !== 'roles'"

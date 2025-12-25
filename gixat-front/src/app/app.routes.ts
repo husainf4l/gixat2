@@ -24,9 +24,11 @@ import { PublicEstimateComponent } from './pages/estimates/public-estimate/publi
 import { PrivacyPolicyComponent } from './pages/legal/privacy-policy/privacy-policy.component';
 import { TermsOfServiceComponent } from './pages/legal/terms-of-service/terms-of-service.component';
 import { DataDeletionComponent } from './pages/legal/data-deletion/data-deletion.component';
+import { FeaturesComponent } from './pages/features/features.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
+  { path: 'features', component: FeaturesComponent },
   { path: 'auth/login', component: LoginComponent },
   { path: 'auth/register', component: SignupComponent },
   { path: 'auth/callback', component: CallbackComponent },

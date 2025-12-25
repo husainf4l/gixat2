@@ -1,0 +1,211 @@
+<div class="min-h-screen bg-white">
+  <!-- Hero Section -->
+  <section class="relative pt-32 pb-20 px-6 sm:px-8 lg:px-12 overflow-hidden">
+    <!-- Subtle background gradient -->
+    <div class="absolute inset-0 bg-gradient-to-b from-slate-50/50 to-white pointer-events-none"></div>
+    
+    <div class="relative max-w-7xl mx-auto text-center">
+      <h1 class="text-6xl sm:text-7xl lg:text-8xl font-light text-[#1d1d1f] tracking-tight leading-[1.05] mb-6">
+        Powerful features.<br />
+        <span class="font-normal">Simply designed.</span>
+      </h1>
+      <p class="text-xl sm:text-2xl text-[#6e6e73] font-light leading-relaxed max-w-2xl mx-auto mb-12">
+        Everything you need to run your garage efficiently, all in one place.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Features Section -->
+  <section class="relative py-20 px-6 sm:px-8 lg:px-12">
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Interactive Feature Showcase -->
+      <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        
+        <!-- Left: Feature Navigation -->
+        <div class="lg:col-span-5 space-y-4">
+          @for (feature of features; track feature.id; let i = $index) {
+            <button 
+              (click)="selectFeature(i)"
+              [class.bg-[#f5f5f7]]="selectedFeature() === i"
+              [class.border-[#0071e3]]="selectedFeature() === i"
+              [class.bg-white]="selectedFeature() !== i"
+              [class.border-slate-200]="selectedFeature() !== i"
+              class="feature-card w-full text-left p-6 rounded-2xl border-2 transition-all duration-500 hover:border-[#0071e3]/40 group">
+              
+              <div class="flex items-start gap-4">
+                <!-- Icon -->
+                <div 
+                  [class]="'flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ' + 
+                    (feature.color === 'blue' ? 'bg-blue-50' : '') +
+                    (feature.color === 'purple' ? 'bg-purple-50' : '') +
+                    (feature.color === 'amber' ? 'bg-amber-50' : '') +
+                    (feature.color === 'emerald' ? 'bg-emerald-50' : '') +
+                    (feature.color === 'indigo' ? 'bg-indigo-50' : '') +
+                    (feature.color === 'rose' ? 'bg-rose-50' : '') +
+                    (selectedFeature() === i ? ' scale-110' : '')">
+                  <i 
+                    [class]="feature.icon + ' text-2xl ' + 
+                      (feature.color === 'blue' ? 'text-[#0071e3]' : '') +
+                      (feature.color === 'purple' ? 'text-purple-600' : '') +
+                      (feature.color === 'amber' ? 'text-amber-600' : '') +
+                      (feature.color === 'emerald' ? 'text-emerald-600' : '') +
+                      (feature.color === 'indigo' ? 'text-indigo-600' : '') +
+                      (feature.color === 'rose' ? 'text-rose-600' : '')">
+                  </i>
+                </div>
+                
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <h3 class="text-xl font-normal text-[#1d1d1f] leading-tight">
+                      {{ feature.title }}
+                    </h3>
+                    <span 
+                      [class.opacity-100]="selectedFeature() === i"
+                      [class.opacity-0]="selectedFeature() !== i"
+                      class="text-[13px] text-[#6e6e73] font-light transition-opacity duration-300">
+                      {{ feature.tagline }}
+                    </span>
+                  </div>
+                  <p 
+                    [class.max-h-0]="selectedFeature() !== i"
+                    [class.max-h-20]="selectedFeature() === i"
+                    [class.opacity-0]="selectedFeature() !== i"
+                    [class.opacity-100]="selectedFeature() === i"
+                    class="text-[15px] text-[#6e6e73] font-light leading-relaxed overflow-hidden transition-all duration-500">
+                    {{ feature.description }}
+                  </p>
+                </div>
+
+                <!-- Arrow indicator -->
+                <svg 
+                  [class.opacity-100]="selectedFeature() === i"
+                  [class.opacity-0]="selectedFeature() !== i"
+                  [class.translate-x-0]="selectedFeature() === i"
+                  [class.-translate-x-2]="selectedFeature() !== i"
+                  class="w-6 h-6 text-[#0071e3] flex-shrink-0 transition-all duration-500" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24" 
+                  stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </button>
+          }
+        </div>
+
+        <!-- Right: Preview Area -->
+        <div class="lg:col-span-7">
+          <div class="sticky top-8">
+            <!-- Visual Preview -->
+            <div class="relative bg-[#f5f5f7] rounded-[2.5rem] overflow-hidden border border-slate-200/50 mb-8 shadow-xl" style="aspect-ratio: 16/10;">
+              <div class="absolute inset-0 flex items-center justify-center p-8">
+                @for (feature of features; track feature.id; let i = $index) {
+                  <img 
+                    [src]="feature.previewImage" 
+                    [alt]="feature.title"
+                    [class.feature-preview]="true"
+                    [class.active]="selectedFeature() === i"
+                    [class.inactive]="selectedFeature() !== i"
+                    class="absolute inset-0 w-full h-full object-contain transition-all duration-700 ease-out"
+                    loading="lazy" />
+                }
+              </div>
+            </div>
+
+            <!-- Feature Details Card -->
+            <div class="bg-white rounded-3xl p-10 border border-slate-200/50 shadow-sm">
+              @for (feature of features; track feature.id; let i = $index) {
+                @if (selectedFeature() === i) {
+                  <div class="animate-fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                      <div 
+                        [class]="'w-10 h-10 rounded-xl flex items-center justify-center ' +
+                          (feature.color === 'blue' ? 'bg-blue-50' : '') +
+                          (feature.color === 'purple' ? 'bg-purple-50' : '') +
+                          (feature.color === 'amber' ? 'bg-amber-50' : '') +
+                          (feature.color === 'emerald' ? 'bg-emerald-50' : '') +
+                          (feature.color === 'indigo' ? 'bg-indigo-50' : '') +
+                          (feature.color === 'rose' ? 'bg-rose-50' : '')">
+                        <i 
+                          [class]="feature.icon + ' text-xl ' + 
+                            (feature.color === 'blue' ? 'text-[#0071e3]' : '') +
+                            (feature.color === 'purple' ? 'text-purple-600' : '') +
+                            (feature.color === 'amber' ? 'text-amber-600' : '') +
+                            (feature.color === 'emerald' ? 'text-emerald-600' : '') +
+                            (feature.color === 'indigo' ? 'text-indigo-600' : '') +
+                            (feature.color === 'rose' ? 'text-rose-600' : '')">
+                        </i>
+                      </div>
+                      <div>
+                        <h3 class="text-3xl font-light text-[#1d1d1f] leading-tight">
+                          {{ feature.title }}
+                        </h3>
+                        <p class="text-[15px] text-[#6e6e73] font-light mt-1">
+                          {{ feature.tagline }}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <p class="text-[17px] text-[#1d1d1f] font-light leading-relaxed mb-8">
+                      {{ feature.description }}
+                    </p>
+                    
+                    <!-- Highlights Grid -->
+                    <div class="grid sm:grid-cols-2 gap-4">
+                      @for (highlight of feature.highlights; track highlight) {
+                        <div class="flex items-start gap-3 text-[15px] text-[#1d1d1f]">
+                          <svg 
+                            [class]="'w-5 h-5 flex-shrink-0 mt-0.5 ' +
+                              (feature.color === 'blue' ? 'text-[#0071e3]' : '') +
+                              (feature.color === 'purple' ? 'text-purple-600' : '') +
+                              (feature.color === 'amber' ? 'text-amber-600' : '') +
+                              (feature.color === 'emerald' ? 'text-emerald-600' : '') +
+                              (feature.color === 'indigo' ? 'text-indigo-600' : '') +
+                              (feature.color === 'rose' ? 'text-rose-600' : '')"
+                            fill="currentColor" 
+                            viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                          </svg>
+                          <span class="font-light leading-relaxed">{{ highlight }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="relative py-24 px-6 sm:px-8 lg:px-12 bg-[#f5f5f7]">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2 class="text-5xl sm:text-6xl font-light text-[#1d1d1f] tracking-tight leading-tight mb-6">
+        Ready to get started?
+      </h2>
+      <p class="text-xl text-[#6e6e73] font-light leading-relaxed mb-10">
+        Join thousands of garages already using Gixat to streamline their operations.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a 
+          routerLink="/auth/register"
+          class="inline-flex items-center justify-center px-8 py-4 bg-[#0071e3] text-white text-lg font-medium rounded-full hover:bg-[#0077ed] transition-all duration-300 shadow-lg hover:shadow-xl">
+          Get Started
+        </a>
+        <a 
+          routerLink="/"
+          class="inline-flex items-center justify-center px-8 py-4 bg-white text-[#0071e3] text-lg font-medium rounded-full border-2 border-[#0071e3] hover:bg-[#0071e3]/5 transition-all duration-300">
+          Learn More
+        </a>
+      </div>
+    </div>
+  </section>
+</div>
+

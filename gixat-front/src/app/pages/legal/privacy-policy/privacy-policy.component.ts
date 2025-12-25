@@ -12,3 +12,4 @@ export class PrivacyPolicyComponent {
   lastUpdated = 'December 24, 2024';
 }
 
+
