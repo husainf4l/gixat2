@@ -1,10 +1,14 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System;
+using System.Diagnostics.CodeAnalysis;
 using IOPath = System.IO.Path;
 
-class Program
+namespace PathTest;
+
+[SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters")]
+class PathTestProgram
 {
-    static void Main(string[] args)
+    static void TestMain(string[] args)
     {
         Console.WriteLine("Testing IOPath.GetFileName behavior:");
 

@@ -8,7 +8,7 @@ namespace GixatBackend.Modules.JobCards.GraphQL;
 
 [ExtendObjectType<JobCard>]
 [Authorize]
-internal static class JobCardExtensions
+internal sealed class JobCardExtensions
 {
     // Load job items using DataLoader - prevents N+1 queries
     [GraphQLName("items")]

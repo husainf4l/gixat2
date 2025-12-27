@@ -15,7 +15,7 @@ namespace GixatBackend.Modules.Common.GraphQL;
 [SuppressMessage("Performance", "CA1515:Consider making public types internal", Justification = "GraphQL mutation type")]
 [HotChocolate.Types.ExtendObjectType("Mutation")]
 [Authorize]
-public static partial class PresignedUploadMutations
+internal sealed partial class PresignedUploadMutations
 {
     // High-performance logging using LoggerMessage source generator
     [LoggerMessage(Level = LogLevel.Error, Message = "Failed to process session file {FileKey}")]

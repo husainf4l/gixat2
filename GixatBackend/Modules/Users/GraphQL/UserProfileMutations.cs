@@ -12,7 +12,7 @@ namespace GixatBackend.Modules.Users.GraphQL;
 [ExtendObjectType(OperationTypeNames.Mutation)]
 [Authorize]
 [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "HotChocolate resolvers cannot be static")]
-internal static class UserProfileMutations
+internal sealed class UserProfileMutations
 {
     /// <summary>
     /// Update current user's profile

@@ -10,7 +10,7 @@ namespace GixatBackend.Modules.Users.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Query)]
 [Authorize]
-internal static class AuthQueries
+internal sealed class AuthQueries
 {
     public static async Task<ApplicationUser?> GetMeAsync(
         ClaimsPrincipal claimsPrincipal,

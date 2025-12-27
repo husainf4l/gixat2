@@ -15,7 +15,7 @@ using Google.Apis.Auth.OAuth2;
 namespace GixatBackend.Modules.Users.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
-internal static class AuthMutations
+internal sealed class AuthMutations
 {
     [AllowAnonymous]
     public static async Task<AuthPayload> RegisterAsync(

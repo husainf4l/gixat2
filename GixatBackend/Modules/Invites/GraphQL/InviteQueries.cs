@@ -9,7 +9,7 @@ namespace GixatBackend.Modules.Invites.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Query)]
 [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated by HotChocolate")]
-internal static class InviteQueries
+internal sealed class InviteQueries
 {
     [Authorize(Roles = new[] { "OrgAdmin", "OrgManager" })]
     [UseFiltering]

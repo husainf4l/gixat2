@@ -15,7 +15,7 @@ public sealed record CreateLookupItemInput(
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
 [Authorize]
-internal static class LookupMutations
+internal sealed class LookupMutations
 {
     public static async Task<LookupItem> CreateLookupItemAsync(
         CreateLookupItemInput input,

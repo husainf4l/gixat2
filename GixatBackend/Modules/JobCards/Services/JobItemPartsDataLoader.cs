@@ -7,7 +7,7 @@ namespace GixatBackend.Modules.JobCards.Services;
 /// <summary>
 /// DataLoader for efficiently loading parts for job items
 /// </summary>
-public sealed class JobItemPartsDataLoader : GroupedDataLoader<Guid, JobItemPart>
+internal sealed class JobItemPartsDataLoader : GroupedDataLoader<Guid, JobItemPart>
 {
     private readonly IDbContextFactory<ApplicationDbContext> _dbContextFactory;
 
@@ -15,7 +15,7 @@ public sealed class JobItemPartsDataLoader : GroupedDataLoader<Guid, JobItemPart
         IDbContextFactory<ApplicationDbContext> dbContextFactory,
         IBatchScheduler batchScheduler,
         DataLoaderOptions? options = null)
-        : base(batchScheduler, options)
+        : base(batchScheduler, options!)
     {
         _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
     }

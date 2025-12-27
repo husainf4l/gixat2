@@ -14,7 +14,7 @@ namespace GixatBackend.Modules.Sessions.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
 [Authorize]
-internal static class SessionMutations
+internal sealed class SessionMutations
 {
     public static async Task<GarageSession> CreateSessionAsync(
         Guid carId,

@@ -7,7 +7,7 @@ namespace GixatBackend.Modules.Common.Lookup.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Query)]
 [Authorize]
-internal static class LookupQueries
+internal sealed class LookupQueries
 {
     [UseSorting]
     public static IQueryable<LookupItem> GetLookupItems(

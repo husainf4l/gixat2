@@ -36,7 +36,7 @@ public sealed record CreateCarInput(
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
 [Authorize]
-internal static class CustomerMutations
+internal sealed class CustomerMutations
 {
     public static async Task<Customer> CreateCustomerAsync(
         CreateCustomerInput input,

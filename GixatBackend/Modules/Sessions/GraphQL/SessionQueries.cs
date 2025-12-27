@@ -7,7 +7,7 @@ namespace GixatBackend.Modules.Sessions.GraphQL;
 
 [ExtendObjectType("Query")]
 [Authorize]
-internal static class SessionQueries
+internal sealed class SessionQueries
 {
     [UsePaging(DefaultPageSize = 50, MaxPageSize = 100, IncludeTotalCount = true)]
     [UseFiltering]

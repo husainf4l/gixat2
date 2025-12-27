@@ -9,7 +9,7 @@ namespace GixatBackend.Modules.Appointments.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Query)]
 [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated by HotChocolate")]
-internal static class AppointmentQueries
+internal sealed class AppointmentQueries
 {
     /// <summary>
     /// Get all appointments with filtering and sorting

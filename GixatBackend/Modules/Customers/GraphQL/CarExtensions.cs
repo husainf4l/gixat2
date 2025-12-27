@@ -7,7 +7,7 @@ namespace GixatBackend.Modules.Customers.GraphQL;
 
 [ExtendObjectType<Car>]
 [Authorize]
-internal static class CarExtensions
+internal sealed class CarExtensions
 {
     /// <summary>
     /// Get all sessions for this car using DataLoader to prevent N+1 queries

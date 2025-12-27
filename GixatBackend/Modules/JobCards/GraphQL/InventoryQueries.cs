@@ -9,7 +9,7 @@ namespace GixatBackend.Modules.JobCards.GraphQL;
 /// GraphQL queries for inventory management
 /// </summary>
 [ExtendObjectType(OperationTypeNames.Query)]
-public sealed class InventoryQueries
+internal sealed class InventoryQueries
 {
     /// <summary>
     /// Get all inventory items for the organization
@@ -18,7 +18,7 @@ public sealed class InventoryQueries
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<InventoryItem> GetInventoryItems(ApplicationDbContext context)
+    public static IQueryable<InventoryItem> GetInventoryItems(ApplicationDbContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
         return context.InventoryItems;
@@ -28,7 +28,7 @@ public sealed class InventoryQueries
     /// Get inventory item by ID
     /// </summary>
     [Authorize]
-    public async Task<InventoryItem?> GetInventoryItemByIdAsync(
+    public static async Task<InventoryItem?> GetInventoryItemByIdAsync(
         Guid id,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -43,7 +43,7 @@ public sealed class InventoryQueries
     /// Get inventory items that are low in stock (below minimum level)
     /// </summary>
     [Authorize]
-    public async Task<List<InventoryItem>> GetLowStockItemsAsync(
+    public static async Task<List<InventoryItem>> GetLowStockItemsAsync(
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
     {
@@ -59,7 +59,7 @@ public sealed class InventoryQueries
     /// Search inventory items by name, part number, or category
     /// </summary>
     [Authorize]
-    public async Task<List<InventoryItem>> SearchInventoryAsync(
+    public static async Task<List<InventoryItem>> SearchInventoryAsync(
         string searchTerm,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -67,12 +67,12 @@ public sealed class InventoryQueries
         ArgumentNullException.ThrowIfNull(context);
         ArgumentException.ThrowIfNullOrWhiteSpace(searchTerm);
 
-        var search = searchTerm.Trim().ToLowerInvariant();
+        var search = searchTerm.Trim();
         return await context.InventoryItems
             .Where(i => i.IsActive && (
-                i.Name.ToLower().Contains(search) ||
-                i.PartNumber.ToLower().Contains(search) ||
-                (i.Category != null && i.Category.ToLower().Contains(search))
+                i.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                i.PartNumber.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                (i.Category != null && i.Category.Contains(search, StringComparison.OrdinalIgnoreCase))
             ))
             .OrderBy(i => i.Name)
             .ToListAsync(cancellationToken)
@@ -83,7 +83,7 @@ public sealed class InventoryQueries
     /// Get inventory items by category
     /// </summary>
     [Authorize]
-    public async Task<List<InventoryItem>> GetInventoryByCategoryAsync(
+    public static async Task<List<InventoryItem>> GetInventoryByCategoryAsync(
         string category,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)

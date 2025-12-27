@@ -9,13 +9,13 @@ namespace GixatBackend.Modules.JobCards.GraphQL;
 /// GraphQL queries for labor tracking
 /// </summary>
 [ExtendObjectType(OperationTypeNames.Query)]
-public sealed class LaborQueries
+internal sealed class LaborQueries
 {
     /// <summary>
     /// Get all labor entries for a job item
     /// </summary>
     [Authorize]
-    public async Task<List<LaborEntry>> GetLaborEntriesByJobItemAsync(
+    public static async Task<List<LaborEntry>> GetLaborEntriesByJobItemAsync(
         Guid jobItemId,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -29,10 +29,10 @@ public sealed class LaborQueries
     }
 
     /// <summary>
-    /// Get all labor entries for a technician
+    /// Get labor entries for a technician
     /// </summary>
     [Authorize]
-    public async Task<List<LaborEntry>> GetLaborEntriesByTechnicianAsync(
+    public static async Task<List<LaborEntry>> GetLaborEntriesByTechnicianAsync(
         string technicianId,
         DateTime? startDate,
         DateTime? endDate,
@@ -65,7 +65,7 @@ public sealed class LaborQueries
     /// Get labor entry by ID
     /// </summary>
     [Authorize]
-    public async Task<LaborEntry?> GetLaborEntryByIdAsync(
+    public static async Task<LaborEntry?> GetLaborEntryByIdAsync(
         Guid id,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -79,10 +79,10 @@ public sealed class LaborQueries
     }
 
     /// <summary>
-    /// Get active (in-progress) labor entries for a technician
+    /// Get all active (not clocked out) labor entries for the organization
     /// </summary>
     [Authorize]
-    public async Task<List<LaborEntry>> GetActiveLaborEntriesAsync(
+    public static async Task<List<LaborEntry>> GetActiveLaborEntriesAsync(
         string? technicianId,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -104,10 +104,10 @@ public sealed class LaborQueries
     }
 
     /// <summary>
-    /// Get labor summary for a job card (total hours and costs across all items)
+    /// Get labor summary for a job card
     /// </summary>
     [Authorize]
-    public async Task<LaborSummary> GetLaborSummaryByJobCardAsync(
+    public static async Task<LaborSummary> GetLaborSummaryByJobCardAsync(
         Guid jobCardId,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -136,7 +136,7 @@ public sealed class LaborQueries
 /// <summary>
 /// Summary of labor data
 /// </summary>
-public sealed class LaborSummary
+internal sealed class LaborSummary
 {
     public decimal TotalEstimatedHours { get; set; }
     public decimal TotalActualHours { get; set; }

@@ -41,7 +41,7 @@ public sealed record LogoUploadResult(
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
 [Authorize]
-internal static class OrganizationMutations
+internal sealed class OrganizationMutations
 {
     public static async Task<AuthPayload> CreateOrganizationAsync(
         CreateOrganizationInput input,

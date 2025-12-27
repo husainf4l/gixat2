@@ -10,7 +10,7 @@ namespace GixatBackend.Modules.JobCards.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
 [Authorize]
-internal static partial class JobCardCommentMutations
+internal sealed partial class JobCardCommentMutations
 {
     [GeneratedRegex(@"@(\w+)", RegexOptions.Compiled)]
     private static partial Regex MentionPattern();

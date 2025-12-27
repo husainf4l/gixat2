@@ -8,7 +8,7 @@ namespace GixatBackend.Modules.JobCards.GraphQL;
 /// <summary>
 /// Input for adding a part to a job item
 /// </summary>
-public sealed record AddPartToJobItemInput(
+internal sealed record AddPartToJobItemInput(
     Guid JobItemId,
     Guid InventoryItemId,
     decimal Quantity,
@@ -21,7 +21,7 @@ public sealed record AddPartToJobItemInput(
 /// <summary>
 /// Input for updating a job item part
 /// </summary>
-public sealed record UpdateJobItemPartInput(
+internal sealed record UpdateJobItemPartInput(
     Guid Id,
     decimal? Quantity,
     decimal? UnitPrice,
@@ -33,7 +33,7 @@ public sealed record UpdateJobItemPartInput(
 /// <summary>
 /// Input for adding a labor entry
 /// </summary>
-public sealed record AddLaborEntryInput(
+internal sealed record AddLaborEntryInput(
     Guid JobItemId,
     string TechnicianId,
     DateTime StartTime,
@@ -50,7 +50,7 @@ public sealed record AddLaborEntryInput(
 /// <summary>
 /// Input for updating a labor entry
 /// </summary>
-public sealed record UpdateLaborEntryInput(
+internal sealed record UpdateLaborEntryInput(
     Guid Id,
     DateTime? StartTime,
     DateTime? EndTime,
@@ -67,7 +67,7 @@ public sealed record UpdateLaborEntryInput(
 /// GraphQL mutations for managing parts and labor on job items
 /// </summary>
 [ExtendObjectType(OperationTypeNames.Mutation)]
-public sealed class JobItemPartsAndLaborMutations
+internal sealed class JobItemPartsAndLaborMutations
 {
     #region Part Management
 
@@ -75,7 +75,7 @@ public sealed class JobItemPartsAndLaborMutations
     /// Add a part to a job item
     /// </summary>
     [Authorize]
-    public async Task<JobItemPart> AddPartToJobItemAsync(
+    public static async Task<JobItemPart> AddPartToJobItemAsync(
         AddPartToJobItemInput input,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -139,10 +139,10 @@ public sealed class JobItemPartsAndLaborMutations
     }
 
     /// <summary>
-    /// Update a job item part
+    /// Update a part on a job item
     /// </summary>
     [Authorize]
-    public async Task<JobItemPart> UpdateJobItemPartAsync(
+    public static async Task<JobItemPart> UpdateJobItemPartAsync(
         UpdateJobItemPartInput input,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -204,7 +204,7 @@ public sealed class JobItemPartsAndLaborMutations
     /// Remove a part from a job item
     /// </summary>
     [Authorize]
-    public async Task<bool> RemovePartFromJobItemAsync(
+    public static async Task<bool> RemovePartFromJobItemAsync(
         Guid id,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -242,7 +242,7 @@ public sealed class JobItemPartsAndLaborMutations
     /// Add a labor entry to a job item
     /// </summary>
     [Authorize]
-    public async Task<LaborEntry> AddLaborEntryAsync(
+    public static async Task<LaborEntry> AddLaborEntryAsync(
         AddLaborEntryInput input,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -303,7 +303,7 @@ public sealed class JobItemPartsAndLaborMutations
     /// Update a labor entry
     /// </summary>
     [Authorize]
-    public async Task<LaborEntry> UpdateLaborEntryAsync(
+    public static async Task<LaborEntry> UpdateLaborEntryAsync(
         UpdateLaborEntryInput input,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -348,10 +348,10 @@ public sealed class JobItemPartsAndLaborMutations
     }
 
     /// <summary>
-    /// Clock out a labor entry (set end time to now)
+    /// Clock out of a labor entry (sets EndTime to now)
     /// </summary>
     [Authorize]
-    public async Task<LaborEntry> ClockOutLaborEntryAsync(
+    public static async Task<LaborEntry> ClockOutLaborEntryAsync(
         Guid id,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -386,7 +386,7 @@ public sealed class JobItemPartsAndLaborMutations
     /// Delete a labor entry
     /// </summary>
     [Authorize]
-    public async Task<bool> DeleteLaborEntryAsync(
+    public static async Task<bool> DeleteLaborEntryAsync(
         Guid id,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)

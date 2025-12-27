@@ -12,7 +12,7 @@ namespace GixatBackend.Modules.Customers.GraphQL;
 
 [ExtendObjectType<Customer>]
 [Authorize]
-internal static class CustomerExtensions
+internal sealed class CustomerExtensions
 {
     // Load cars using DataLoader - prevents N+1 queries
     [GraphQLName("cars")]

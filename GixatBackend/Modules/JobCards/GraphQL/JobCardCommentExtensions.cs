@@ -8,7 +8,7 @@ namespace GixatBackend.Modules.JobCards.GraphQL;
 
 [ExtendObjectType<JobCardComment>]
 [Authorize]
-internal static class JobCardCommentExtensions
+internal sealed class JobCardCommentExtensions
 {
     /// <summary>
     /// Load comment author using DataLoader
@@ -118,7 +118,7 @@ internal static class JobCardCommentExtensions
 
 [ExtendObjectType<JobCardCommentMention>]
 [Authorize]
-internal static class JobCardCommentMentionExtensions
+internal sealed class JobCardCommentMentionExtensions
 {
     /// <summary>
     /// Load mentioned user using DataLoader

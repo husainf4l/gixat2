@@ -11,7 +11,7 @@ namespace GixatBackend.Modules.Invites.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
 [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated by HotChocolate")]
-internal static class InviteMutations
+internal sealed class InviteMutations
 {
     [Authorize(Roles = new[] { "OrgAdmin", "OrgManager" })]
     public static async Task<InvitePayload> InviteUserAsync(

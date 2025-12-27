@@ -9,7 +9,7 @@ namespace GixatBackend.Modules.Common.GraphQL
 {
     [ExtendObjectType(OperationTypeNames.Mutation)]
     [Authorize]
-    internal static class MediaMutations
+    internal sealed class MediaMutations
     {
         public static async Task<AppMedia> UploadMediaAsync(
             IFile file,

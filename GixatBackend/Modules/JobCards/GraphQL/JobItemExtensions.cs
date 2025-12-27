@@ -8,7 +8,7 @@ namespace GixatBackend.Modules.JobCards.GraphQL;
 
 [ExtendObjectType<JobItem>]
 [Authorize]
-internal static class JobItemExtensions
+internal sealed class JobItemExtensions
 {
     // Load assigned technician using DataLoader
     [GraphQLName("assignedTechnician")]
@@ -38,7 +38,8 @@ internal static class JobItemExtensions
         ArgumentNullException.ThrowIfNull(jobItem);
         ArgumentNullException.ThrowIfNull(dataLoader);
 
-        return await dataLoader.LoadAsync(jobItem.Id, cancellationToken).ConfigureAwait(false);
+        var result = await dataLoader.LoadAsync(jobItem.Id, cancellationToken).ConfigureAwait(false);
+        return result ?? Array.Empty<JobItemPart>();
     }
 
     // Load labor entries for this job item using DataLoader
@@ -51,6 +52,7 @@ internal static class JobItemExtensions
         ArgumentNullException.ThrowIfNull(jobItem);
         ArgumentNullException.ThrowIfNull(dataLoader);
 
-        return await dataLoader.LoadAsync(jobItem.Id, cancellationToken).ConfigureAwait(false);
+        var result = await dataLoader.LoadAsync(jobItem.Id, cancellationToken).ConfigureAwait(false);
+        return result ?? Array.Empty<LaborEntry>();
     }
 }

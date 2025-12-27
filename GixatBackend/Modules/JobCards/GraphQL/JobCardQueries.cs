@@ -7,7 +7,7 @@ namespace GixatBackend.Modules.JobCards.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Query)]
 [Authorize]
-internal static class JobCardQueries
+internal sealed class JobCardQueries
 {
     [UsePaging]
     [UseFiltering]

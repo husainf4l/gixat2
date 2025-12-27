@@ -8,7 +8,7 @@ namespace GixatBackend.Modules.JobCards.GraphQL;
 /// <summary>
 /// Input for creating a new inventory item
 /// </summary>
-public sealed record CreateInventoryItemInput(
+internal sealed record CreateInventoryItemInput(
     string PartNumber,
     string Name,
     string? Description,
@@ -25,7 +25,7 @@ public sealed record CreateInventoryItemInput(
 /// <summary>
 /// Input for updating an inventory item
 /// </summary>
-public sealed record UpdateInventoryItemInput(
+internal sealed record UpdateInventoryItemInput(
     Guid Id,
     string? PartNumber,
     string? Name,
@@ -44,7 +44,7 @@ public sealed record UpdateInventoryItemInput(
 /// <summary>
 /// Input for adjusting inventory quantity
 /// </summary>
-public sealed record AdjustInventoryInput(
+internal sealed record AdjustInventoryInput(
     Guid InventoryItemId,
     decimal QuantityChange,
     string? Reason
@@ -54,13 +54,13 @@ public sealed record AdjustInventoryInput(
 /// GraphQL mutations for inventory management
 /// </summary>
 [ExtendObjectType(OperationTypeNames.Mutation)]
-public sealed class InventoryMutations
+internal sealed class InventoryMutations
 {
     /// <summary>
     /// Create a new inventory item
     /// </summary>
     [Authorize]
-    public async Task<InventoryItem> CreateInventoryItemAsync(
+    public static async Task<InventoryItem> CreateInventoryItemAsync(
         CreateInventoryItemInput input,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -104,7 +104,7 @@ public sealed class InventoryMutations
     /// Update an existing inventory item
     /// </summary>
     [Authorize]
-    public async Task<InventoryItem> UpdateInventoryItemAsync(
+    public static async Task<InventoryItem> UpdateInventoryItemAsync(
         UpdateInventoryItemInput input,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -155,10 +155,10 @@ public sealed class InventoryMutations
     }
 
     /// <summary>
-    /// Adjust inventory quantity (add or subtract stock)
+    /// Adjust inventory quantity (e.g., for stock takes or corrections)
     /// </summary>
     [Authorize]
-    public async Task<InventoryItem> AdjustInventoryQuantityAsync(
+    public static async Task<InventoryItem> AdjustInventoryQuantityAsync(
         AdjustInventoryInput input,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)
@@ -190,10 +190,10 @@ public sealed class InventoryMutations
     }
 
     /// <summary>
-    /// Delete (deactivate) an inventory item
+    /// Delete an inventory item (soft delete)
     /// </summary>
     [Authorize]
-    public async Task<bool> DeleteInventoryItemAsync(
+    public static async Task<bool> DeleteInventoryItemAsync(
         Guid id,
         ApplicationDbContext context,
         CancellationToken cancellationToken = default)

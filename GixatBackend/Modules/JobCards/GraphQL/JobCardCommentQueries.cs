@@ -8,7 +8,7 @@ namespace GixatBackend.Modules.JobCards.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Query)]
 [Authorize]
-internal static class JobCardCommentQueries
+internal sealed class JobCardCommentQueries
 {
     /// <summary>
     /// Get all comments for a JobCard (chat thread)

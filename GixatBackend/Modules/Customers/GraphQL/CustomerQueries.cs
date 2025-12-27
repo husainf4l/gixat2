@@ -8,7 +8,7 @@ namespace GixatBackend.Modules.Customers.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Query)]
 [Authorize]
-internal static class CustomerQueries
+internal sealed class CustomerQueries
 {
     [UsePaging]
     [UseFiltering(typeof(CustomerFilterType))]

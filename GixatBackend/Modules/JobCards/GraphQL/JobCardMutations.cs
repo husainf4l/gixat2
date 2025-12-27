@@ -15,7 +15,7 @@ namespace GixatBackend.Modules.JobCards.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
 [Authorize]
-internal static class JobCardMutations
+internal sealed class JobCardMutations
 {
     public static async Task<JobCard> CreateJobCardFromSessionAsync(
         Guid sessionId,

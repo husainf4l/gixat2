@@ -11,7 +11,7 @@ namespace GixatBackend.Modules.Appointments.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Mutation)]
 [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated by HotChocolate")]
-internal static class AppointmentMutations
+internal sealed class AppointmentMutations
 {
     /// <summary>
     /// Create a new appointment

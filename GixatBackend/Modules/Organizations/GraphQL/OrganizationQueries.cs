@@ -9,7 +9,7 @@ namespace GixatBackend.Modules.Organizations.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Query)]
 [Authorize]
-internal static class OrganizationQueries
+internal sealed class OrganizationQueries
 {
     [UseProjection]
     [UseFiltering]

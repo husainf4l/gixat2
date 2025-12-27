@@ -8,7 +8,7 @@ namespace GixatBackend.Modules.Users.GraphQL;
 [ExtendObjectType(typeof(ApplicationUser))]
 [Authorize]
 [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated by HotChocolate")]
-internal static class UserExtensions
+internal sealed class UserExtensions
 {
     public static async Task<IList<string>> GetRolesAsync(
         [Parent] ApplicationUser user,

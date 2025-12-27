@@ -12,7 +12,7 @@ namespace GixatBackend.Modules.Users.GraphQL;
 [ExtendObjectType(OperationTypeNames.Query)]
 [Authorize]
 [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "HotChocolate resolvers cannot be static")]
-internal static class UserProfileQueries
+internal sealed class UserProfileQueries
 {
     /// <summary>
     /// Get current authenticated user's profile

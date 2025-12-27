@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace GixatBackend.Modules.Common.GraphQL;
 
 [ExtendObjectType(OperationTypeNames.Query)]
-internal static class HealthCheckQueries
+internal sealed class HealthCheckQueries
 {
     /// <summary>
     /// Get comprehensive system health status with version information
